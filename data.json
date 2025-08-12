@@ -1,0 +1,50 @@
+$data=array(
+    "Subject" => "24169561",//Asunto
+    "CustomerCode" => "C0189618",//codigo de interlocutor comercial
+    "CustomerName" => "JUAN GUILLERMO ARANGO",//Nombre interlocutor comercial
+    "ContactCode" => 0,//persona de contacto
+    "InternalSerialNum" => null,//número de serie
+    "ItemCode" => "404952",//artículo
+    "ItemDescription" => "PORTATIL ASUS F1504ZA-NJ788W I3-1215U",//Descripcion articulo
+    "ItemGroupCode" => 1122,//creo que gama hay que comprobarlo
+    "Status" => -3,//estado de llamada (-3 abierto)
+    "AssigneeCode" => 31,
+    "Description" => "FECHA DE COMPRA 28/09/2024\rLA BATERIA DEL PORTATIL DURA MUY POCO.\rENTREGA PORTATIL CON LA CAJA ORIGINAL",//(P Comentario) valor
+    "Origin" => 1,//(P GENERAL)Origen
+    "TechnicianCode" => 5,//(P General) Técnico
+    "Resolution" => "TLF ALT. - 643076471\r10/10/24  CLIENTA LLAMA SOLICITANDO INFORMACION.\r14/10/24 EL CLIENTE RECOGE PRODUCTO",//(P Resolución) valor
+    "DocNum" => 14,
+    "ServiceBPType" => "srvcSales",// clase de llamada de servicio
+    "BPContactPerson" => "",//(P Interlocutor comercial)persona de contacto
+    "BPPhone1" => "643076350",//(P Interlocutor comercial)teléfono1
+    "BPPhone2" => null,//(P Interlocutor comercial)teléfono 2
+    "BPCellular" => null,//(P Interlocutor comercial)teléfono móvil
+    "BPFax" => null,//(P Interlocutor comercial)fax
+    "BPeMail" => null,//(P Interlocutor comercial)
+    "BPShipToCode" => "DIRECCIÓN 1",//(P Interlocutor comercial)enviar a
+    "BPShipToAddress" => "35600  PUERTO DEL ROSARIO\rESPAÑA",//(P Interlocutor comercial)enviar a => valor
+    "BPBillToCode" => "FACTURACIÓN",//(P Interlocutor comercial) destinatario de la factura
+    "BPBillToAddress" => "C/ DON QUIJOTE, Nº 56\r35600  PUERTO DEL ROSARIO\rESPAÑA",//(P Interlocutor comercial) destinatario de la factura => Valor
+    "Telephone" => "643076350",//Nºteléfono
+    "U_H8_SerieEurowin" => "s7n0cv04r824278",//Nº serie Eurowin(cliente contacto)
+    "U_H8_Clientecontado" => null,
+    "U_H8_Nombre" => null,//nombre contacto(cliente contacto)
+    "U_H8_NIF" => null,//DNI(cliente contacto)
+    "U_H8_Telefono" => null,//nº de teléfono(cliente contacto)
+    "U_H8_RMA" => null,//R.M.A(cliente contacto)
+    "U_H8_MOTIVO" => "DEV",//a  servicio técnico
+    "ServiceCallBPAddressComponents" => [
+        [
+            "ShipToCity" => "PUERTO DEL ROSARIO",
+            "ShipToZipCode" => "35600",
+            "ShipToCounty" => "LAS PALMAS",
+            "ShipToCountry" => "ES",
+            "ShipToAddressType" => "B",
+            "BillToStreet" => "C/ DON QUIJOTE, Nº 56",
+            "BillToCity" => "PUERTO DEL ROSARIO",
+            "BillToZipCode" => "35600",
+            "BillToCounty" => "LAS PALMAS",
+            "BillToCountry" => "ES",
+        ]
+    ]
+);
