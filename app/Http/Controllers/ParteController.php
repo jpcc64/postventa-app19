@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Services\SapService;
 
 class ParteController extends Controller
 {
@@ -43,16 +43,16 @@ class ParteController extends Controller
         $term = str_replace("'", "''", $term);
 
         $sql = <<<EOT
-        SELECT TOP 15 "CardCode", "CardName", "LicTradNum", "Phone1"
-        FROM OPENQUERY(HANA, '
-            SELECT "CardCode", "CardName", "LicTradNum", "Phone1"
-            FROM "SBO_TEST_PREFACIERRE"."OCRD"
-            WHERE "CardCode" LIKE ''$term%'' 
-               OR "CardName" LIKE ''%$term%'' 
-               OR "LicTradNum" LIKE ''%$term%''
-            ORDER BY "CardName" ASC
-        ')
-    EOT;
+       SELECT TOP 15 "CardCode", "CardName", "LicTradNum", "Phone1"
+       FROM OPENQUERY(HANA, '
+           SELECT "CardCode", "CardName", "LicTradNum", "Phone1"
+           FROM "SBO_TEST_PREFACIERRE"."OCRD"
+           WHERE "CardCode" LIKE ''$term%'' 
+              OR "CardName" LIKE ''%$term%'' 
+              OR "LicTradNum" LIKE ''%$term%''
+           ORDER BY "CardName" ASC
+       ')
+     EOT;
 
         $result = DB::select($sql);
         return response()->json($result);
@@ -61,185 +61,152 @@ class ParteController extends Controller
 
     private function consultarClientes($busqueda)
     {
-        $busqueda = str_replace("'", "''", $busqueda);
+           $busqueda = str_replace("'", "''", $busqueda);
 
-        $sql = <<<EOT
-            SELECT CardCode, CardName, LicTradNum, Phone1, Phone2, E_Mail, MailAddres, City, Country
-            FROM OPENQUERY(HANA, '
-                SELECT "CardCode", "CardName", "LicTradNum", "Phone1", "Phone2", "E_Mail", "MailAddres", "City", "Country"
-                FROM "SBO_TEST_PREFACIERRE"."OCRD"
-                WHERE "CardCode" LIKE ''%$busqueda%''
-                   OR "CardName" LIKE ''%$busqueda%''
-                   OR "LicTradNum" LIKE ''%$busqueda%''
-            ')
-        EOT;
+           $sql = <<<EOT
+               SELECT CardCode, CardName, LicTradNum, Phone1, Phone2, E_Mail, MailAddres, City, Country
+               FROM OPENQUERY(HANA, '
+                   SELECT "CardCode", "CardName", "LicTradNum", "Phone1", "Phone2", "E_Mail", "MailAddres", "City", "Country"
+                   FROM "SBO_TEST_PREFACIERRE"."OCRD"
+                   WHERE "CardCode" LIKE ''%$busqueda%''
+                      OR "CardName" LIKE ''%$busqueda%''
+                      OR "LicTradNum" LIKE ''%$busqueda%''
+                ')
+           EOT;
+           return DB::select($sql);
 
-
-        return DB::select($sql);
     }
 
     private function consultarPartes($customer)
     {
-        return DB::select(<<<EOT
-            SELECT callID, customer, custmrName, contctCode, internalSN, itemCode, itemName, itemGroup, status, assignee, descrption, origin, technician,
-            resolution, DocNum, BPType, BPContact, BPPhone1, BPPhone2, BPCellular, BPFax, BPE_Mail, BPShipCode, BPShipAddr, BPBillCode, BPBillAddr, Telephone,
-            U_H8_SerieEurowin, U_H8_Clientecontado, U_H8_Nombre, U_H8_NIF, U_H8_Telefono, U_H8_RMA, U_H8_MOTIVO
-            FROM OPENQUERY(HANA, '
-                SELECT * FROM "SBO_TEST_PREFACIERRE".OSCL
-            ')
-            WHERE customer = ?
-        EOT, [$customer]);
+        //        return DB::select(<<<EOT
+//           SELECT callID, customer, custmrName, contctCode, internalSN, itemCode, itemName, itemGroup, status, assignee, descrption, origin, technician,
+//            resolution, DocNum, BPType, BPContact, BPPhone1, BPPhone2, BPCellular, BPFax, BPE_Mail, BPShipCode, BPShipAddr, BPBillCode, BPBillAddr, Telephone,
+//            U_H8_SerieEurowin, U_H8_Clientecontado, U_H8_Nombre, U_H8_NIF, U_H8_Telefono, U_H8_RMA, U_H8_MOTIVO
+//            FROM OPENQUERY(HANA, '
+//                SELECT * FROM "SBO_TEST_PREFACIERRE".OSCL
+//            ')
+//            WHERE customer = ?
+//        EOT, [$customer]);
+
+        $accion = "consultar_ServiceCalls";
+        $data = array(
+            //  "select" => "ServiceCallID,Subject,CustomerCode,",//Asunto
+            "where" => "CustomerCode eq '$customer'",//codigo de interlocutor comercial
+            "order" => "ServiceCallID",//Nombre interlocutor comercial
+
+        );
+
+        Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            'json' => json_encode([
+                'accion' => $accion,
+                'usuario' => 'dani',
+                'datos' => $data
+            ])
+        ]);
+
+        $body = json_decode($response->body(), true);
+        return ($body['value']);
+
     }
 
     public function showParte($callID)
     {
 
-        $parte = DB::select(<<<EOT
-            SELECT callID, customer, custmrName, contctCode, internalSN, itemCode, itemName, itemGroup, status, assignee, descrption, origin, technician,
-            resolution, DocNum, BPType, BPContact, BPPhone1, BPPhone2, BPCellular, BPFax, BPE_Mail, BPShipCode, BPShipAddr, BPBillCode, BPBillAddr, Telephone,
-            U_H8_SerieEurowin, U_H8_Clientecontado, U_H8_Nombre, U_H8_NIF, U_H8_Telefono, U_H8_RMA, U_H8_MOTIVO
+        //    $parte = DB::select(<<<EOT
+        //    SELECT callID, customer, custmrName, contctCode, internalSN, itemCode, itemName, itemGroup, status, assignee, descrption, origin, technician,
+        //        resolution, DocNum, BPType, BPContact, BPPhone1, BPPhone2, BPCellular, BPFax, BPE_Mail, BPShipCode, BPShipAddr, BPBillCode, BPBillAddr, Telephone,
+        //        U_H8_SerieEurowin, U_H8_Clientecontado, U_H8_Nombre, U_H8_NIF, U_H8_Telefono, U_H8_RMA, U_H8_MOTIVO
+        //        FROM OPENQUERY(HANA, '
+        //            SELECT * FROM "SBO_TEST_PREFACIERRE".OSCL
+        //        ')
+        //        WHERE callID = ?
+        //    EOT, [$callID]);
+        //    if (empty($parte)) {
+        //        return redirect()->back()->with('error', 'Parte no encontrado');
+        //    }
+
+        //    $parte = $parte[0]; // Aquí lo convertimos en objeto único
+        //    $cliente = $this->consultarClientes($parte->customer);
+
+        //    return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte]);
+        $accion = "consultar_ServiceCalls";
+        $data = array(
+            //"select" => "ServiceCallID,Subject,CustomerCode,",//Asunto
+            "where" => "ServiceCallID eq $callID",//codigo de parte
+            "order" => "ServiceCallID",//Nombre interlocutor comercial
+        );
+        Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            'json' => json_encode([
+                'accion' => $accion,
+                'usuario' => 'dani',
+                'datos' => $data
+            ])
+        ]);
+        $response = json_decode($response->body(), true);
+        $parte = $response['value'][0];
+        $cliente = $this->consultarClientes($parte['CustomerCode']);
+        return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte]);
+
+    }
+
+    private function consultarCallID($DocNum)
+    {
+        return DB::select(<<<EOT
+            SELECT callID
             FROM OPENQUERY(HANA, '
                 SELECT * FROM "SBO_TEST_PREFACIERRE".OSCL
             ')
-            WHERE callID = ?
-        EOT, [$callID]);
-        if (empty($parte)) {
-            return redirect()->back()->with('error', 'Parte no encontrado');
-        }
-
-        $parte = $parte[0];
-        $cliente = $this->consultarClientes($parte->customer);
-
-        return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte]);
+            WHERE DocNum = ?
+        EOT, [$DocNum]);
     }
 
 
-        protected $sapService; //variable para llamada a la api de SAP
 
-    // Inyectamos el servicio en el constructor
-    public function __construct(SapService $sapService)
-    {
-        $this->sapService = $sapService;
-    }
-
-    /**
-     * Gestiona tanto la creación como la modificación de partes.
-     */
     public function crear(Request $request)
     {
-        $formData = $request->except('_token');
+        $datos = $request->all();
+        $accion = (empty($datos['callID']) && empty($datos['DocNum']))
+            ? 'crear_ServiceCalls'
+            : 'modificar_ServiceCalls';
 
-        $esCreacion = empty($formData['callID']) && empty($formData['DocNum']);
-        $accion = $esCreacion ? 'crear' : 'modificar';
-
-
-        // Preparamos los datos con el formato que SAP necesita
-        $sapData = $this->preparaDatosSap($formData);
         try {
-            Log::info("Intentando {$accion} en SAP", ['datos_enviados' => $sapData]);
-
-            if ($esCreacion) {
-                $resultado = $this->sapService->createServiceCall($sapData);
-            } else {
-                $callID = $formData['callID'];
-                $resultado = $this->sapService->updateServiceCall($callID, $sapData);
-            }
-
-            Log::info('Respuesta de SAP Service Layer', ['resultado' => $resultado]);
-
-            if (isset($resultado['error'])) {
-                $errorMessage = $resultado['error']['message']['value'] ?? 'Error desconocido de SAP.';
-                return back()->withInput()->withErrors(['api_error' => $errorMessage]);
-            }
-
-            return redirect()->route('parte')
-                ->with('success', $accion === 'crear' ? 'Parte creado correctamente.' : "Parte modificado correctamente.");
-
-        } catch (\Exception $e) {
-            Log::error('Excepción al comunicar con SAP', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $datos]);
+            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+                'json' => json_encode([
+                    'accion' => $accion,
+                    'usuario' => 'dani',
+                    'datos' => $datos
+                ])
             ]);
-            return back()->withInput()->withErrors(['exception' => 'Excepción del sistema: ' . $e->getMessage()]);
-        }
-    }
 
-    /**
-     * Transforma los datos planos del formulario a la estructura que SAP espera.
-     */
-    private function preparaDatosSap(array $formData): array
-    {
-        $sapData = [];
-
-        // --- Mapeo de campos principales ---
-        $mapeoCampos = [
-            'Subject',
-            'CustomerCode',
-            'CustomerName',
-            'ContactCode',
-            'InternalSerialNum',
-            'ItemCode',
-            'ItemDescription',
-            'ItemGroupCode',
-            'Status',
-            'Description',
-            'Origin',
-            'TechnicianCode',
-            'Resolution',
-            'ServiceBPType',
-            'BPContactPerson',
-            'BPPhone1',
-            'BPPhone2',
-            'BPCellular',
-            'BPFax',
-            'BPeMail',
-            'BPShipToCode',
-            'BPShipToAddress',
-            'BPBillToCode',
-            'BPBillToAddress',
-            'Telephone',
-            'U_H8_SerieEurowin',
-            'U_H8_Clientecontado',
-            'U_H8_Nombre',
-            'U_H8_NIF',
-            'U_H8_Telefono',
-            'U_H8_RMA',
-            'U_H8_MOTIVO'
-        ];
-
-        foreach ($mapeoCampos as $campo) {
-            if (isset($formData[$campo])) {
-                $sapData[$campo] = $formData[$campo];
+            $body = $response->body();
+            Log::info('Respuesta de SAP', ['body' => $body]);
+            if ($response->successful() && !str_contains($body, '"error"')) {
+                return back()->with([
+                    'success' => $accion == 'crear_ServiceCalls' ? 'Parte creado correctamente.' : 'Parte modificado correctamente.',
+                    'parte' => $datos,
+                    'resultado' => $body
+                ]);
             }
+
+            Log::error('Error de SAP', ['body' => $body]);
+            return back()->withErrors([
+                'api_error' => 'Error de SAP: ' . $this->extraerMensajeErrorSAP($body)
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Excepción al enviar a SAP', ['exception' => $e->getMessage()]);
+            return back()->withErrors([
+                'exception' => 'Excepción: ' . $e->getMessage()
+            ]);
         }
-
-        // --- Construcción del bloque de dirección anidado ---
-        $addressEntry = [];
-        $mapeoDireccion = [
-            'BPShipToStreet' => 'ShipToStreet',
-            'BPShipToCity' => 'ShipToCity',
-            'BPShipToZipCode' => 'ShipToZipCode',
-            'BPShipToCounty' => 'ShipToCounty',
-            'BPShipToCountry' => 'ShipToCountry',
-        ];
-
-        foreach ($mapeoDireccion as $formKey => $sapKey) {
-            if (isset($formData[$formKey])) {
-                $addressEntry[$sapKey] = $formData[$formKey];
-            }
-        }
-
-        // Solo añadimos el sub-array si contiene al menos un dato.
-        if (!empty($addressEntry)) {
-            $sapData['ServiceCallBPAddressComponents'][] = $addressEntry;
-        }
-
-        return $sapData;
     }
     private function extraerMensajeErrorSAP($body)
     {
         $decoded = json_decode($body, true);
-        dd($decoded['resultado']);
+        // dd($decoded['resultado']);
 
         if (isset($decoded['resultado']['error']['message']['value'])) {
             return $decoded['resultado']['error']['message']['value'];

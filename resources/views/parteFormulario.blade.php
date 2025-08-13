@@ -79,25 +79,26 @@
     </div>
 
     @if(isset($partes))
+
         <div>
             <h3 class="text-lg font-semibold mb-2 underline text-center col-span-3">Selecciona el parte</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 @foreach($partes as $parte)
-                    <div class="col-span-1">
-                        <div class="p-6 border border-gray-300 rounded grid shadow mb-6">
-                            <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte->callID }}</h3>
-                            <p>{{ $parte->U_H8_Nombre}}</p>
-                            <p>{{ $parte->itemName }}</p>
-                            <p>{{ $parte->descrption }}</p>
-                            <form method="GET" action="{{ route('parte.formulario', $parte->callID) }}">
-                                <button type="submit"
-                                    class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 rounded mb-4">
-                                    Seleccionar
-                                </button>
-                            </form>
+                                        <div class="col-span-1">
+                            <div class="p-6 border border-gray-300 rounded grid shadow mb-6">
+                                <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['ServiceCallID'] }}</h3>
+                                <p>{{ $parte['U_H8_Nombre'] }}</p>
+                                <p>{{ $parte['ItemDescription'] }}</p>
+                                <p>{{ $parte['Description'] }}</p>
+                                <form method="GET" action="{{ route('parte.formulario', $parte['ServiceCallID']) }}">
+                                    <button type="submit"
+                                        class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 rounded mb-4">
+                                        Seleccionar
+                                    </button>
+                                </form>
 
+                            </div>
                         </div>
-                    </div>
                 @endforeach
                 <!-- si quiere crear uno desde 0 solo rellena la primera columna -->
                 <div class="col-span-1">
@@ -135,59 +136,3 @@
         </form>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('#busquedaCliente').on('input', function () {
-            let query = $(this).val();
-
-            if (query.length >= 4) {
-                $.ajax({
-                    url: '{{ route("buscar.sugerencias") }}',
-                    type: 'GET',
-                    data: { term: query },
-                    success: function (data) {
-                        let sugerencias = $('#sugerencias');
-                        sugerencias.empty();
-
-                        if (data.length > 0) {
-                            data.forEach(function (item) {
-                                sugerencias.append(`
-                                    <div class="sugerencia cursor-pointer px-4 py-2 hover:bg-blue-100 transition-all border-b border-gray-200"
-                                        data-id="${item.CardCode}">
-                                        <div class="font-semibold text-sm text-gray-800">${item.CardName}</div>
-                                        <div class="text-xs text-gray-500">${item.LicTradNum} - ${item.Phone1}</div>
-                                    </div>
-                                `);
-                            });
-
-                            // Evento al hacer click en sugerencia
-                            $('.sugerencia').on('click', function (e) {
-                                e.preventDefault();
-                                let cardCode = $(this).data('id');
-                                $('#busquedaCliente').val(cardCode);
-                                $('#sugerencias').empty();
-                            });
-                        }
-                    }
-                });
-            } else {
-                $('#sugerencias').empty();
-            }
-        });
-
-        // Click en una parte del modal
-        $(document).on('click', '.parte-btn', function () {
-            let callID = $(this).data('callid');
-            console.log(callID);
-            window.location.href = '/parte/formulario/' + callID;
-        });
-
-        // Cerrar modal al hacer click fuera
-        $(document).on('click', function (e) {
-            if ($(e.target).is('#modalPartes')) {
-                $('#modalPartes').addClass('hidden');
-            }
-        });
-    });
-</script>
