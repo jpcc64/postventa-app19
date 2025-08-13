@@ -136,3 +136,59 @@
         </form>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#busquedaCliente').on('input', function () {
+            let query = $(this).val();
+
+            if (query.length >= 4) {
+                $.ajax({
+                    url: '{{ route("buscar.sugerencias") }}',
+                    type: 'GET',
+                    data: { term: query },
+                    success: function (data) {
+                        let sugerencias = $('#sugerencias');
+                        sugerencias.empty();
+
+                        if (data.length > 0) {
+                            data.forEach(function (item) {
+                                sugerencias.append(`
+                                    <div class="sugerencia cursor-pointer px-4 py-2 hover:bg-blue-100 transition-all border-b border-gray-200"
+                                        data-id="${item.CardCode}">
+                                        <div class="font-semibold text-sm text-gray-800">${item.CardName}</div>
+                                        <div class="text-xs text-gray-500">${item.LicTradNum} - ${item.Phone1}</div>
+                                    </div>
+                                `);
+                            });
+
+                            // Evento al hacer click en sugerencia
+                            $('.sugerencia').on('click', function (e) {
+                                e.preventDefault();
+                                let cardCode = $(this).data('id');
+                                $('#busquedaCliente').val(cardCode);
+                                $('#sugerencias').empty();
+                            });
+                        }
+                    }
+                });
+            } else {
+                $('#sugerencias').empty();
+            }
+        });
+
+        // Click en una parte del modal
+        $(document).on('click', '.parte-btn', function () {
+            let callID = $(this).data('callid');
+            console.log(callID);
+            window.location.href = '/parte/formulario/' + callID;
+        });
+
+        // Cerrar modal al hacer click fuera
+        $(document).on('click', function (e) {
+            if ($(e.target).is('#modalPartes')) {
+                $('#modalPartes').addClass('hidden');
+            }
+        });
+    });
+</script>
