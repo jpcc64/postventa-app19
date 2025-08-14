@@ -37,6 +37,12 @@ class ParteController extends Controller
             ->with('success', 'Parte encontrado para el cliente.');
     }
 
+    public function nuevoParte($id)
+    {
+        $cliente = $this->consultarClientes($id);
+        return view('parteFormulario', ['cliente' => $cliente[0]]);
+    }
+
     public function sugerencias(Request $request)
     {
         $term = strtoupper(trim($request->get('term')));
@@ -61,19 +67,19 @@ class ParteController extends Controller
 
     private function consultarClientes($busqueda)
     {
-           $busqueda = str_replace("'", "''", $busqueda);
+        $busqueda = str_replace("'", "''", $busqueda);
 
-           $sql = <<<EOT
-               SELECT CardCode, CardName, LicTradNum, Phone1, Phone2, E_Mail, MailAddres, City, Country
+        $sql = <<<EOT
+               SELECT CardCode, CardName, LicTradNum, Phone1, Phone2, E_Mail, MailAddres, City, Country, 
                FROM OPENQUERY(HANA, '
                    SELECT "CardCode", "CardName", "LicTradNum", "Phone1", "Phone2", "E_Mail", "MailAddres", "City", "Country"
                    FROM "SBO_TEST_PREFACIERRE"."OCRD"
                    WHERE "CardCode" LIKE ''%$busqueda%''
                       OR "CardName" LIKE ''%$busqueda%''
-                      OR "LicTradNum" LIKE ''%$busqueda%''
+                      OR "Phone1" LIKE ''%$busqueda%''
                 ')
            EOT;
-           return DB::select($sql);
+        return DB::select($sql);
 
     }
 

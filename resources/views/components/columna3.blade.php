@@ -49,16 +49,16 @@
 
 
     <div class="flex justify-end">
-        <button type="button" id="limpiarFormulario"
-            class="mb-4 bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 px-6 mx-3"
-            onclick="window.location.href='{{ route('parte') }}';">
-            Limpiar
-        </button>
+
         <button type="submit" id="buscarCliente"
             class="mb-4 bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 px-6 mx-3"
             onclick="this.disabled=true; this.innerText='Guardando...'; this.form.submit();">
             Guardar
         </button>
-
+        <button type="button" id="limpiarFormulario"
+            class="mb-4 bg-rose-600 hover:bg-rose-700 text-white rounded-lg py-3 px-6 mx-3"
+            onclick="window.location.href='{{ route('parte') }}';">
+            Cancelar
+        </button>
     </div>
 </div>

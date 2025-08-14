@@ -1,11 +1,13 @@
+<div x-data="{ tab: 'general' }" class="rounded grid  mb-6 w-50">
+
 <div class="w-full col-span-3">
     <div class="mb-6 ">
         <div class="flex border-b mb-4">
-            <button type="button" @click="tab = 'interlocutor'"
+            <!-- <button type="button" @click="tab = 'interlocutor'"
                 :class="tab === 'interlocutor' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
                 class="px-4 py-2">
                 Interlocutor
-            </button>
+            </button> -->
             <button type="button" @click="tab = 'general'"
                 :class="tab === 'general' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
                 class="px-4 py-2">
@@ -23,7 +25,7 @@
             </button>
         </div>
 
-        <div x-show="tab === 'interlocutor'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-4 gap-4">
+        <!-- <div x-show="tab === 'interlocutor'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-4 gap-4">
             <div class="mt-4">
                 <label class="block text-sm font-medium mb-1">Telefono</label>
                 <input type="text" name="BPPhone2"
@@ -64,13 +66,6 @@
                     class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                     focus:ring-blue-200 focus:ring-opacity-50" value="{{ $parte['BPBillAddr'] ?? '' }}">
             </div>
-
-            <div>
-                <label class="block text-sm font-medium mb-1">Teléfono Móvil</label>
-                <input type="text" name="BPCellular"
-                    class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    focus:ring-blue-200 focus:ring-opacity-50" value="{{ $parte['BPCellular'] ?? '' }}">
-            </div>
             <div class="col-span-4">
                 <h4 class="text-md font-semibold mt-4 mb-2 underline">Dirección de Envío</h4>
             </div>
@@ -108,7 +103,7 @@
             </div>
 
 
-        </div>
+        </div> -->
 
         <div x-show="tab === 'general'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-3 gap-4">
             <div class="mt-4">
