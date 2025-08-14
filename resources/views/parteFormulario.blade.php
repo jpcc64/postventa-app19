@@ -8,7 +8,6 @@
     </button>
 </a>
 
-<div x-data="{ tab: 'interlocutor' }" class="rounded grid shadow mb-6 w-50">
     {{-- Bloque para mostrar mensajes de éxito y error --}}
     @if (session('success'))
         <div id="alertaSuccess"
@@ -79,17 +78,35 @@
     </div>
 
     @if(isset($partes))
+
         <div>
             <h3 class="text-lg font-semibold mb-2 underline text-center col-span-3">Selecciona el parte</h3>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <!-- si quiere crear uno desde 0 solo rellena la primera columna -->
+                <div class="col-span-1">
+                    <div class="p-4 border border-gray-300 rounded grid shadow mb-6 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold mb-2">Crear nuevo parte</h3>
+                            <p>Si no encuentras el parte que buscas, puedes crear uno nuevo.</p>
+                        </div>
+                        <form method="POST" action="{{ route('parte.nuevo', $cliente->CardCode) }}">
+                            @csrf
+                            <button type="submit"
+                                class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 mt-4 rounded ">
+                                Crear Parte
+                            </button>
+                        </form>
+                    </div>
+                </div>
                 @foreach($partes as $parte)
                     <div class="col-span-1">
                         <div class="p-6 border border-gray-300 rounded grid shadow mb-6">
-                            <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte->callID }}</h3>
-                            <p>{{ $parte->U_H8_Nombre}}</p>
-                            <p>{{ $parte->itemName }}</p>
-                            <p>{{ $parte->descrption }}</p>
-                            <form method="GET" action="{{ route('parte.formulario', $parte->callID) }}">
+                            <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['ServiceCallID'] }}</h3>
+                            <p>{{ $parte['U_H8_Nombre'] }}</p>
+                            <p>{{ $parte['ItemDescription'] }}</p>
+                            <p>{{ $parte['Description'] }}</p>
+                            <form method="GET" action="{{ route('parte.formulario', $parte['ServiceCallID']) }}">
                                 <button type="submit"
                                     class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 rounded mb-4">
                                     Seleccionar
@@ -99,21 +116,7 @@
                         </div>
                     </div>
                 @endforeach
-                <!-- si quiere crear uno desde 0 solo rellena la primera columna -->
-                <div class="col-span-1">
-                    <div class="p-4 border border-gray-300 rounded grid shadow mb-6 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Crear nuevo parte</h3>
-                            <p>Si no encuentras el parte que buscas, puedes crear uno nuevo.</p>
-                        </div>
-                        <form method="GET" action="{{ route('parte') }}">
-                            <button type="submit"
-                                class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 mt-4 rounded ">
-                                Crear Parte
-                            </button>
-                        </form>
-                    </div>
-                </div>
+
             </div>
         </div>
     @endif
