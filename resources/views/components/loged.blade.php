@@ -60,36 +60,32 @@
                 <tbody class="divide-y divide-slate-200">
                     <tr class="hover:bg-slate-100 transition duration-300 ease-in-out">
 
-                        <td class="px-4 py-3 text-sm text-gray-900">{{ $clientes->DocNum }}</td>
-                        @if($clientes->custmrName)
-                            <td class="px-4 py-3 text-sm text-gray-900">{{ $clientes->custmrName }}</td>
-                        @else
-                            <td class="px-4 py-3 text-sm text-gray-900">{{ $clientes->U_H8_Nombre }}</td>
-                        @endif
-                        <td class="px-4 py-3 text-sm text-gray-900">{{ $clientes->itemName }}</td>
-                        <td class="px-4 py-3 text-sm text-gray-900">{{ $clientes->Telephone }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900">{{ $clientes['ServiceCallID'] }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900">{{ $clientes['CustomerName'] }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900">{{ $clientes['ItemDescription'] }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900">{{ $clientes['Telephone'] }}</td>
                         <td class="px-4 py-3 text-sm text-gray-900">
-                            @if($clientes->status == '-1')
+                            @if($clientes['Status'] == '-1')
                                 <p class="bg-red-500 text-white px-2 py-1 rounded">Cerrado</p>
-                            @elseif($clientes->status == '-3')
+                            @elseif($clientes['Status'] == '-3')
                                 <p class="bg-green-500 text-white px-2 py-1 rounded">Abierto</p>
-                            @elseif($clientes->status == '-2')
+                            @elseif($clientes['Status'] == '-2')
                                 <p class="bg-yellow-500 text-white px-2 py-1 rounded">Pendiente</p>
                             @else
-                                {{ $clientes->status }}
+                                {{ $clientes['Status'] }}
                             @endif
                         </td>
                         <td class="flex justify-around m-4">
-                            <form action="{{ route('avisar', trim($clientes->DocNum)) }}" method="post">
+                            <form action="{{ route('avisar', trim($clientes['ServiceCallID'])) }}" method="post">
                                 @csrf
                                 <button
                                     class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg hover:bg-emerald-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-400">
                                     Pedido listo
                                 </button>
                             </form>
-                            <a href="{{ route('clientes.show', trim($clientes->DocNum)) }}"
+                            <a href="{{ route('parte.formulario', trim($clientes['ServiceCallID'])) }}"
                                 class="bg-rose-600 text-white px-5 py-2.5 rounded-lg hover:bg-rose-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-rose-400">
-                                Ver cliente
+                                Ver parte
                             </a>
                         </td>
                     </tr>

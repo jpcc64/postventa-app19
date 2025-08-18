@@ -3,27 +3,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
 class ProductoController extends Controller
 {
     public function consultarProductos(Request $request)
     {
-        $term = $request->input('codigoProducto', '');
+        $term = strtoupper(trim($request->get('term')));
+        $term = str_replace("'", "''", $term);
 
-        // CORREGIDO: Sintaxis de tabla estándar para SQL Server [dbo].[NYS_PRODUCT]
-        $sql = <<<EOT
-        SELECT CODIGO_PRODUCTO, NOMBRE_PRODUCTO, CODIGO_FAMILIA
-        FROM [dbo].[NYS_PRODUCT]
-        WHERE CODIGO_PRODUCTO LIKE :term 
-           OR NOMBRE_PRODUCTO LIKE :term
-           OR CODIGO_FAMILIA LIKE :term
-        EOT;
-        dd($sql);
-        // Pasamos el término de búsqueda con los comodines '%'
-        $productos = DB::select($sql, ['term' => '%' . $term . '%']);
+        $accion = "consultar_Items";
+        $data = array(
+            "where" => "substringof('$term', ItemCode ) or substringof('$term', ItemName )",//codigo de interlocutor comercial
+        );
 
-        return response()->json($productos);
+        Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            'json' => json_encode([
+                'accion' => $accion,
+                'usuario' => 'dani',
+                'datos' => $data
+            ])
+        ]);
+        $result = json_decode($response->body(), true);
+        Log::info('Resultados de la busqueda: ', ['datos' => $result['value']]);
+        return $result['value'][0] ?? null; // Retorna el primer resultado o null si no hay resultados
     }
 }

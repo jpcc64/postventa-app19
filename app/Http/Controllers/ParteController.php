@@ -16,17 +16,17 @@ class ParteController extends Controller
 
     public function buscar(Request $request)
     {
-        $id = $request->input('id');
+        $id = $request->input('buscar');
         if ($id == null) {
-            return back()->with('error', 'No se encontró ningún cliente.');
+            return back()->with('error', 'No se buscó ningún cliente.');
         }
         $busqueda = strtoupper(trim($id));
         $clientes = $this->consultarClientes($busqueda);
         if (empty($clientes)) {
             return back()->with('error', 'No se encontró ningún cliente.');
         }
-
-        $partes = $this->consultarPartes($clientes[0]->CardCode);
+    //    dd($clientes[0]['CardCode']);
+        $partes = $this->consultarPartes($clientes[0]['CardCode']);
         if (count($partes) >= 2) {
             // si tiene 2 o mas partes saltará el model para elegir que parte usa
             return view('parteFormulario', ['cliente' => $clientes[0], 'partes' => $partes])
@@ -40,14 +40,14 @@ class ParteController extends Controller
     public function nuevoParte($id)
     {
         $cliente = $this->consultarClientes($id);
-        return view('parteFormulario', ['cliente' => $cliente[0]]);
+       // dd($cliente);
+        return view('parteFormulario', ['clientes' => $cliente[0]]);
     }
 
     public function sugerencias(Request $request)
     {
         $term = strtoupper(trim($request->get('term')));
         $term = str_replace("'", "''", $term);
-
         $sql = <<<EOT
        SELECT TOP 15 "CardCode", "CardName", "LicTradNum", "Phone1"
        FROM OPENQUERY(HANA, '
@@ -67,19 +67,38 @@ class ParteController extends Controller
 
     private function consultarClientes($busqueda)
     {
-        $busqueda = str_replace("'", "''", $busqueda);
+         $busqueda = str_replace("'", "''", $busqueda);
 
-        $sql = <<<EOT
-               SELECT CardCode, CardName, LicTradNum, Phone1, Phone2, E_Mail, MailAddres, City, Country, 
-               FROM OPENQUERY(HANA, '
-                   SELECT "CardCode", "CardName", "LicTradNum", "Phone1", "Phone2", "E_Mail", "MailAddres", "City", "Country"
-                   FROM "SBO_TEST_PREFACIERRE"."OCRD"
-                   WHERE "CardCode" LIKE ''%$busqueda%''
-                      OR "CardName" LIKE ''%$busqueda%''
-                      OR "Phone1" LIKE ''%$busqueda%''
-                ')
-           EOT;
-        return DB::select($sql);
+        // $sql = <<<EOT
+        //        SELECT CardCode, CardName, LicTradNum, Phone1, Phone2, E_Mail, MailAddres, City, Country
+        //        FROM OPENQUERY(HANA, '
+        //            SELECT "CardCode", "CardName", "LicTradNum", "Phone1", "Phone2", "E_Mail", "MailAddres", "City", "Country"
+        //            FROM "SBO_TEST_PREFACIERRE"."OCRD"
+        //            WHERE "CardCode" LIKE ''%$busqueda%''
+        //               OR "CardName" LIKE ''%$busqueda%''
+        //               OR "Phone1" LIKE ''%$busqueda%''
+        //         ')
+        //    EOT;
+        // return DB::select($sql);
+        $accion = "consultar_BusinessPartners";
+        $data = array(
+            "select" => "CardCode,CardName,Phone1",//Asunto
+            "where" => "substringof('$busqueda', CardCode) or substringof('$busqueda', CardName) or substringof('$busqueda', Phone1)",//codigo de interlocutor comercial
+        );
+
+        Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            'json' => json_encode([
+                'accion' => $accion,
+                'usuario' => 'dani',
+                'datos' => $data
+            ])
+        ]);
+
+        $body = json_decode($response->body(), true);
+        Log::info('Datos recibidos: ', ['datos' => $body['value']]);
+
+        return ($body['value'] ?? []);
 
     }
 
@@ -113,7 +132,9 @@ class ParteController extends Controller
         ]);
 
         $body = json_decode($response->body(), true);
-        return ($body['value']);
+        Log::info('Respuesta de SAP', ['accion' => $accion, 'respuesta' => $body]);
+
+        return ($body['value'] ?? []);
 
     }
 
@@ -154,6 +175,7 @@ class ParteController extends Controller
         $response = json_decode($response->body(), true);
         $parte = $response['value'][0];
         $cliente = $this->consultarClientes($parte['CustomerCode']);
+
         return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte]);
 
     }

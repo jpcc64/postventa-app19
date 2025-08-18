@@ -6,23 +6,47 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 
 class ClienteController extends Controller
 {
     private function consultarPartes($docNum)
     {
-        return DB::select(/*PARA CREAR CADENA DE TEXTO -->*/<<<EOT
-        SELECT status, customer, custmrName, Telephone, U_H8_Telefono, U_H8_Nombre, 
-               DocNum, itemCode, itemName
-        FROM OPENQUERY(HANA, '
-            SELECT "status", "customer", "custmrName", "Telephone", 
-                   "U_H8_Telefono", "U_H8_Nombre", "DocNum", 
-                   "itemCode", "itemName", LEFT("descrption", 4000)
-            FROM "SBO_PREFABRICADOS".OSCL 
-        ')
-        WHERE DocNum = ?
-    EOT, [$docNum]);
+    //     return DB::select(/*PARA CREAR CADENA DE TEXTO -->*/<<<EOT
+    //     SELECT status, customer, custmrName, Telephone, U_H8_Telefono, U_H8_Nombre, 
+    //            DocNum, itemCode, itemName
+    //     FROM OPENQUERY(HANA, '
+    //         SELECT "status", "customer", "custmrName", "Telephone", 
+    //                "U_H8_Telefono", "U_H8_Nombre", "DocNum", 
+    //                "itemCode", "itemName", LEFT("descrption", 4000)
+    //         FROM "SBO_PREFABRICADOS".OSCL 
+    //     ')
+    //     WHERE DocNum = ?
+    // EOT, [$docNum]);
+
+        $accion = "consultar_ServiceCalls";
+        $data = array(
+            //  "select" => "ServiceCallID,Subject,CustomerCode,",//Asunto
+            "where" => "ServiceCallID eq $docNum",//codigo de interlocutor comercial
+           // "order" => "ServiceCallID",//Nombre interlocutor comercial
+      //      "top" => '1'
+        );
+
+        Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            'json' => json_encode([
+                'accion' => $accion,
+                'usuario' => 'dani',
+                'datos' => $data
+            ])
+        ]);
+
+        $body = json_decode($response->body(), true);
+        Log::info('Respuesta de SAP', ['accion' => $accion, 'respuesta' => $body]);
+
+        return ($body['value'] ?? []);
+
     }
     public function index()
     {
@@ -31,8 +55,7 @@ class ClienteController extends Controller
     public function show($DocNum)
     {
         $cliente = collect($this->consultarPartes($DocNum))->first();
-
-        return view('cardCliente', compact('cliente'));
+        return view('parteFormulario', compact('cliente'));
     }
 
     public function buscar(Request $request)
