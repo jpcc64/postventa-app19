@@ -66,7 +66,7 @@
 
             if (query.length >= 4) {
                 $.ajax({
-                    url: '{{ route("producto.sugerencia") }}',
+                    url: '{{ route("producto.sugerencias") }}',
                     type: 'GET',
                     data: { term: query },
                     success: function (data) {
