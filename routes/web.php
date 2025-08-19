@@ -44,4 +44,6 @@ Route::get('/parte/buscar', [ParteController::class, 'buscar'])->name('parte.bus
 Route::get('/parte/formulario/{callID}', [ParteController::class, 'showParte'])->name('parte.formulario')->middleware('auth');
 Route::get('/parte/sugerencias', [ParteController::class, 'sugerencias'])->name('buscar.sugerencias');
 Route::get('/parte/nuevo/{id}', [ParteController::class, 'nuevoParte'])->name('parte.nuevo')->middleware('auth');
-Route::get('/producto/sugerencias', [ProductoController::class, 'consultarProductos'])->name('producto');
+
+//productos
+Route::get('/producto/sugerencias', [ProductoController::class, 'consultarProductos'])->name('producto.sugerencias');

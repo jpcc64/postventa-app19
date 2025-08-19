@@ -120,6 +120,9 @@
                         focus:ring-blue-200 focus:ring-opacity-50"
                         value="{{ old('TechnicianCode', $parte['TechnicianCode'] ?? '') }}">
                 </div>
+                <div id="sugerenciasTecnico"
+                    class="absolute left-0 top-full w-full bg-white shadow-md rounded-md max-h-60 overflow-y-auto mt-1 z-10">
+                </div>
             </div>
 
             <div x-show="tab === 'resolucion'" x-cloak x-transition class="space-y-4 mb-6 col-3">
