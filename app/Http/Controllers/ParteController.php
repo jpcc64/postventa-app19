@@ -182,6 +182,8 @@ class ParteController extends Controller
 
     public function crear(Request $request)
     {
+        $this->validarCamposSAP($request);
+
         $datos = $request->all();
         $accion = (empty($datos['callID']) && empty($datos['DocNum']))
             ? 'crear_ServiceCalls'
@@ -227,5 +229,26 @@ class ParteController extends Controller
             return $decoded['resultado']['error']['message']['value'];
         }
         return $decoded['resultado']['error']['message']['value'] ?? 'Respuesta inesperada de SAP.';
+    }
+
+    private function validarCamposSAP(Request $request)
+    {
+        return $request->validate([
+            'CustomerCode' => 'required|string',
+            'CustomerName' => 'required|string',
+            'DocNum' => 'required|string',
+            'Telephone' => 'required|string',
+            'ItemCode' => 'required|string',
+            'Resolution' => 'required|string',
+            'ServiceBPType' => 'required|string',
+        ], [
+            'CustomerCode.required' => 'El código del cliente es obligatorio.',
+            'CustomerName.required' => 'El nombre del cliente es obligatorio.',
+            'DocNum.required' => 'El número de documento es obligatorio.',
+            'Telephone.required' => 'El teléfono es obligatorio.',
+            'ItemCode.required' => 'El código del artículo es obligatorio.',
+            'Resolution.required' => 'La resolución es obligatoria.',
+            'ServiceBPType.required' => 'El tipo de interlocutor comercial es obligatorio.',
+        ]);
     }
 }
