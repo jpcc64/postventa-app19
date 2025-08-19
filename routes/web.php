@@ -26,14 +26,6 @@ Route::get('/clientes/{cif}', [ClienteController::class, 'show'])->name('cliente
 
 
 // Avisar a cliente por whatsapp
-Route::post('/avisar/{cliente}', [ClienteController::class, 'avisar'])->name('avisar')->middleware('auth');
-
-// Dashboard (crea o borra usuarios)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth')->name('dashboard');
-
-// AVISAR A CLIENTE
 Route::post('/avisar/{id}', [ClienteController::class, 'avisar'])->name('avisar')->middleware('auth');
 
 
