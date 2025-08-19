@@ -180,19 +180,6 @@ class ParteController extends Controller
 
     }
 
-    private function consultarCallID($DocNum)
-    {
-        return DB::select(<<<EOT
-            SELECT callID
-            FROM OPENQUERY(HANA, '
-                SELECT * FROM "SBO_TEST_PREFACIERRE".OSCL
-            ')
-            WHERE DocNum = ?
-        EOT, [$DocNum]);
-    }
-
-
-
     public function crear(Request $request)
     {
         $datos = $request->all();
@@ -240,24 +227,5 @@ class ParteController extends Controller
             return $decoded['resultado']['error']['message']['value'];
         }
         return $decoded['resultado']['error']['message']['value'] ?? 'Respuesta inesperada de SAP.';
-    }
-
-    private function validarCamposParte(Request $request)
-    {
-        return $request->validate([
-            'CustomerCode' => 'required|string',
-            'CustomerName' => 'required|string',
-            'ContactCode' => 'nullable|numeric',
-            'DocNum' => 'string',
-            'Telephone' => 'nullable|string',
-        ], [
-            'CustomerCode.required' => 'El código del cliente es obligatorio.',
-            'CustomerCode.string' => 'El código del cliente debe ser una cadena de texto.',
-            'CustomerName.required' => 'El nombre del cliente es obligatorio.',
-            'CustomerName.string' => 'El nombre del cliente debe ser una cadena de texto.',
-            'ContactCode.numeric' => 'La persona de contacto debe ser un número.',
-            'DocNum.integer' => 'El número de documento debe ser un número entero.',
-            'Telephone.string' => 'El teléfono debe ser una cadena de texto.'
-        ]);
     }
 }
