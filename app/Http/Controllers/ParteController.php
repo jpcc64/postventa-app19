@@ -241,14 +241,16 @@ class ParteController extends Controller
             'ItemCode' => 'required|string',
             'Resolution' => 'required|string',
             'ServiceBPType' => 'required|string',
+            'Subject' => 'required|string'
         ], [
-            'CustomerCode.required' => 'El código del cliente es obligatorio.',
+           'CustomerCode.required' => 'El código del cliente es obligatorio.',
             'CustomerName.required' => 'El nombre del cliente es obligatorio.',
             'DocNum.required' => 'El número de documento es obligatorio.',
             'Telephone.required' => 'El teléfono es obligatorio.',
             'ItemCode.required' => 'El código del artículo es obligatorio.',
             'Resolution.required' => 'La resolución es obligatoria.',
             'ServiceBPType.required' => 'El tipo de interlocutor comercial es obligatorio.',
+            'Subject.required' => 'El asunto es obligatorio.'
         ]);
     }
 }
