@@ -1,31 +1,32 @@
 <div x-data="{ tab: 'general' }" class="rounded grid  mb-6 w-50">
 
-<div class="w-full col-span-3">
-    <div class="mb-6 ">
-        <div class="flex border-b mb-4">
-            <!-- <button type="button" @click="tab = 'interlocutor'"
+    <div class="w-full col-span-3">
+        <div class="mb-6 ">
+            <div class="flex border-b mb-4">
+                <!-- <button type="button" @click="tab = 'interlocutor'"
                 :class="tab === 'interlocutor' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
                 class="px-4 py-2">
                 Interlocutor
             </button> -->
-            <button type="button" @click="tab = 'general'"
-                :class="tab === 'general' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
-                class="px-4 py-2">
-                General
-            </button>
-            <button type="button" @click="tab = 'resolucion'"
-                :class="tab === 'resolucion' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
-                class="px-4 py-2">
-                Resolución
-            </button>
-            <button type="button" @click="tab = 'comentario'"
-                :class="tab === 'comentario' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
-                class="px-4 py-2">
-                Comentario
-            </button>
-        </div>
+                <button type="button" @click="tab = 'general'"
+                    :class="tab === 'general' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
+                    class="px-4 py-2">
+                    General
+                </button>
+                <button type="button" @click="tab = 'comentario'"
+                    :class="tab === 'comentario' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
+                    class="px-4 py-2">
+                    Comentario
+                </button>
+                <button type="button" @click="tab = 'resolucion'"
+                    :class="tab === 'resolucion' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
+                    class="px-4 py-2">
+                    Resolución
+                </button>
 
-        <!-- <div x-show="tab === 'interlocutor'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-4 gap-4">
+            </div>
+
+            <!-- <div x-show="tab === 'interlocutor'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-4 gap-4">
             <div class="mt-4">
                 <label class="block text-sm font-medium mb-1">Telefono</label>
                 <input type="text" name="BPPhone2"
@@ -105,42 +106,39 @@
 
         </div> -->
 
-        <div x-show="tab === 'general'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-3 gap-4">
-            <div class="mt-4">
-                <label class="block text-sm font-medium">Origen</label>
-                <input type="text" name="Origin"
-                    class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    focus:ring-blue-200 focus:ring-opacity-50" value="{{ old('Origin', $parte['Origin'] ?? '') }}">
+            <div x-show="tab === 'general'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-3 gap-4">
+                <div class="mt-4">
+                    <label class="block text-sm font-medium">Origen</label>
+                    <input type="text" name="Origin"
+                        class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                        focus:ring-blue-200 focus:ring-opacity-50" value="{{ old('Origin', $parte['Origin'] ?? '') }}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Técnico</label>
+                    <input type="text" name="TechnicianCode"
+                        class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                        focus:ring-blue-200 focus:ring-opacity-50"
+                        value="{{ old('TechnicianCode', $parte['TechnicianCode'] ?? '') }}">
+                </div>
+                <div id="sugerenciasTecnico"
+                    class="absolute left-0 top-full w-full bg-white shadow-md rounded-md max-h-60 overflow-y-auto mt-1 z-10">
+                </div>
             </div>
-            <div>
-                <label class="block text-sm font-medium">Técnico</label>
-                <input type="text" name="TechnicianCode"
-                    class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    focus:ring-blue-200 focus:ring-opacity-50"
-                    value="{{ old('TechnicianCode', $parte['TechnicianCode'] ?? '') }}">
-            </div>
-            <div>
-                <label class="block text-sm font-medium">Motivo</label>
-                <input type="text" name="U_H8_MOTIVO"
-                    class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    focus:ring-blue-200 focus:ring-opacity-50" value="{{ $parte['U_H8_MOTIVO'] ?? '' }}">
-            </div>
-        </div>
 
-        <div x-show="tab === 'resolucion'" x-cloak x-transition class="space-y-4 mb-6 col-3">
-            <label class="block text-sm font-medium">Observaciones</label>
-            <textarea name="Resolution" rows="3"
-                class="mt-1 block w-2/4 rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                focus:ring-blue-200
-                focus:ring-opacity-50">{{ old('Resolution', $parte['Resolution'] ?? '') }}</textarea>
-        </div>
+            <div x-show="tab === 'resolucion'" x-cloak x-transition class="space-y-4 mb-6 col-3">
+                <label class="block text-sm font-medium">Observaciones</label>
+                <textarea name="Resolution" rows="3"
+                    class="mt-1 block w-2/4 rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    focus:ring-blue-200
+                    focus:ring-opacity-50">{{ old('Resolution', $parte['Resolution'] ?? '') }}</textarea>
+            </div>
 
-        <div x-show="tab === 'comentario'" x-cloak x-transition class="space-y-4 mb-6">
-            <label class="block text-sm font-medium">Comentario</label>
-            <textarea name="Description" rows="3"
-                class="mt-1 block w-2/4 rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                focus:ring-blue-200
-                focus:ring-opacity-50">{{ old('Description', $parte['Description'] ?? '') }}</textarea>
+            <div x-show="tab === 'comentario'" x-cloak x-transition class="space-y-4 mb-6">
+                <label class="block text-sm font-medium">Comentario</label>
+                <textarea name="Description" rows="3"
+                    class="mt-1 block w-2/4 rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    focus:ring-blue-200
+                    focus:ring-opacity-50">{{ old('Description', $parte['Description'] ?? '') }}</textarea>
+            </div>
         </div>
     </div>
-</div>

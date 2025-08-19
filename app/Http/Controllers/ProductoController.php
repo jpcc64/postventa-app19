@@ -3,27 +3,95 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-
 class ProductoController extends Controller
 {
     public function consultarProductos(Request $request)
     {
-        $term = $request->input('codigoProducto', '');
+        $term = strtoupper(trim($request->get('term')));
+        // Sanitizamos la entrada para evitar problemas en el filtro OData
+        $term = str_replace("'", "''", $term);
 
-        // CORREGIDO: Sintaxis de tabla estándar para SQL Server [dbo].[NYS_PRODUCT]
-        $sql = <<<EOT
-        SELECT CODIGO_PRODUCTO, NOMBRE_PRODUCTO, CODIGO_FAMILIA
-        FROM [dbo].[NYS_PRODUCT]
-        WHERE CODIGO_PRODUCTO LIKE :term 
-           OR NOMBRE_PRODUCTO LIKE :term
-           OR CODIGO_FAMILIA LIKE :term
-        EOT;
-        dd($sql);
-        // Pasamos el término de búsqueda con los comodines '%'
-        $productos = DB::select($sql, ['term' => '%' . $term . '%']);
+        $accion = "consultar_Items";
+        $data = [
+            // CORRECCIÓN: Usamos contains() que es más estándar en OData que substringof()
+            "select" => "EmployeeID,EmployeeName",
+            "where" => "contains(EmployeeID, '$term') or contains(EmployeeName, '$term')",
+        ];
 
-        return response()->json($productos);
+        try {
+            Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+                'json' => json_encode([
+                    'accion' => $accion,
+                    'usuario' => 'dani',
+                    'datos' => $data
+                ])
+            ]);
+
+            $result = $response->json(); // Usamos el helper de Laravel para decodificar
+
+            // Verificamos si la respuesta contiene la clave 'value' y es un array
+            if (isset($result['value']) && is_array($result['value'])) {
+                Log::info('Resultados de la busqueda: ', ['datos' => $result['value']]);
+
+                // CORRECCIÓN CLAVE: Devolvemos una respuesta JSON con la lista de productos.
+                return response()->json($result['value']);
+            }
+
+            // Si no hay resultados o hay un error, devolvemos un array JSON vacío.
+            Log::warning('La respuesta de SAP no contenía una lista de valores válida.', ['respuesta' => $result]);
+            return response()->json([]);
+
+        } catch (\Exception $e) {
+            Log::error('Excepción al consultar productos en SAP', ['exception' => $e->getMessage()]);
+            // En caso de error, devolvemos un JSON vacío con un código de error de servidor.
+            return response()->json([], 500);
+        }
+    }
+
+
+    public function consultaTecnico(Request $request){
+          $term = strtoupper(trim($request->get('term')));
+        // Sanitizamos la entrada para evitar problemas en el filtro OData
+        $term = str_replace("'", "''", $term);
+
+        $accion = "consulta_EmployeesInfo";
+        $data = array(
+            // CORRECCIÓN: Usamos contains() que es más estándar en OData que substringof()
+            "select" => "ItemCode,ItemName",
+            "where" => "contains(ItemCode, '$term') or contains(ItemName, '$term')",
+        );
+
+        try {
+            Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+                'json' => json_encode([
+                    'accion' => $accion,
+                    'usuario' => 'dani',
+                    'datos' => $data
+                ])
+            ]);
+
+            $result = $response->json(); // Usamos el helper de Laravel para decodificar
+
+            // Verificamos si la respuesta contiene la clave 'value' y es un array
+            if (isset($result['value']) && is_array($result['value'])) {
+                Log::info('Resultados de la busqueda: ', ['datos' => $result['value']]);
+
+                // CORRECCIÓN CLAVE: Devolvemos una respuesta JSON con la lista de productos.
+                return response()->json($result['value']);
+            }
+
+            // Si no hay resultados o hay un error, devolvemos un array JSON vacío.
+            Log::warning('La respuesta de SAP no contenía una lista de valores válida.', ['respuesta' => $result]);
+            return response()->json([]);
+
+        } catch (\Exception $e) {
+            Log::error('Excepción al consultar productos en SAP', ['exception' => $e->getMessage()]);
+            // En caso de error, devolvemos un JSON vacío con un código de error de servidor.
+            return response()->json([], 500);
+        }
     }
 }

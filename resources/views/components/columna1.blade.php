@@ -1,23 +1,19 @@
 <div class="space-y-3 grid grid-cols-2 gap-2 p-2">
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700" for="claseLlamada">Clase de Llamada</label>
-        <input type="radio" name="claseLlamada" id="Clientes" value="Clientes" class="peer" checked>
-        <label for="Clientes" class="peer-checked:border-blue-600">Clientes</label>
-        <input type="radio" name="claseLlamada" id="Proveedores" value="Proveedores" class="peer">
-        <label for="Proveedores" class="peer-checked:border-blue-600">Proveedores</label>
-    </div>
+    <label class="block text-sm font-medium text-gray-700" for="claseLlamada">Clase de Llamada</label>
 
     <div class="col-span-2 grid grid-cols-2">
-
-        <label class="block text-sm font-medium text-gray-700 col-span-2">Código de interlocutor comercial</label>
-        <input type="text" value="{{old('CustomerCode', $cliente->CardCode ?? '') }}"
-            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" disabled>
-        <input type="hidden" name="CustomerCode" value="{{ $cliente->CardCode ?? '' }}">
+        <div>
+            <input type="radio" name="claseLlamada" id="Clientes" value="srvcSales" class="peer" {{ (isset($parte['ServiceBPType']) && $parte['ServiceBPType'] == 'srvcSales') ? 'checked' : '' }}>
+            <label for="Clientes" class="peer-checked:border-blue-600">Clientes</label>
+        </div>
+        <div>
+            <input type="radio" name="claseLlamada" id="Proveedores" value="Proveedores" class="peer" {{ (isset($parte['ServiceBPType']) && $parte['ServiceBPType'] == 'srvcPurchasing') ? 'checked' : '' }}>
+            <label for="Proveedores" class="peer-checked:border-blue-600">Proveedores</label>
+        </div>
     </div>
     <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Nombre interlocutor comercial</label>
-        <input type="text" name="CustomerName" value="{{ $cliente->CardName ?? '' }}"
+        <input type="text" name="CustomerName" value="{{ $cliente['CardName'] ?? '' }}"
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
     </div>
     <div class="col-span-2 grid grid-cols-2">
@@ -27,32 +23,96 @@
     </div>
     <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Teléfono</label>
-        <input type="text" name="Telephone" value="{{ old('Telephone', $cliente->Phone1 ?? '') }}"
+        <input type="text" name="Telephone" value="{{ old('Telephone', $cliente['Phone1'] ?? '') }}"
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
     </div>
-    <div class="col-span-2 grid grid-cols-2">
-        <label class="block text-sm font-medium text-gray-700 col-span-2">Articulo</label>
-        <input id="itemCodeInput" type="text" name="ItemCode"
+
+
+    <div class="col-span-2 grid grid-cols-2 relative">
+        <label class="block text-sm font-medium text-gray-700 col-span-2">Articulo
+            <p class="text-xs text-gray-500">Codigo o Nombre</p>
+
+        </label>
+        <input id="itemCode" type="text" name="ItemCode"
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
             value="{{ old('ItemCode', $parte['ItemCode'] ?? '') }}"> {{-- producto --}}
-    </div>
-    <div class="col-span-2 grid grid-cols-2">
-        <label class="block text-sm font-medium text-gray-700 col-span-2">Descripcion</label>
-        <textarea name="ItemName" id="itemNameInput"
-            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ old('ItemName', $parte['ItemDescription'] ?? '') }}</textarea>{{--
-        producto --}}
+        <div id="sugerenciasProducto"
+            class="absolute left-0 top-full w-full bg-white shadow-md rounded-md max-h-60 overflow-y-auto mt-1 z-10">
+        </div>
     </div>
 
     <div class="col-span-2 grid grid-cols-2">
+        <label class="block text-sm font-medium text-gray-700 col-span-2">Descripcion</label>
+        <textarea name="ItemName" id="itemNameInput"
+            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50
+             shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ old('ItemName', $parte['ItemDescription'] ?? '') }}</textarea>{{--
+        producto --}}
+    </div>
+    <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Número de serie</label>
-        <input id="itemFamilyCode" type="text" name="U_H8_SerieEurowin"
-            value="{{ old('U_H8_SerieEurowin', $parte['U_H8_SerieEurowin'] ?? '') }}" {{-- producto --}}
+        <input id="itemFamilyCode" type="text" name="InternalSerialNum"
+            value="{{ old('InternalSerialNum', $parte['InternalSerialNum'] ?? '') }}" {{-- producto --}}
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
     </div>
 </div>
 
-<div id="sugerenciasProducto" class="absolute z-10 w-full bg-white border rounded-md shadow-lg mt-1"
-    style="display: none; top: 100%;"></div>
 
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#itemCode').on('input', function () {
+            let query = $(this).val();
+
+            if (query.length >= 4) {
+                $.ajax({
+                    url: '{{ route("producto.sugerencias") }}',
+                    type: 'GET',
+                    data: { term: query },
+                    success: function (data) {
+                        let sugerencias = $('#sugerenciasProducto');
+                        sugerencias.empty();
+
+                        // Si data es un array de productos
+                        if (Array.isArray(data) && data.length > 0) {
+                            let lista = $('<ul class="max-h-60 overflow-y-auto"></ul>');
+                            data.forEach(function (producto) {
+                                lista.append(`
+                            <li class="sugerencia cursor-pointer px-4 py-2 hover:bg-blue-100 transition-all border-b border-gray-200">
+                                <p class="font-semibold text-sm text-gray-800" data-id="${producto.ItemName}">${producto.ItemName}</p>
+                                <p class="text-xs text-gray-500" data-id="${producto.ItemCode}">${producto.ItemCode}</p>
+                            </li>
+                        `);
+                            });
+                            sugerencias.append(lista);
+
+                            // Evento al hacer click en sugerencia
+                            $('.sugerencia').on('click', function (e) {
+                                e.preventDefault();
+                                let itemName = $(this).find('p').eq(0).text();
+                                let itemCode = $(this).find('p').eq(1).text();
+
+                                $('#itemCode').val(itemCode);
+                                $('#itemNameInput').val(itemName);
+                                $('#sugerenciasProducto').empty();
+                            });
+                        } else {
+                            sugerencias.append('<div class="px-4 py-2 text-gray-500">No se encontraron productos.</div>');
+                        }
+                    }
+                });
+            } else {
+                $('#sugerenciasProducto').empty();
+            }
+        });
+
+
+
+        // Cerrar modal al hacer click fuera
+        $(document).on('click', function (e) {
+            if ($(e.target).is('#modalPartes')) {
+                $('#modalPartes').addClass('hidden');
+            }
+        });
+    });
+</script>

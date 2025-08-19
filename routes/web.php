@@ -24,6 +24,7 @@ Route::get('/clientes', [ClienteController::class, 'index'])->middleware('auth')
 Route::get('/clientes/buscar', [ClienteController::class, 'buscar'])->name('clientes.buscar')->middleware('auth');
 Route::get('/clientes/{cif}', [ClienteController::class, 'show'])->name('clientes.show')->middleware('auth');
 
+
 // Avisar a cliente por whatsapp
 Route::post('/avisar/{cliente}', [ClienteController::class, 'avisar'])->name('avisar')->middleware('auth');
 
@@ -42,4 +43,7 @@ Route::post('/parte', [ParteController::class, 'crear'])->name('parte.crear')->m
 Route::get('/parte/buscar', [ParteController::class, 'buscar'])->name('parte.buscar')->middleware('auth');
 Route::get('/parte/formulario/{callID}', [ParteController::class, 'showParte'])->name('parte.formulario')->middleware('auth');
 Route::get('/parte/sugerencias', [ParteController::class, 'sugerencias'])->name('buscar.sugerencias');
+Route::get('/parte/nuevo/{id}', [ParteController::class, 'nuevoParte'])->name('parte.nuevo')->middleware('auth');
+
+//productos
 Route::get('/producto/sugerencias', [ProductoController::class, 'consultarProductos'])->name('producto.sugerencias');
