@@ -15,7 +15,7 @@
             value="{{ $parte['Subject'] ?? '' }}">
     </div>
         <div class="col-span-2 grid grid-cols-2">
-            <label class="block text-sm font-medium text-gray-700 col-span-2">Número de serie</label>
+            <label class="block text-sm font-medium text-gray-700 col-span-2">Número de serie Eurowin</label>
             <input id="itemFamilyCode" type="text" name="U_H8_SerieEurowin"
                 value="{{ old('U_H8_SerieEurowin', $parte['U_H8_SerieEurowin'] ?? '') }}" {{-- producto --}}
                 class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
@@ -26,7 +26,7 @@
             value="{{ $parte['U_H8_RMA'] ?? '' }}">
     </div>
     <div class="col-span-2 grid grid-cols-2">
-        <label class="block text-sm font-medium text-gray-700 col-span-2">Motivo</label>
+        <label class="block text-sm font-medium text-gray-700 col-span-2">Tipo de llamada</label>
         <select name="U_H8_MOTIVO" id="" class=" block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
             <option value="" selected >Selecciona un motivo</option>
             <option value="ST" {{ (isset($parte['U_H8_MOTIVO']) && $parte['U_H8_MOTIVO'] == 'ST') ? 'selected' : '' }}>Servicio técnico</option>

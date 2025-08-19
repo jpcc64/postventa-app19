@@ -41,7 +41,7 @@ class ParteController extends Controller
     {
         $cliente = $this->consultarClientes($id);
        // dd($cliente);
-        return view('parteFormulario', ['clientes' => $cliente[0]]);
+        return view('parteFormulario', ['cliente' => $cliente[0]]);
     }
 
     public function sugerencias(Request $request)

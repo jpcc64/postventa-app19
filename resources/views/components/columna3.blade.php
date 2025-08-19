@@ -25,13 +25,13 @@
             </select>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700">Prioridad</label>
+            <!-- <label class="block text-sm font-medium text-gray-700">Prioridad</label>
             <select name="Priority"
                 class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                 <option value="scp_High" {{ (isset($parte['Priority']) && $parte['Priority'] == 'scp_High') ? 'selected' : '' }}>Alta</option>
                 <option value="scp_Medium" {{ (isset($parte['Priority']) && $parte['Priority'] == 'scp_Medium') ? 'selected' : ''  }}>Media</option>
                 <option value="scp_Low" {{ (isset($parte['Priority']) && $parte['Priority'] == 'scp_Low') ? 'selected' : ''  }}>Baja</option>
-            </select>
+            </select> -->
         </div>
         <div>
             <label for="CreationDate" class="block text-sm font-medium text-gray-700">Fecha de creación</label>
