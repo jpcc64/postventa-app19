@@ -111,34 +111,89 @@
                     <label class="block text-sm font-medium">Origen</label>
                     <input type="text" name="Origin"
                         class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                        focus:ring-blue-200 focus:ring-opacity-50" value="{{ old('Origin', $parte['Origin'] ?? '') }}">
+                        value="{{ old('Origin', $parte['Origin'] ?? '') }}">
                 </div>
                 <div>
                     <label class="block text-sm font-medium">Técnico</label>
-                    <input type="text" name="TechnicianCode"
-                        class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                        focus:ring-blue-200 focus:ring-opacity-50"
-                        value="{{ old('TechnicianCode', $parte['TechnicianCode'] ?? '') }}">
+                    <div class="relative">
+                        <input type="text" name="TechnicianCode" id="techCode"
+                            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                            value="{{ old('TechnicianCode', $parte['TechnicianCode'] ?? '') }}">
+                        <div id="sugerenciasTecnico"
+                            class="absolute left-0 top-full w-full bg-white shadow-md rounded-md max-h-60 overflow-y-auto mt-1 z-10">
+                        </div>
+                    </div>
                 </div>
-                <div id="sugerenciasTecnico"
-                    class="absolute left-0 top-full w-full bg-white shadow-md rounded-md max-h-60 overflow-y-auto mt-1 z-10">
-                </div>
+
             </div>
 
             <div x-show="tab === 'resolucion'" x-cloak x-transition class="space-y-4 mb-6 col-3">
                 <label class="block text-sm font-medium">Observaciones</label>
                 <textarea name="Resolution" rows="3"
-                    class="mt-1 block w-2/4 rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    focus:ring-blue-200
-                    focus:ring-opacity-50">{{ old('Resolution', $parte['Resolution'] ?? '') }}</textarea>
+                    class="mt-1 block w-2/4 rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ old('Resolution', $parte['Resolution'] ?? '') }}</textarea>
             </div>
 
             <div x-show="tab === 'comentario'" x-cloak x-transition class="space-y-4 mb-6">
                 <label class="block text-sm font-medium">Comentario</label>
                 <textarea name="Description" rows="3"
-                    class="mt-1 block w-2/4 rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    focus:ring-blue-200
-                    focus:ring-opacity-50">{{ old('Description', $parte['Description'] ?? '') }}</textarea>
+                    class="mt-1 block w-2/4 rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ old('Description', $parte['Description'] ?? '') }}</textarea>
             </div>
         </div>
     </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#techCode').on('input', function () {
+                let query = $(this).val();
+
+                if (query.length >= 1) {
+                    $.ajax({
+                        url: '{{ route("tecnico.sugerencias") }}',
+                        type: 'GET',
+                        data: { term: query },
+                        success: function (data) {
+                            let sugerencias = $('#sugerenciasTecnico');
+                            sugerencias.empty();
+
+                            // Si data es un array de productos
+                            if (Array.isArray(data) && data.length > 0) {
+                                let lista = $('<ul class="max-h-60 overflow-y-auto"></ul>');
+                                data.forEach(function (tecnico) {
+                                    lista.append(`
+                            <li class="sugerencia cursor-pointer px-4 py-2 hover:bg-blue-100 transition-all border-b border-gray-200">
+                               <p class="text-xs text-gray-500" data-id="${tecnico.EmployeeID}">${tecnico.EmployeeID}</p>
+                               <p class="font-semibold text-sm text-gray-800" data-id="${tecnico.FirstName}">${tecnico.FirstName}</p>
+                            </li>
+                        `);
+                                });
+                                sugerencias.append(lista);
+
+                                // Evento al hacer click en sugerencia
+                                $('.sugerencia').on('click', function (e) {
+                                    e.preventDefault();
+                                    let EmployeeID = $(this).find('p').eq(0).text();
+                                    $('#techCode').val(EmployeeID);
+                                    $('#sugerenciasTecnico').empty();
+                                });
+                            } else {
+                                sugerencias.append('<div class="px-4 py-2 text-gray-500">No se encontraron productos.</div>');
+                            }
+                        }
+                    });
+                } else {
+                    $('#sugerenciasTecnico').empty();
+                }
+            });
+
+
+
+            // Cerrar modal al hacer click fuera
+            $(document).on('click', function (e) {
+                if ($(e.target).is('#sugerenciasTecnico')) {
+                    $('#sugerenciasTecnico').addClass('hidden');
+                }
+            });
+        });
+    </script>

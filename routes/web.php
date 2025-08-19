@@ -47,3 +47,4 @@ Route::get('/parte/nuevo/{id}', [ParteController::class, 'nuevoParte'])->name('p
 
 //productos
 Route::get('/producto/sugerencias', [ProductoController::class, 'consultarProductos'])->name('producto.sugerencias');
+Route::get('/tecnico/sugerencias', [ProductoController::class, 'consultaTecnico'])->name('tecnico.sugerencias');
