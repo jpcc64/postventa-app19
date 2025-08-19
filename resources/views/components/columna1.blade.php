@@ -1,13 +1,14 @@
 <div class="space-y-3 grid grid-cols-2 gap-2 p-2">
+    <input type="hidden" name="CustomerCode" value="{{ $cliente['CardCode'] ?? '' }}">
     <label class="block text-sm font-medium text-gray-700" for="claseLlamada">Clase de Llamada</label>
 
     <div class="col-span-2 grid grid-cols-2">
         <div>
-            <input type="radio" name="claseLlamada" id="Clientes" value="srvcSales" class="peer" {{ (isset($parte['ServiceBPType']) && $parte['ServiceBPType'] == 'srvcSales') ? 'checked' : '' }}>
+            <input type="radio" name="ServiceBPType" id="Clientes" value="srvcSales" class="peer" {{ (isset($parte['ServiceBPType']) && $parte['ServiceBPType'] == 'srvcSales') ? 'checked' : '' }}>
             <label for="Clientes" class="peer-checked:border-blue-600">Clientes</label>
         </div>
         <div>
-            <input type="radio" name="claseLlamada" id="Proveedores" value="Proveedores" class="peer" {{ (isset($parte['ServiceBPType']) && $parte['ServiceBPType'] == 'srvcPurchasing') ? 'checked' : '' }}>
+            <input type="radio" name="ServiceBPType" id="Proveedores" value="srvcPurchasing" class="peer" {{ (isset($parte['ServiceBPType']) && $parte['ServiceBPType'] == 'srvcPurchasing') ? 'checked' : '' }}>
             <label for="Proveedores" class="peer-checked:border-blue-600">Proveedores</label>
         </div>
     </div>
