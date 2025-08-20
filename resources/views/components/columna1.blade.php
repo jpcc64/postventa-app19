@@ -3,12 +3,16 @@
     <label class="block text-sm font-medium text-gray-700" for="claseLlamada">Clase de Llamada</label>
 
     <div class="col-span-2 grid grid-cols-2">
+            @php
+                $marcarCliente = isset($cliente) && str_starts_with($cliente['CardCode'], 'C');
+                $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C');
+            @endphp
         <div>
-            <input type="radio" name="ServiceBPType" id="Clientes" value="srvcSales" class="peer" {{ (isset($parte['ServiceBPType']) && $parte['ServiceBPType'] == 'srvcSales') ? 'checked' : '' }}>
+            <input type="radio" name="ServiceBPType" id="Clientes" value="srvcSales" class="peer" {{ $marcarCliente ? 'checked' : '' }} disabled>
             <label for="Clientes" class="peer-checked:border-blue-600">Clientes</label>
         </div>
         <div>
-            <input type="radio" name="ServiceBPType" id="Proveedores" value="srvcPurchasing" class="peer" {{ (isset($parte['ServiceBPType']) && $parte['ServiceBPType'] == 'srvcPurchasing') ? 'checked' : '' }}>
+            <input type="radio" name="ServiceBPType" id="Proveedores" value="srvcPurchasing" class="peer" {{ $marcarProveedor ? 'checked' : '' }} disabled>
             <label for="Proveedores" class="peer-checked:border-blue-600">Proveedores</label>
         </div>
     </div>
