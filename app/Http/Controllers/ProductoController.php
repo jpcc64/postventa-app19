@@ -52,16 +52,16 @@ class ProductoController extends Controller
     }
 
 
-    public function consultaTecnico(Request $request){
-          $term = strtoupper(trim($request->get('term')));
+    public function consultaTecnico(Request $request)
+    {
+        $term = strtoupper(trim($request->get('term')));
         // Sanitizamos la entrada para evitar problemas en el filtro OData
         $term = str_replace("'", "''", $term);
 
         $accion = "consulta_EmployeesInfo";
         $data = array(
-            // CORRECCIÓN: Usamos contains() que es más estándar en OData que substringof()
-           "select" => "EmployeeID,FirstName",
-           "where" => "contains(FirstName, '$term') or contains(EmployeeID, '$term')",
+            "select" => "EmployeeID,FirstName",
+            "where" => "substringof('$term',FirstName)",
         );
 
         try {
@@ -74,7 +74,49 @@ class ProductoController extends Controller
                 ])
             ]);
 
-            $result = $response->json(); 
+            $result = $response->json();
+            // Verificamos si la respuesta contiene la clave 'value' y es un array
+            if (isset($result['value']) && is_array($result['value'])) {
+                Log::info('Resultados de la busqueda: ', ['datos' => $result['value']]);
+
+                // CORRECCIÓN CLAVE: Devolvemos una respuesta JSON con la lista de productos.
+                return response()->json($result['value']);
+            }
+
+            // Si no hay resultados o hay un error, devolvemos un array JSON vacío.
+            Log::warning('La respuesta de SAP no contenía una lista de valores válida.', ['respuesta' => $result]);
+            return response()->json([]);
+
+        } catch (\Exception $e) {
+            Log::error('Excepción al consultar productos en SAP', ['exception' => $e->getMessage()]);
+            // En caso de error, devolvemos un JSON vacío con un código de error de servidor.
+            return response()->json([], 500);
+        }
+    }
+
+    public function consultaOrigen(Request $request)
+    {
+        $term = strtoupper(trim($request->get('term')));
+        // Sanitizamos la entrada para evitar problemas en el filtro OData
+        $term = str_replace("'", "''", $term);
+
+        $accion = "consulta_ServiceCallsOrigins";
+        $data = array(
+            "select" => "OriginID,Name",
+            "where" => "contains(Name, '$term') or contains(OriginID, '$term')",
+        );
+
+        try {
+            Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+                'json' => json_encode([
+                    'accion' => $accion,
+                    'usuario' => 'dani',
+                    'datos' => $data
+                ])
+            ]);
+
+            $result = $response->json();
             // Verificamos si la respuesta contiene la clave 'value' y es un array
             if (isset($result['value']) && is_array($result['value'])) {
                 Log::info('Resultados de la busqueda: ', ['datos' => $result['value']]);

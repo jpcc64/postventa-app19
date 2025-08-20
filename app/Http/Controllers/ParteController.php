@@ -22,64 +22,61 @@ class ParteController extends Controller
         }
         $busqueda = strtoupper(trim($id));
         $clientes = $this->consultarClientes($busqueda);
+        $tecnico = $this->consultarTecnicos();
+        $origen = $this->consultarOrigen();
         if (empty($clientes)) {
             return back()->with('error', 'No se encontró ningún cliente.');
         }
-    //    dd($clientes[0]['CardCode']);
         $partes = $this->consultarPartes($clientes[0]['CardCode']);
         if (count($partes) >= 2) {
             // si tiene 2 o mas partes saltará el model para elegir que parte usa
-            return view('parteFormulario', ['cliente' => $clientes[0], 'partes' => $partes])
+            return view('parteFormulario', ['cliente' => $clientes[0], 'partes' => $partes, 'tecnicos' => $tecnico, 'origenes' => $origen])
                 ->with('success', 'Parte encontrado para el cliente.');
         }
 
-        return view('parteFormulario', ['cliente' => $clientes[0], 'parte' => $partes[0] ?? null])
+        return view('parteFormulario', ['cliente' => $clientes[0], 'parte' => $partes[0] ?? null, 'tecnicos' => $tecnico, 'origenes' => $origen])
             ->with('success', 'Parte encontrado para el cliente.');
     }
 
     public function nuevoParte($id)
     {
         $cliente = $this->consultarClientes($id);
-       // dd($cliente);
-        return view('parteFormulario', ['cliente' => $cliente[0]]);
+        $tecnico = $this->consultarTecnicos();
+        // dd($cliente);
+        return view('parteFormulario', ['cliente' => $cliente[0], 'tecnicos' => $tecnico, 'origenes' => $origen]);
     }
 
     public function sugerencias(Request $request)
     {
         $term = strtoupper(trim($request->get('term')));
         $term = str_replace("'", "''", $term);
-        $sql = <<<EOT
-       SELECT TOP 15 "CardCode", "CardName", "LicTradNum", "Phone1"
-       FROM OPENQUERY(HANA, '
-           SELECT "CardCode", "CardName", "LicTradNum", "Phone1"
-           FROM "SBO_TEST_PREFACIERRE"."OCRD"
-           WHERE "CardCode" LIKE ''$term%'' 
-              OR "CardName" LIKE ''%$term%'' 
-              OR "LicTradNum" LIKE ''%$term%''
-           ORDER BY "CardName" ASC
-       ')
-     EOT;
 
-        $result = DB::select($sql);
-        return response()->json($result);
+        $accion = "consultar_BusinessPartners";
+        $data = array(
+            "select" => "CardCode,CardName,Phone1",//Asunto
+            "where" => "substringof('$term', CardCode) or substringof('$term', CardName) or substringof('$term', Phone1)",//codigo de interlocutor comercial
+        );
+
+        Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            'json' => json_encode([
+                'accion' => $accion,
+                'usuario' => 'dani',
+                'datos' => $data
+            ])
+        ]);
+
+        $body = json_decode($response->body(), true);
+        Log::info('Datos recibidos: ', ['datos' => $body['value']]);
+
+        return ($body['value'] ?? []);
     }
 
 
     private function consultarClientes($busqueda)
     {
-         $busqueda = str_replace("'", "''", $busqueda);
+        $busqueda = str_replace("'", "''", $busqueda);
 
-        // $sql = <<<EOT
-        //        SELECT CardCode, CardName, LicTradNum, Phone1, Phone2, E_Mail, MailAddres, City, Country
-        //        FROM OPENQUERY(HANA, '
-        //            SELECT "CardCode", "CardName", "LicTradNum", "Phone1", "Phone2", "E_Mail", "MailAddres", "City", "Country"
-        //            FROM "SBO_TEST_PREFACIERRE"."OCRD"
-        //            WHERE "CardCode" LIKE ''%$busqueda%''
-        //               OR "CardName" LIKE ''%$busqueda%''
-        //               OR "Phone1" LIKE ''%$busqueda%''
-        //         ')
-        //    EOT;
-        // return DB::select($sql);
         $accion = "consultar_BusinessPartners";
         $data = array(
             "select" => "CardCode,CardName,Phone1",//Asunto
@@ -104,16 +101,6 @@ class ParteController extends Controller
 
     private function consultarPartes($customer)
     {
-        //        return DB::select(<<<EOT
-//           SELECT callID, customer, custmrName, contctCode, internalSN, itemCode, itemName, itemGroup, status, assignee, descrption, origin, technician,
-//            resolution, DocNum, BPType, BPContact, BPPhone1, BPPhone2, BPCellular, BPFax, BPE_Mail, BPShipCode, BPShipAddr, BPBillCode, BPBillAddr, Telephone,
-//            U_H8_SerieEurowin, U_H8_Clientecontado, U_H8_Nombre, U_H8_NIF, U_H8_Telefono, U_H8_RMA, U_H8_MOTIVO
-//            FROM OPENQUERY(HANA, '
-//                SELECT * FROM "SBO_TEST_PREFACIERRE".OSCL
-//            ')
-//            WHERE customer = ?
-//        EOT, [$customer]);
-
         $accion = "consultar_ServiceCalls";
         $data = array(
             //  "select" => "ServiceCallID,Subject,CustomerCode,",//Asunto
@@ -140,24 +127,6 @@ class ParteController extends Controller
 
     public function showParte($callID)
     {
-
-        //    $parte = DB::select(<<<EOT
-        //    SELECT callID, customer, custmrName, contctCode, internalSN, itemCode, itemName, itemGroup, status, assignee, descrption, origin, technician,
-        //        resolution, DocNum, BPType, BPContact, BPPhone1, BPPhone2, BPCellular, BPFax, BPE_Mail, BPShipCode, BPShipAddr, BPBillCode, BPBillAddr, Telephone,
-        //        U_H8_SerieEurowin, U_H8_Clientecontado, U_H8_Nombre, U_H8_NIF, U_H8_Telefono, U_H8_RMA, U_H8_MOTIVO
-        //        FROM OPENQUERY(HANA, '
-        //            SELECT * FROM "SBO_TEST_PREFACIERRE".OSCL
-        //        ')
-        //        WHERE callID = ?
-        //    EOT, [$callID]);
-        //    if (empty($parte)) {
-        //        return redirect()->back()->with('error', 'Parte no encontrado');
-        //    }
-
-        //    $parte = $parte[0]; // Aquí lo convertimos en objeto único
-        //    $cliente = $this->consultarClientes($parte->customer);
-
-        //    return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte]);
         $accion = "consultar_ServiceCalls";
         $data = array(
             //"select" => "ServiceCallID,Subject,CustomerCode,",//Asunto
@@ -175,8 +144,10 @@ class ParteController extends Controller
         $response = json_decode($response->body(), true);
         $parte = $response['value'][0];
         $cliente = $this->consultarClientes($parte['CustomerCode']);
+        $tecnico = $this->consultarTecnicos();
+        $origen = $this->consultarOrigen();
 
-        return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte]);
+        return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte, 'tecnicos' => $tecnico, 'origenes' => $origen]);
 
     }
 
@@ -220,6 +191,68 @@ class ParteController extends Controller
             ]);
         }
     }
+
+    private function consultarTecnicos()
+    {
+        $accion = "consulta_EmployeesInfo";
+        $data = [
+            "select" => "EmployeeID,FirstName,LastName", // Seleccionamos los campos necesarios
+            "where" => "Active eq 'tYES'",               // Filtramos solo los que están activos
+            "order" => "FirstName"                       // Los ordenamos alfabéticamente
+        ];
+
+        try {
+            Log::info('Consultando lista de técnicos desde SAP', ['accion' => $accion, 'datos' => $data]);
+
+            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+                'json' => json_encode([
+                    'accion' => $accion,
+                    'usuario' => 'dani',
+                    'datos' => $data
+                ])
+            ]);
+
+            $result = $response->json();
+
+            // Devolvemos la lista de técnicos si existe, o un array vacío si no.
+            return $result['value'] ?? [];
+
+        } catch (\Exception $e) {
+            Log::error('Excepción al consultar la lista de técnicos', ['exception' => $e->getMessage()]);
+            return [];
+        }
+    }
+    private function consultarOrigen()
+    {
+        $accion = "consulta_ServiceCallsOrigins";
+           $data = [
+            'select' => "OriginID,Name",
+            'where' => "OriginID gt 0",
+            'order' => "Name"
+           ];
+
+        try {
+            Log::info('Consultando origenes desde SAP', ['accion' => $accion, 'datos' => $data]);
+
+            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+                'json' => json_encode([
+                    'accion' => $accion,
+                    'usuario' => 'dani',
+                    'datos' => $data
+                ])
+            ]);
+
+            $result = $response->json();
+
+            // Devolvemos la lista de técnicos si existe, o un array vacío si no.
+            return $result['value'] ?? [];
+
+        } catch (\Exception $e) {
+            Log::error('Excepción al consultar la lista de origenes', ['exception' => $e->getMessage()]);
+            return [];
+        }
+    }
+
     private function extraerMensajeErrorSAP($body)
     {
         $decoded = json_decode($body, true);
@@ -243,7 +276,7 @@ class ParteController extends Controller
             'ServiceBPType' => 'required|string',
             'Subject' => 'required|string'
         ], [
-           'CustomerCode.required' => 'El código del cliente es obligatorio.',
+            'CustomerCode.required' => 'El código del cliente es obligatorio.',
             'CustomerName.required' => 'El nombre del cliente es obligatorio.',
             'DocNum.required' => 'El número de documento es obligatorio.',
             'Telephone.required' => 'El teléfono es obligatorio.',

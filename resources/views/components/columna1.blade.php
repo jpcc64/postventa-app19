@@ -3,10 +3,10 @@
     <label class="block text-sm font-medium text-gray-700" for="claseLlamada">Clase de Llamada</label>
 
     <div class="col-span-2 grid grid-cols-2">
-            @php
-                $marcarCliente = isset($cliente) && str_starts_with($cliente['CardCode'], 'C');
-                $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C');
-            @endphp
+        @php
+            $marcarCliente = isset($cliente) && str_starts_with($cliente['CardCode'], 'C');
+            $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C');
+        @endphp
         <div>
             <input type="radio" name="ServiceBPType" id="Clientes" value="srvcSales" class="peer" {{ $marcarCliente ? 'checked' : '' }} disabled>
             <label for="Clientes" class="peer-checked:border-blue-600">Clientes</label>
@@ -66,46 +66,51 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
+        let debounceTimer;
         $('#itemCode').on('input', function () {
             let query = $(this).val();
 
-            if (query.length >= 4) {
-                $.ajax({
-                    url: '{{ route("producto.sugerencias") }}',
-                    type: 'GET',
-                    data: { term: query },
-                    success: function (data) {
-                        let sugerencias = $('#sugerenciasProducto');
-                        sugerencias.empty();
+            clearTimeout(debounceTimer);
 
-                        // Si data es un array de productos
-                        if (Array.isArray(data) && data.length > 0) {
-                            let lista = $('<ul class="max-h-60 overflow-y-auto"></ul>');
-                            data.forEach(function (producto) {
-                                lista.append(`
+            if (query.length >= 3) {
+                debounceTimer = setTimeout(function () {
+                    $.ajax({
+                        url: '{{ route("producto.sugerencias") }}',
+                        type: 'GET',
+                        data: { term: query },
+                        success: function (data) {
+                            let sugerencias = $('#sugerenciasProducto');
+                            sugerencias.empty();
+
+                            // Si data es un array de productos
+                            if (Array.isArray(data) && data.length > 0) {
+                                let lista = $('<ul class="max-h-60 overflow-y-auto"></ul>');
+                                data.forEach(function (producto) {
+                                    lista.append(`
                             <li class="sugerencia cursor-pointer px-4 py-2 hover:bg-blue-100 transition-all border-b border-gray-200">
                                 <p class="font-semibold text-sm text-gray-800" data-id="${producto.ItemName}">${producto.ItemName}</p>
                                 <p class="text-xs text-gray-500" data-id="${producto.ItemCode}">${producto.ItemCode}</p>
                             </li>
                         `);
-                            });
-                            sugerencias.append(lista);
+                                });
+                                sugerencias.append(lista);
 
-                            // Evento al hacer click en sugerencia
-                            $('.sugerencia').on('click', function (e) {
-                                e.preventDefault();
-                                let itemName = $(this).find('p').eq(0).text();
-                                let itemCode = $(this).find('p').eq(1).text();
+                                // Evento al hacer click en sugerencia
+                                $('.sugerencia').on('click', function (e) {
+                                    e.preventDefault();
+                                    let itemName = $(this).find('p').eq(0).text();
+                                    let itemCode = $(this).find('p').eq(1).text();
 
-                                $('#itemCode').val(itemCode);
-                                $('#itemNameInput').val(itemName);
-                                $('#sugerenciasProducto').empty();
-                            });
-                        } else {
-                            sugerencias.append('<div class="px-4 py-2 text-gray-500">No se encontraron productos.</div>');
+                                    $('#itemCode').val(itemCode);
+                                    $('#itemNameInput').val(itemName);
+                                    $('#sugerenciasProducto').empty();
+                                });
+                            } else {
+                                sugerencias.append('<div class="px-4 py-2 text-gray-500">No se encontraron productos.</div>');
+                            }
                         }
-                    }
-                });
+                    });
+                }, 400);
             } else {
                 $('#sugerenciasProducto').empty();
             }

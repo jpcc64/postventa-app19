@@ -108,21 +108,36 @@
 
             <div x-show="tab === 'general'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-3 gap-4">
                 <div class="mt-4">
-                    <label class="block text-sm font-medium">Origen</label>
-                    <input type="text" name="Origin"
-                        class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                        value="{{ old('Origin', $parte['Origin'] ?? '') }}">
+                    <label for="origin-select" class="block text-sm font-medium">Técnico</label>
+                    <select name="TechnicianCode" id="origin-select"
+                        class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+
+                        <option value="">-- Sin asignar --</option>
+
+                        @if(isset($origenes) && is_array($origenes))
+                            @foreach($origenes as $origen)
+                                <option value="{{ $origen['OriginID'] }}" {{ (isset($parte['Origin']) && $parte['Origin'] == $origen['OriginID']) ? 'selected' : '' }}>
+                                    {{ $origen['Name'] }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium">Técnico</label>
-                    <div class="relative">
-                        <input type="text" name="TechnicianCode" id="techCode"
-                            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                            value="{{ old('TechnicianCode', $parte['TechnicianCode'] ?? '') }}">
-                        <div id="sugerenciasTecnico"
-                            class="absolute left-0 top-full w-full bg-white shadow-md rounded-md max-h-60 overflow-y-auto mt-1 z-10">
-                        </div>
-                    </div>
+                    <label for="technician-select" class="block text-sm font-medium">Técnico</label>
+                    <select name="TechnicianCode" id="technician-select"
+                        class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+
+                        <option value="">-- Sin asignar --</option>
+
+                        @if(isset($tecnicos) && is_array($tecnicos))
+                            @foreach($tecnicos as $tecnico)
+                                <option value="{{ $tecnico['EmployeeID'] }}" {{ (isset($parte['TechnicianCode']) && $parte['TechnicianCode'] == $tecnico['EmployeeID']) ? 'selected' : '' }}>
+                                    {{ $tecnico['FirstName'] }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
                 </div>
 
             </div>
@@ -143,57 +158,3 @@
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#techCode').on('input', function () {
-                let query = $(this).val();
-
-                if (query.length >= 1) {
-                    $.ajax({
-                        url: '{{ route("tecnico.sugerencias") }}',
-                        type: 'GET',
-                        data: { term: query },
-                        success: function (data) {
-                            let sugerencias = $('#sugerenciasTecnico');
-                            sugerencias.empty();
-
-                            // Si data es un array de productos
-                            if (Array.isArray(data) && data.length > 0) {
-                                let lista = $('<ul class="max-h-60 overflow-y-auto"></ul>');
-                                data.forEach(function (tecnico) {
-                                    lista.append(`
-                            <li class="sugerencia cursor-pointer px-4 py-2 hover:bg-blue-100 transition-all border-b border-gray-200">
-                               <p class="text-xs text-gray-500" data-id="${tecnico.EmployeeID}">${tecnico.EmployeeID}</p>
-                               <p class="font-semibold text-sm text-gray-800" data-id="${tecnico.FirstName}">${tecnico.FirstName}</p>
-                            </li>
-                        `);
-                                });
-                                sugerencias.append(lista);
-
-                                // Evento al hacer click en sugerencia
-                                $('.sugerencia').on('click', function (e) {
-                                    e.preventDefault();
-                                    let EmployeeID = $(this).find('p').eq(0).text();
-                                    $('#techCode').val(EmployeeID);
-                                    $('#sugerenciasTecnico').empty();
-                                });
-                            } else {
-                                sugerencias.append('<div class="px-4 py-2 text-gray-500">No se encontraron productos.</div>');
-                            }
-                        }
-                    });
-                } else {
-                    $('#sugerenciasTecnico').empty();
-                }
-            });
-
-
-
-            // Cerrar modal al hacer click fuera
-            $(document).on('click', function (e) {
-                if ($(e.target).is('#sugerenciasTecnico')) {
-                    $('#sugerenciasTecnico').addClass('hidden');
-                }
-            });
-        });
-    </script>
