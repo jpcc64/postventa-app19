@@ -108,10 +108,9 @@
 
             <div x-show="tab === 'general'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-3 gap-4">
                 <div class="mt-4">
-                    <label for="origin-select" class="block text-sm font-medium">Técnico</label>
+                    <label for="origin-select" class="block text-sm font-medium">Origen</label>
                     <select name="TechnicianCode" id="origin-select"
                         class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-
                         <option value="">-- Sin asignar --</option>
 
                         @if(isset($origenes) && is_array($origenes))
@@ -123,21 +122,15 @@
                         @endif
                     </select>
                 </div>
-                <div>
-                    <label for="technician-select" class="block text-sm font-medium">Técnico</label>
-                    <select name="TechnicianCode" id="technician-select"
+                <div class="mt-4 relative">
+                    <label class="block text-sm font-medium">Técnico</label>
+                    <input type="text" hidden name="TechnicianCode" id="techCode"
+                        value="{{ old('TechnicianCode', $parte['TechnicianCode'] ?? '') }}">
+                    <input type="text" name="TechnicianName" id="techName"
                         class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-
-                        <option value="">-- Sin asignar --</option>
-
-                        @if(isset($tecnicos) && is_array($tecnicos))
-                            @foreach($tecnicos as $tecnico)
-                                <option value="{{ $tecnico['EmployeeID'] }}" {{ (isset($parte['TechnicianCode']) && $parte['TechnicianCode'] == $tecnico['EmployeeID']) ? 'selected' : '' }}>
-                                    {{ $tecnico['FirstName'] }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
+                    <div id="sugerenciasTecnico"
+                        class="absolute left-0 top-full w-full bg-white shadow-md rounded-md max-h-60 overflow-y-auto mt-1 z-10">
+                    </div>
                 </div>
 
             </div>
@@ -158,3 +151,61 @@
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let tecnicoTimeout = null;
+
+            $('#techName').on('input', function () {
+                let query = $(this).val();
+
+                clearTimeout(tecnicoTimeout); // Limpiar el timeout anterior
+
+                tecnicoTimeout = setTimeout(function () {
+                    if (query.length >= 1) {
+                        $.ajax({
+                            url: '{{ route("tecnico.sugerencias") }}',
+                            type: 'GET',
+                            data: { term: query },
+                            success: function (data) {
+                                let sugerencias = $('#sugerenciasTecnico');
+                                sugerencias.empty();
+
+                                if (Array.isArray(data) && data.length > 0) {
+                                    let lista = $('<ul class="max-h-60 overflow-y-auto"></ul>');
+                                    data.forEach(function (tecnico) {
+                                        lista.append(`
+                                        <li class="sugerencia cursor-pointer px-4 py-2 hover:bg-blue-100 transition-all border-b border-gray-200">
+                                            <p class="text-xs text-gray-500" data-id="${tecnico.EmployeeID}">${tecnico.EmployeeID}</p>
+                                            <p class="font-semibold text-sm text-gray-800" data-id="${tecnico.FirstName}">${tecnico.FirstName}</p>
+                                        </li>
+                                    `);
+                                    });
+                                    sugerencias.append(lista);
+
+                                    $('.sugerencia').on('click', function (e) {
+                                        e.preventDefault();
+                                        let EmployeeID = $(this).find('p').eq(0).text();
+                                        let EmployeeName = $(this).find('p').eq(1).text();
+                                        $('#techCode').val(EmployeeID);
+                                        $('#techName').val(EmployeeName);
+                                        $('#sugerenciasTecnico').empty();
+                                    });
+                                } else {
+                                    sugerencias.append('<div class="px-4 py-2 text-gray-500">No se encontraron técnicos.</div>');
+                                }
+                            }
+                        });
+                    } else {
+                        $('#sugerenciasTecnico').empty();
+                    }
+                }, 500);
+            });
+
+            // Cerrar modal al hacer click fuera
+            $(document).on('click', function (e) {
+                if ($(e.target).is('#sugerenciasTecnico')) {
+                    $('#sugerenciasTecnico').addClass('hidden');
+                }
+            });
+        });
+    </script>

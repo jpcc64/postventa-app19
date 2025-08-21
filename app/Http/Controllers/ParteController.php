@@ -22,7 +22,7 @@ class ParteController extends Controller
         }
         $busqueda = strtoupper(trim($id));
         $clientes = $this->consultarClientes($busqueda);
-        $tecnico = $this->consultarTecnicos();
+        
         $origen = $this->consultarOrigen();
         if (empty($clientes)) {
             return back()->with('error', 'No se encontró ningún cliente.');
@@ -30,20 +30,20 @@ class ParteController extends Controller
         $partes = $this->consultarPartes($clientes[0]['CardCode']);
         if (count($partes) >= 2) {
             // si tiene 2 o mas partes saltará el model para elegir que parte usa
-            return view('parteFormulario', ['cliente' => $clientes[0], 'partes' => $partes, 'tecnicos' => $tecnico, 'origenes' => $origen])
+            return view('parteFormulario', ['cliente' => $clientes[0], 'partes' => $partes, 'origenes' => $origen])
                 ->with('success', 'Parte encontrado para el cliente.');
         }
 
-        return view('parteFormulario', ['cliente' => $clientes[0], 'parte' => $partes[0] ?? null, 'tecnicos' => $tecnico, 'origenes' => $origen])
+        return view('parteFormulario', ['cliente' => $clientes[0], 'parte' => $partes[0] ?? null, 'origenes' => $origen])
             ->with('success', 'Parte encontrado para el cliente.');
     }
 
     public function nuevoParte($id)
     {
         $cliente = $this->consultarClientes($id);
-        $tecnico = $this->consultarTecnicos();
+        $origen = $this->consultarOrigen();
         // dd($cliente);
-        return view('parteFormulario', ['cliente' => $cliente[0], 'tecnicos' => $tecnico, 'origenes' => $origen]);
+        return view('parteFormulario', ['cliente' => $cliente[0],  'origenes' => $origen]);
     }
 
     public function sugerencias(Request $request)
@@ -144,10 +144,10 @@ class ParteController extends Controller
         $response = json_decode($response->body(), true);
         $parte = $response['value'][0];
         $cliente = $this->consultarClientes($parte['CustomerCode']);
-        $tecnico = $this->consultarTecnicos();
+        
         $origen = $this->consultarOrigen();
 
-        return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte, 'tecnicos' => $tecnico, 'origenes' => $origen]);
+        return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte, 'origenes' => $origen]);
 
     }
 
@@ -192,36 +192,6 @@ class ParteController extends Controller
         }
     }
 
-    private function consultarTecnicos()
-    {
-        $accion = "consulta_EmployeesInfo";
-        $data = [
-            "select" => "EmployeeID,FirstName,LastName", // Seleccionamos los campos necesarios
-            "where" => "Active eq 'tYES'",               // Filtramos solo los que están activos
-            "order" => "FirstName"                       // Los ordenamos alfabéticamente
-        ];
-
-        try {
-            Log::info('Consultando lista de técnicos desde SAP', ['accion' => $accion, 'datos' => $data]);
-
-            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
-                'json' => json_encode([
-                    'accion' => $accion,
-                    'usuario' => 'dani',
-                    'datos' => $data
-                ])
-            ]);
-
-            $result = $response->json();
-
-            // Devolvemos la lista de técnicos si existe, o un array vacío si no.
-            return $result['value'] ?? [];
-
-        } catch (\Exception $e) {
-            Log::error('Excepción al consultar la lista de técnicos', ['exception' => $e->getMessage()]);
-            return [];
-        }
-    }
     private function consultarOrigen()
     {
         $accion = "consulta_ServiceCallsOrigins";
