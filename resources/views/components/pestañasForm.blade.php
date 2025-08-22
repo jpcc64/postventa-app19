@@ -198,7 +198,7 @@
                     } else {
                         $('#sugerenciasTecnico').empty();
                     }
-                }, 500);
+                }, 300);
             });
 
             // Cerrar modal al hacer click fuera

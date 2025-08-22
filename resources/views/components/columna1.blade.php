@@ -1,5 +1,6 @@
 <div class="space-y-3 grid grid-cols-2 gap-2 p-2">
     <input type="hidden" name="CustomerCode" value="{{ $cliente['CardCode'] ?? '' }}">
+    <input type="hidden" name="CustomerNIF" value="{{ $cliente['FederalTaxID'] ?? '' }}">
     <label class="block text-sm font-medium text-gray-700" for="claseLlamada">Clase de Llamada</label>
 
     <div class="col-span-2 grid grid-cols-2">
