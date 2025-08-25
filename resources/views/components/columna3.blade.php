@@ -2,14 +2,14 @@
     <div class="grid grid-cols-2 gap-4">
         <div>
             <label class="block text-sm font-medium text-gray-700">ID llamada</label>
-            <input type="text" name="callID"
-                class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            <input type="text" name="callID" readonly
+                class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-300 shadow-sm"
                 value="{{ $parte['ServiceCallID'] ?? '' }}">
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700">Num de documento</label>
-            <input type="text" name="DocNum"
-                class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            <input type="text" name="DocNum" readonly
+                class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-300 shadow-sm"
                 value="{{ $parte['DocNum'] ?? '' }}">
         </div>
     </div>

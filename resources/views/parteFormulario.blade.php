@@ -54,29 +54,50 @@
 @endif
 
 
-<div>
+<div class="max-w-5xl mx-auto">
+    <div class="flex space-x-3 mb-4">
 
-    <form action="{{ route('parte.buscar') }}" method="get" class="flex justify-center">
+        <form action="{{ route('parte.buscar') }}" method="get" class="w-2/3">
 
-        @csrf
-        <div class="flex justify-center items-center space-x-4 relative w-full max-w-xl">
-            <input type="text" id="busquedaCliente" name="buscar"
-                class="form-control mb-4 p-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none transition duration-300 w-full"
-                placeholder="Buscar cliente" autocomplete="on">
+            @csrf
+            <div class="flex items-center space-x-4 relative w-full">
+                <input type="text" id="busquedaCliente" name="buscar"
+                    class="form-control p-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none transition duration-300 w-full"
+                    placeholder="Buscar cliente" autocomplete="on">
 
-            <button class="mb-4 bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 px-6" type="submit">
-                Buscar
-            </button>
+                <button class="bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 px-6" type="submit">
+                    Buscar
+                </button>
 
-            <!-- Sugerencias justo debajo del input -->
-            <div id="sugerencias"
-                class="absolute top-full right-10 bg-white shadow-md rounded-md z-50 max-h-60 overflow-y-auto w-full mt-1">
+                <!-- Sugerencias justo debajo del input -->
+                <div id="sugerencias"
+                    class="absolute top-full left-0 bg-white shadow-md rounded-md z-50 max-h-60 overflow-y-auto w-full mt-1">
+                </div>
             </div>
-        </div>
 
-    </form>
+        </form>
+        <form action="{{ route('parte.buscarRMA') }}" method="get" class="w-1/3">
+
+            @csrf
+            <div class="flex items-center space-x-4 relative w-full">
+                <input type="text" id="busquedaRMA" name="busquedaRMA"
+                    class="form-control p-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none transition duration-300 w-full"
+                    placeholder="Buscar RMA" autocomplete="on">
+
+                <button class="bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 px-6" type="submit">
+                    Buscar
+                </button>
+            </div>
+
+        </form>
+    </div>
 </div>
-
+@if(isset($cliente))
+    <a href="{{ route('partes.imprimir', ['id' => $cliente['CardCode']]) }}" target="_blank">
+        <button type="button" class="mb-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg py-3 px-6 mx-3">Imprimir
+            Parte</button>
+    </a>
+@endif
 @if(isset($partes))
 
     <div>
@@ -116,11 +137,9 @@
         </div>
     </div>
 @endif
-
 <!-- 🔹 Formulario completo -->
 <div class="bg-white p-6 sm:p-8 rounded-xl shadow-md border border-slate-200">
-
-    <form method="POST" action="{{route('parte.crear') }}">
+    <form id="form-parte" method="POST" action="{{ route('parte.crear') }}">
         @csrf
         <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8">
             @include('components.columna1')
@@ -130,56 +149,58 @@
                 @include('components.pestañasForm')
             </div>
         </div>
-    </form>
+
+</div>
+</form>
 </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    
+
     $(document).ready(function () {
 
-            let debounceTimer;
+        let debounceTimer;
 
-            $('#busquedaCliente').on('input', function () {
-                let query = $(this).val();
-                let sugerencias = $('#sugerencias');
+        $('#busquedaCliente').on('input', function () {
+            let query = $(this).val();
+            let sugerencias = $('#sugerencias');
 
-                clearTimeout(debounceTimer);
+            clearTimeout(debounceTimer);
 
-                if (query.length >= 4) {
-                    debounceTimer = setTimeout(function () {
-                        console.log("Buscando:", query); // Log para depurar
+            if (query.length >= 4) {
+                debounceTimer = setTimeout(function () {
+                    console.log("Buscando:", query); // Log para depurar
 
-                        $.ajax({
-                            url: '{{ route("buscar.sugerencias") }}',
-                            type: 'GET',
-                            data: { term: query },
-                            success: function (data) {
-                                sugerencias.empty();
-                                if (data.length > 0) {
-                                    data.forEach(function (item) {
-                                        sugerencias.append(`
+                    $.ajax({
+                        url: '{{ route("buscar.sugerencias") }}',
+                        type: 'GET',
+                        data: { term: query },
+                        success: function (data) {
+                            sugerencias.empty();
+                            if (data.length > 0) {
+                                data.forEach(function (item) {
+                                    sugerencias.append(`
                                     <div class="sugerencia cursor-pointer px-4 py-2 hover:bg-blue-100" data-id="${item.CardCode}">
                                         <div class="font-semibold text-sm text-gray-800">${item.CardName}</div>
-                                        <div class="text-xs text-gray-500">${item.LicTradNum} - ${item.Phone1}</div>
+                                        <div class="text-xs text-gray-500">${item.CardCode} - ${item.Phone1}</div>
                                     </div>
                                 `);
-                                    });
-                                }
+                                });
                             }
-                        });
-                    }, 400); 
-                } else {
-                    sugerencias.empty();
-                }
-            });
+                        }
+                    });
+                }, 400);
+            } else {
+                sugerencias.empty();
+            }
+        });
 
-            $(document).on('click', '.sugerencia', function (e) {
-                e.preventDefault();
-                let cardCode = $(this).data('id');
-                $('#busquedaCliente').val(cardCode);
-                $('#sugerencias').empty();
-            });
+        $(document).on('click', '.sugerencia', function (e) {
+            e.preventDefault();
+            let cardCode = $(this).data('id');
+            $('#busquedaCliente').val(cardCode);
+            $('#sugerencias').empty();
+        });
 
 
         // Click en una parte del modal
@@ -195,5 +216,30 @@
                 $('#modalPartes').addClass('hidden');
             }
         });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        const formParte = document.getElementById('form-parte');
+
+        if (!formParte) {
+            return; // Salir si no se encuentra el formulario
+        }
+
+        // 1. Buscar el campo 'select' por su atributo 'name'
+        const statusSelect = formParte.querySelector('select[name="Status"]');
+
+        // 2. Comprobar que el select existe y que su valor es '-1'
+        if (statusSelect && statusSelect.value == '-1') {
+
+            // Seleccionar todos los campos a deshabilitar
+            const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
+
+            fieldsToDisable.forEach(function (field) {
+                // Si el campo no es el select de estado, deshabilitarlo
+                if (field !== statusSelect) {
+                    field.classList.add('bg-gray-300');
+                    field.readonly = true;
+                }
+            });
+        }
     });
 </script>
