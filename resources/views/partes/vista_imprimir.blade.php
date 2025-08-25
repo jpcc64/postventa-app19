@@ -9,6 +9,7 @@
         /* Estilos personalizados basados en la imagen y adaptados a A4 */
         body {
             font-family: Arial, sans-serif;
+            font-size: 12px;
             color: #000;
             background-color: #f0f0f0;
             /* Fondo para resaltar el contenedor principal */
@@ -122,7 +123,7 @@
                 <img src="{{ asset('storage/Logo_elec_euro_R.png') }}" alt="Logo" class="max-h-full">
             </div>
             <div class="header-box">
-                <div class="text-center text-xs">
+                <div class="text-left text-xs">
                     <p class="font-bold">COMERCIANTE MINORISTA</p>
                     <p>C/ Henequen, 43</p>
                     <p>C.I.F. A35421395</p>
@@ -138,28 +139,28 @@
             <div class="content-box-small col-span-1">
                 <p>
                     <strong>PARTE S.A.T </strong>
-                    {{ $parte['ServiceCallID'] ?? 'N/A' }}
+                    {{ $parte['ServiceCallID'] ?? '' }}
                 </p>
                 <p>
                     <strong>FECHA </strong>
-                    {{ isset($parte['CreationDate']) ? \Carbon\Carbon::parse($parte['CreationDate'])->format('d/m/Y') : 'N/A' }}
+                    {{ isset($parte['CreationDate']) ? \Carbon\Carbon::parse($parte['CreationDate'])->format('d/m/Y') : '' }}
                 </p>
                 <p>
                     <strong>CLIENTE: </strong>
-                    {{ $cliente['CardCode'] ?? 'N/A' }}
+                    {{ $cliente['CardCode'] ?? '' }}
                 </p>
                 <p>
                     <strong>N.I.F. : </strong>
-                    {{ $cliente['FederalTaxID'] ?? 'N/A' }}
+                    {{ $cliente['FederalTaxID'] ?? '' }}
                 </p>
             </div>
 
             <div class="content-box-small col-span-2">
                 <p class="font-bold">CLIENTE</p>
-                <p>{{ $cliente['CardCode'] ?? 'N/A' }} - {{ $cliente['CardName'] ?? 'N/A' }}</p>
-                <p>{{ $parte['BPBillToAddress'] ?? 'N/A' }}</p>
-                <p>{{ $parte['BPShipToAddress'] ?? 'N/A' }}</p>
-                <p><strong>TELÉFONO: </strong> {{ $parte['Telephone'] ?? 'N/A' }}</p>
+                <p>{{ $cliente['CardCode'] ?? '' }} - {{ $cliente['CardName'] ?? '' }}</p>
+                <p>{{ $parte['BPBillToAddress'] ?? '' }}</p>
+                <p>{{ $parte['BPShipToAddress'] ?? '' }}</p>
+                <p><strong>TELÉFONO: </strong> {{ $parte['Telephone'] ?? '' }}</p>
             </div>
         </section>
 
@@ -167,14 +168,14 @@
             <div>
                 <p><strong>Operario: </strong>
                     @isset($tecnico)
-                        {{ $tecnico->FirstName ?? 'N/A' }}
+                        {{ $tecnico[0]['FirstName'] ?? '' }}
                     @else
-                        N/A
+                        
                     @endisset
                 </p>
-                <p><strong>Artículo: </strong> {{ $parte['ItemDescription'] ?? 'N/A' }}</p>
+                <p><strong>Artículo: </strong> {{ $parte['ItemDescription'] ?? '' }}</p>
                 <p><strong>Fecha de cierre: </strong>
-                    {{ isset($parte['EndDueDate']) ? \Carbon\Carbon::parse($parte['EndDueDate'])->format('d/m/Y') : 'N/A' }}
+                    {{ isset($parte['EndDueDate']) ? \Carbon\Carbon::parse($parte['EndDueDate'])->format('d/m/Y') : '' }}
                 </p>
             </div>
             <div>
@@ -190,11 +191,18 @@
                             <span>Cerrado</span>
                             @break
                         @default
-                            <span>N/A</span>
+                            <span></span>
                     @endswitch
                 </p>
-                <p><strong>R.M.A: </strong> {{ $parte['U_H8_RMA'] ?? 'N/A' }}</p>
-                <p><strong>Núm. serie: </strong> {{ $parte['InternalSerialNum'] ?? 'N/A' }}</p>
+                <p><strong>R.M.A: </strong> {{ $parte['U_H8_RMA'] ?? '' }}</p>
+                <p><strong>Núm. serie: </strong> {{ $parte['InternalSerialNum'] ?? '' }}</p>
+                <p><strong>Origen: </strong>
+                @foreach($origen as $item)
+                    @if($parte['Origin'] == $item['OriginID'])
+                        {{ $item['Name'] }}
+                    @endif
+                @endforeach
+            </p>
             </div>
         </section>
 
@@ -202,8 +210,8 @@
             <div class="title-bar">
                 <p>PROBLEMA DEL ARTÍCULO</p>
             </div>
-            <div class="content-area  overflow-hidden">
-                <p class="mt-1 truncate"><strong>Artículo:</strong> {{ $parte['ItemCode'] ?? 'N/A' }} - {{ $parte['ItemDescription'] ?? 'N/A' }}</p>
+            <div class="content-area overflow-hidden">
+                <div class="mt-1"> {{ $parte['Description'] ?? '' }} </div>
             </div>
         </section>
 
@@ -212,7 +220,7 @@
                 <p>SOLUCIÓN</p>
             </div>
             <div class="content-area">
-                <p>{{$parte['Resolution'] ?? 'N/A'}}</p>
+                <p>{{$parte['Resolution'] ?? ''}}</p>
             </div>
         </section>
 

@@ -317,11 +317,13 @@ class ParteController extends Controller
         $parte = $this->consultarPartes($customerCode,'CustomerCode');
         $cliente = $this->consultarClientes($customerCode);
         $tecnico = $this->nombreTecnico($parte[0]['TechnicianCode']);
+        $origen = $this->consultarOrigen();
         //  dd($parte);
         return view('partes.vista_imprimir', [
             'parte' => $parte[0],
             'cliente' => $cliente[0],
-            'tecnico' => $tecnico
+            'tecnico' => $tecnico,
+            'origen' => $origen
         ]);
     }
 }
