@@ -6,12 +6,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\ProductoController;
 
 class ParteController extends Controller
 {
+    private $productoController;
+    private $origen;
+
+    public function __construct(ProductoController $productoController)
+    {
+        $this->productoController = $productoController;
+        $this->origen = $this->consultarOrigen();
+    }
+    
     public function index()
     {
-        return view('parteFormulario');
+        return view('parteFormulario', ['origenes' => $this->origen]);
     }
 
     public function buscar(Request $request)
@@ -24,18 +34,19 @@ class ParteController extends Controller
         $busqueda = strtoupper(trim($id));
         $clientes = $this->consultarClientes($busqueda);
         
-        $origen = $this->consultarOrigen();
+
         if (empty($clientes)) {
             return back()->with('error', 'No se encontró ningún cliente.');
         }
         $partes = $this->consultarPartes($clientes[0]['CardCode'],'CustomerCode');
+        $tecnico = $this->nombreTecnico($partes[0]['TechnicianCode'] ?? '');
         if (count($partes) >= 2) {
             // si tiene 2 o mas partes saltará el model para elegir que parte usa
-            return view('parteFormulario', ['cliente' => $clientes[0], 'partes' => $partes, 'origenes' => $origen])
+            return view('parteFormulario', ['cliente' => $clientes[0], 'partes' => $partes, 'origenes' => $this->origen, 'tecnico' => $tecnico])
                 ->with('success', 'Parte encontrado para el cliente.');
         }
 
-        return view('parteFormulario', ['cliente' => $clientes[0], 'parte' => $partes[0] ?? null, 'origenes' => $origen])
+        return view('parteFormulario', ['cliente' => $clientes[0], 'parte' => $partes[0] ?? null, 'origenes' => $this->origen, 'tecnico' => $tecnico])
             ->with('success', 'Parte encontrado para el cliente.');
     }
 
@@ -47,20 +58,22 @@ class ParteController extends Controller
         $busqueda = strtoupper(trim($id));
         $rmas = $this->consultarPartes($busqueda,'U_H8_RMA');
         $cliente = $this->consultarClientes($rmas[0]['CustomerCode'] ?? '');
-        $origen = $this->consultarOrigen();
+        $tecnico = $this->nombreTecnico($rmas[0]['TechnicianCode']);
+
+
         if (empty($rmas)) {
             return back()->with('error', 'No se encontró ningún RMA.');
         }
-        return view('parteFormulario', ['parte' => $rmas[0], 'cliente' => $cliente[0] ?? null, 'origenes' => $origen])
+        return view('parteFormulario', ['parte' => $rmas[0], 'cliente' => $cliente[0] ?? null, 'origenes' => $this->origen, 'tecnico' => $tecnico])
             ->with('success', 'Parte encontrado.');
     }
 
     public function nuevoParte($id)
     {
         $cliente = $this->consultarClientes($id);
-        $origen = $this->consultarOrigen();
+
         // dd($cliente);
-        return view('parteFormulario', ['cliente' => $cliente[0],  'origenes' => $origen]);
+        return view('parteFormulario', ['cliente' => $cliente[0],  'origenes' => $this->origen]);
     }
 
     public function sugerencias(Request $request)
@@ -161,10 +174,9 @@ class ParteController extends Controller
         $response = json_decode($response->body(), true);
         $parte = $response['value'][0];
         $cliente = $this->consultarClientes($parte['CustomerCode']);
-        
-        $origen = $this->consultarOrigen();
+        $tecnico = $this->nombreTecnico($parte['TechnicianCode']);
 
-        return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte, 'origenes' => $origen]);
+        return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte, 'origenes' => $this->origen, 'tecnico' => $tecnico]);
 
     }
 
@@ -173,10 +185,10 @@ class ParteController extends Controller
      //   $this->validarCamposSAP($request);
 
         $datos = $request->all();
+       
         $accion = (empty($datos['callID']) && empty($datos['DocNum']))
             ? 'crear_ServiceCalls'
             : 'modificar_ServiceCalls';
-
         try {
             Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $datos]);
             $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
@@ -193,7 +205,8 @@ class ParteController extends Controller
                 return back()->with([
                     'success' => $accion == 'crear_ServiceCalls' ? 'Parte creado correctamente.' : 'Parte modificado correctamente.',
                     'parte' => $datos,
-                    'resultado' => $body
+                    'resultado' => $body,
+                    'origenes' => $this->consultarOrigen()
                 ]);
             }
 
@@ -269,15 +282,46 @@ class ParteController extends Controller
             'Subject.required' => 'El asunto es obligatorio.'
         ]);
     }
+    public function nombreTecnico($id)
+    {
+        $accion = "consulta_EmployeesInfo";
+        $data = array(
+            "select" => "FirstName",
+            "where" => "EmployeeID eq $id",
+        );
 
+        try {
+            Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+                'json' => json_encode([
+                    'accion' => $accion,
+                    'usuario' => 'dani',
+                    'datos' => $data
+                ])
+            ]);
+
+            $body = json_decode($response->body(), true);
+            Log::info('Datos recibidos: ', ['datos' => $body['value']]);
+
+            return ($body['value'] ?? []);
+
+
+        } catch (\Exception $e) {
+            Log::error('Excepción al consultar productos en SAP', ['exception' => $e->getMessage()]);
+            // En caso de error, devolvemos un JSON vacío con un código de error de servidor.
+            return response()->json([], 500);
+        }
+    }
     public function vistaImprimir($customerCode)
     {
         $parte = $this->consultarPartes($customerCode,'CustomerCode');
         $cliente = $this->consultarClientes($customerCode);
-
+        $tecnico = $this->nombreTecnico($parte[0]['TechnicianCode']);
+        //  dd($parte);
         return view('partes.vista_imprimir', [
-            'parte' => $parte,
-            'cliente' => $cliente[0]
+            'parte' => $parte[0],
+            'cliente' => $cliente[0],
+            'tecnico' => $tecnico
         ]);
     }
 }

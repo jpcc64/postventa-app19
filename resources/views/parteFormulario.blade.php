@@ -137,12 +137,10 @@
         </div>
     </div>
 @endif
-
 <!-- 🔹 Formulario completo -->
 <div class="bg-white p-6 sm:p-8 rounded-xl shadow-md border border-slate-200">
     <form id="form-parte" method="POST" action="{{ route('parte.crear') }}">
         @csrf
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8">
             @include('components.columna1')
             @include('components.columna2')
@@ -236,19 +234,11 @@
             const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
 
             fieldsToDisable.forEach(function (field) {
-                // Para evitar que el propio select de estado se deshabilite y no se pueda leer
+                // Si el campo no es el select de estado, deshabilitarlo
                 if (field !== statusSelect) {
                     field.classList.add('bg-gray-300');
-                    field.disabled = true;
-                } else {
-                    field.disabled = true;
+                    field.readonly = true;
                 }
-            });
-
-            // Opcional: Deshabilitar botones de envío
-            const submitButtons = formParte.querySelectorAll('button[type="submit"]');
-            submitButtons.forEach(function (button) {
-                button.disabled = true;
             });
         }
     });

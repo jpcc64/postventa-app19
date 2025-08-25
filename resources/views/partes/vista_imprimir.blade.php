@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Imprimir Parte {{ $parte['ServiceCallID'] ?? '' }}</title>
-    <!-- Inclusión de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet">
     <style>
@@ -11,68 +10,90 @@
         body {
             font-family: Arial, sans-serif;
             color: #000;
-            background-color: #f0f0f0; /* Fondo para resaltar el contenedor principal */
+            background-color: #f0f0f0;
+            /* Fondo para resaltar el contenedor principal */
         }
+
         .page {
             background: white;
             display: block;
             margin: 2rem auto;
-            box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
             width: 21cm;
-            min-height: 29.7cm; /* Usar min-height para flexibilidad */
+            min-height: 29.7cm;
+            /* Usar min-height para flexibilidad */
             padding: 1.5rem;
             box-sizing: border-box;
-            border: 3px solid #000;
         }
+
         .header-box {
-            border: 2px solid #000;
-            height: 80px; /* Altura fija para los cuadros de la cabecera */
+            height: 100px;
+            /* Altura fija para los cuadros de la cabecera */
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
             padding: 0.5rem;
         }
+
         .content-box {
             border: 2px solid #000;
-            border-radius: 2rem; /* Bordes muy redondeados */
+            border-radius: 2rem;
+            /* Bordes muy redondeados */
             padding: 1.5rem;
-            margin-top: 1.5rem; /* Espacio entre divs */
-            position: relative; /* Necesario para la barra gris */
-            overflow: hidden; /* Para que la barra gris no se salga */
+            margin-top: 1.5rem;
+            /* Espacio entre divs */
         }
+
+        .content-box-section {
+            border: 2px solid #000;
+            min-height: 12rem;
+            border-radius: 2rem;
+            /* Bordes muy redondeados */
+            margin-top: 1.5rem;
+            /* Espacio entre divs */
+            overflow: hidden; /* Mantiene los bordes redondeados con el contenido interior */
+        }
+
         .content-box-small {
-             border: 2px solid #000;
+            border: 2px solid #000;
             border-radius: 2rem;
             padding: 1rem 1.5rem;
             margin-top: 1.5rem;
         }
-        .grey-bar {
-            background-color: #a9a9a9; /* Gris */
-            border-radius: 2rem 2rem 0 0; /* Redondeado solo arriba */
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 40%; /* Ocupa una porción del contenedor */
-            z-index: 1;
+
+        /* --- CORRECCIÓN: Estilos simplificados para la barra gris --- */
+        .title-bar {
+            background-color: #757575ff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
         }
-        .content-over-bar {
-            position: relative;
-            z-index: 2; /* Asegura que el texto esté sobre la barra */
+        .content-area {
+            padding: 1.25rem 1.5rem;
         }
+        /* --- FIN DE LA CORRECCIÓN --- */
+
 
         /* Estilos de impresión */
         @media print {
-            body, .page {
+            body,
+            .page {
                 margin: 0;
                 box-shadow: none;
                 background: white;
             }
+
+            .title-bar {
+                background-color: #a9a9a9 !important;
+                -webkit-print-color-adjust: exact; /* Fuerza la impresión del color de fondo */
+                print-color-adjust: exact;
+            }
+
             .no-print {
                 display: none;
             }
         }
+
         .print-button {
             display: block;
             width: 100px;
@@ -85,22 +106,22 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
     </style>
 </head>
+
 <body>
-    
-    <!-- Botón para imprimir que no se verá en el papel -->
-    <button onclick="window.print()" class="print-button no-print">Imprimir</button>
 
     <div class="page">
-        <!-- Cabecera: LOGO, TEXTO, QR -->
-        <header class="grid grid-cols-3 gap-4">
+        <header class="grid grid-cols-3 gap-1">
             <div class="header-box">
-                <!-- LOGO -->
-                <img src="{{ asset('storage/app/public/Logo_elec_euro_R.png') }}" alt="Logo" class="max-h-full">
+                <img src="{{ asset('storage/Logo_elec_euro_R.png') }}" alt="Logo" class="max-h-full">
             </div>
             <div class="header-box">
-                <!-- TEXTO -->
                 <div class="text-center text-xs">
                     <p class="font-bold">COMERCIANTE MINORISTA</p>
                     <p>C/ Henequen, 43</p>
@@ -108,51 +129,104 @@
                 </div>
             </div>
             <div class="header-box">
-                <!-- QR -->
-                <img src="{{ asset('storage/app/public/QR_new.png') }}" alt="QR Code" class="h-16 w-16">
+                <img src="{{ asset('storage/QR_new.png') }}" alt="QR Code" class="h-16 w-16">
             </div>
         </header>
-        
-        <!-- Contenido 1: Dos cajas pequeñas -->
+
         <section class="grid grid-cols-3 gap-4">
-             <div class="content-box-small col-span-1">
-                <p class="font-bold">FECHA</p>
-                <p>{{ $parte['CreationDate'] ?? 'N/A' }}</p>
+
+            <div class="content-box-small col-span-1">
+                <p>
+                    <strong>PARTE S.A.T </strong>
+                    {{ $parte['ServiceCallID'] ?? 'N/A' }}
+                </p>
+                <p>
+                    <strong>FECHA </strong>
+                    {{ isset($parte['CreationDate']) ? \Carbon\Carbon::parse($parte['CreationDate'])->format('d/m/Y') : 'N/A' }}
+                </p>
+                <p>
+                    <strong>CLIENTE: </strong>
+                    {{ $cliente['CardCode'] ?? 'N/A' }}
+                </p>
+                <p>
+                    <strong>N.I.F. : </strong>
+                    {{ $cliente['FederalTaxID'] ?? 'N/A' }}
+                </p>
             </div>
+
             <div class="content-box-small col-span-2">
                 <p class="font-bold">CLIENTE</p>
                 <p>{{ $cliente['CardCode'] ?? 'N/A' }} - {{ $cliente['CardName'] ?? 'N/A' }}</p>
+                <p>{{ $parte['BPBillToAddress'] ?? 'N/A' }}</p>
+                <p>{{ $parte['BPShipToAddress'] ?? 'N/A' }}</p>
+                <p><strong>TELÉFONO: </strong> {{ $parte['Telephone'] ?? 'N/A' }}</p>
             </div>
         </section>
 
-        <!-- Contenido 2: Caja larga -->
-        <section class="content-box">
-             <p class="font-bold">DATOS DE CONTACTO Y PARTE</p>
-             <p><strong>NIF:</strong> {{ $cliente['FederalTaxID'] ?? 'N/A' }}</p>
-             <p><strong>Dirección:</strong> {{ $parte['BPBillToAddress'] ?? 'N/A' }}</p>
-             <p><strong>Teléfono:</strong> {{ $cliente['Phone1'] ?? 'N/A' }}</p>
-             <p><strong>Parte S.A.T:</strong> {{ $parte['ServiceCallID'] ?? 'N/A' }}</p>
-        </section>
-
-        <!-- Contenido 3: Caja con barra gris -->
-        <section class="content-box">
-            <div class="grey-bar"></div>
-            <div class="content-over-bar">
-                <p class="font-bold">PROBLEMA DEL ARTÍCULO</p>
-                <p><strong>Artículo:</strong> {{-- Aquí iría la variable del artículo --}}</p>
-                <p><strong>Descripción:</strong> {{-- Aquí iría la variable de la descripción del problema --}}</p>
+        <section class="content-box grid grid-cols-2">
+            <div>
+                <p><strong>Operario: </strong>
+                    @isset($tecnico)
+                        {{ $tecnico->FirstName ?? 'N/A' }}
+                    @else
+                        N/A
+                    @endisset
+                </p>
+                <p><strong>Artículo: </strong> {{ $parte['ItemDescription'] ?? 'N/A' }}</p>
+                <p><strong>Fecha de cierre: </strong>
+                    {{ isset($parte['EndDueDate']) ? \Carbon\Carbon::parse($parte['EndDueDate'])->format('d/m/Y') : 'N/A' }}
+                </p>
+            </div>
+            <div>
+                <p><strong>Estado:</strong>
+                    @switch($parte['Status'] ?? '')
+                        @case('-3')
+                            <span>Abierto</span>
+                            @break
+                        @case('-2')
+                            <span>Pendiente</span>
+                            @break
+                        @case('-1')
+                            <span>Cerrado</span>
+                            @break
+                        @default
+                            <span>N/A</span>
+                    @endswitch
+                </p>
+                <p><strong>R.M.A: </strong> {{ $parte['U_H8_RMA'] ?? 'N/A' }}</p>
+                <p><strong>Núm. serie: </strong> {{ $parte['InternalSerialNum'] ?? 'N/A' }}</p>
             </div>
         </section>
 
-        <!-- Contenido 4: Caja con barra gris -->
-        <section class="content-box">
-            <div class="grey-bar"></div>
-            <div class="content-over-bar">
-                <p class="font-bold">SOLUCIÓN</p>
-                <p>{{-- Aquí iría la variable de la solución --}}</p>
+        <section class="content-box-section">
+            <div class="title-bar">
+                <p>PROBLEMA DEL ARTÍCULO</p>
+            </div>
+            <div class="content-area  overflow-hidden">
+                <p class="mt-1 truncate"><strong>Artículo:</strong> {{ $parte['ItemCode'] ?? 'N/A' }} - {{ $parte['ItemDescription'] ?? 'N/A' }}</p>
             </div>
         </section>
 
+        <section class="content-box-section">
+            <div class="title-bar">
+                <p>SOLUCIÓN</p>
+            </div>
+            <div class="content-area">
+                <p>{{$parte['Resolution'] ?? 'N/A'}}</p>
+            </div>
+        </section>
+
+        <footer>
+            <div class="mt-4 text-xs space-y-2">
+                <p class="mx-5">Durante la reparación el equipo puede perder parte o todos los datos que contenga, si hay información que no desea perder, guárdela por favor antes de entregar su equipo para reparación.</p>
+                <p class="mx-5">Para cualquier consulta sobre el parte puede hacerlo a través del correo posventa@tiendaselectron.com especificando el número de parte.</p>
+                <p class="mx-5">Transcurridos 6 meses tras la llamada de finalización de la reparación su producto pasará a reciclado.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 m-2 text-center">
+                <div class="font-bold">CONFORME CLIENTE</div>
+                <div class="font-bold">FECHA ENTREGA</div>
+            </div>
+        </footer>
     </div>
 
 </body>
