@@ -18,7 +18,7 @@ class ParteController extends Controller
         $this->productoController = $productoController;
         $this->origen = $this->consultarOrigen();
     }
-    
+
     public function index()
     {
         return view('parteFormulario', ['origenes' => $this->origen]);
@@ -33,13 +33,17 @@ class ParteController extends Controller
         }
         $busqueda = strtoupper(trim($id));
         $clientes = $this->consultarClientes($busqueda);
-        
 
         if (empty($clientes)) {
             return back()->with('error', 'No se encontró ningún cliente.');
         }
-        $partes = $this->consultarPartes($clientes[0]['CardCode'],'CustomerCode');
-        $tecnico = $this->nombreTecnico($partes[0]['TechnicianCode'] ?? '');
+        $partes = $this->consultarPartes($clientes[0]['CardCode'], 'CustomerCode');
+
+        $tecnico = null;
+        if (!empty($partes) && isset($partes[0]['TechnicianCode'])) {
+            $tecnico = $this->nombreTecnico($partes[0]['TechnicianCode']);
+        }
+
         if (count($partes) >= 2) {
             // si tiene 2 o mas partes saltará el model para elegir que parte usa
             return view('parteFormulario', ['cliente' => $clientes[0], 'partes' => $partes, 'origenes' => $this->origen, 'tecnico' => $tecnico])
@@ -50,20 +54,26 @@ class ParteController extends Controller
             ->with('success', 'Parte encontrado para el cliente.');
     }
 
-    public function buscarRMA(Request $request){
+    public function buscarRMA(Request $request)
+    {
         $id = $request->input('busquedaRMA');
         if ($id == null) {
             return back()->with('error', 'No se encontró ningún RMA.');
         }
         $busqueda = strtoupper(trim($id));
-        $rmas = $this->consultarPartes($busqueda,'U_H8_RMA');
-        $cliente = $this->consultarClientes($rmas[0]['CustomerCode'] ?? '');
-        $tecnico = $this->nombreTecnico($rmas[0]['TechnicianCode']);
-
+        $rmas = $this->consultarPartes($busqueda, 'U_H8_RMA');
 
         if (empty($rmas)) {
             return back()->with('error', 'No se encontró ningún RMA.');
         }
+
+        $cliente = $this->consultarClientes($rmas[0]['CustomerCode'] ?? '');
+
+        $tecnico = null;
+        if (isset($rmas[0]['TechnicianCode'])) {
+            $tecnico = $this->nombreTecnico($rmas[0]['TechnicianCode']);
+        }
+
         return view('parteFormulario', ['parte' => $rmas[0], 'cliente' => $cliente[0] ?? null, 'origenes' => $this->origen, 'tecnico' => $tecnico])
             ->with('success', 'Parte encontrado.');
     }
@@ -71,9 +81,8 @@ class ParteController extends Controller
     public function nuevoParte($id)
     {
         $cliente = $this->consultarClientes($id);
-
-        // dd($cliente);
-        return view('parteFormulario', ['cliente' => $cliente[0],  'origenes' => $this->origen]);
+        // Para un parte nuevo, no hay técnico asignado aún.
+        return view('parteFormulario', ['cliente' => $cliente[0], 'origenes' => $this->origen, 'tecnico' => null]);
     }
 
     public function sugerencias(Request $request)
@@ -83,8 +92,8 @@ class ParteController extends Controller
 
         $accion = "consultar_BusinessPartners";
         $data = array(
-            "select" => "CardCode,CardName,Phone1",//Asunto
-            "where" => "substringof('$term', CardCode) or substringof('$term', CardName) or substringof('$term', Phone1)",//codigo de interlocutor comercial
+            "select" => "CardCode,CardName,Phone1",
+            "where" => "substringof('$term', CardCode) or substringof('$term', CardName) or substringof('$term', Phone1)",
         );
 
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
@@ -105,12 +114,14 @@ class ParteController extends Controller
 
     private function consultarClientes($busqueda)
     {
+        if (empty($busqueda))
+            return [];
         $busqueda = str_replace("'", "''", $busqueda);
 
         $accion = "consultar_BusinessPartners";
         $data = array(
-            "select" => "CardCode,CardName,Phone1,FederalTaxID",//Asunto
-            "where" => "substringof('$busqueda', CardCode) or substringof('$busqueda', CardName) or substringof('$busqueda', Phone1)",//codigo de interlocutor comercial
+            "select" => "CardCode,CardName,Phone1,FederalTaxID",
+            "where" => "substringof('$busqueda', CardCode) or substringof('$busqueda', CardName) or substringof('$busqueda', Phone1)",
         );
 
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
@@ -123,20 +134,19 @@ class ParteController extends Controller
         ]);
 
         $body = json_decode($response->body(), true);
-        Log::info('Datos recibidos: ', ['datos' => $body['value']]);
+        Log::info('Datos recibidos: ', ['datos' => $body['value'] ?? '']);
 
         return ($body['value'] ?? []);
-
     }
 
-    private function consultarPartes($customer,$col)
+    private function consultarPartes($customer, $col)
     {
+        if (empty($customer))
+            return [];
         $accion = "consultar_ServiceCalls";
         $data = array(
-            //  "select" => "ServiceCallID,Subject,CustomerCode,",//Asunto
-            "where" => "$col eq '$customer'",//codigo de interlocutor comercial
-            "order" => "ServiceCallID",//Nombre interlocutor comercial
-
+            "where" => "$col eq '$customer'",
+            "order" => "ServiceCallID",
         );
 
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
@@ -152,16 +162,14 @@ class ParteController extends Controller
         Log::info('Respuesta de SAP', ['accion' => $accion, 'respuesta' => $body]);
 
         return ($body['value'] ?? []);
-
     }
 
     public function showParte($callID)
     {
         $accion = "consultar_ServiceCalls";
         $data = array(
-            //"select" => "ServiceCallID,Subject,CustomerCode,",//Asunto
-            "where" => "ServiceCallID eq $callID",//codigo de parte
-            "order" => "ServiceCallID",//Nombre interlocutor comercial
+            "where" => "ServiceCallID eq $callID",
+            "order" => "ServiceCallID",
         );
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
         $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
@@ -172,25 +180,30 @@ class ParteController extends Controller
             ])
         ]);
         $response = json_decode($response->body(), true);
-        $parte = $response['value'][0];
+        $parte = $response['value'][0] ?? null;
+
+        if (!$parte) {
+            return redirect()->route('parte.index')->with('error', 'Parte no encontrado.');
+        }
+
         $cliente = $this->consultarClientes($parte['CustomerCode']);
         $tecnico = $this->nombreTecnico($parte['TechnicianCode']);
 
-        return view('parteFormulario', ['cliente' => $cliente[0], 'parte' => $parte, 'origenes' => $this->origen, 'tecnico' => $tecnico]);
-
+        return view('parteFormulario', ['cliente' => $cliente[0] ?? null, 'parte' => $parte, 'origenes' => $this->origen, 'tecnico' => $tecnico]);
     }
 
     public function crear(Request $request)
     {
-     //   $this->validarCamposSAP($request);
+        $this->validarCamposSAP($request);
 
         $datos = $request->all();
-       
+
         $accion = (empty($datos['callID']) && empty($datos['DocNum']))
             ? 'crear_ServiceCalls'
             : 'modificar_ServiceCalls';
         try {
             Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $datos]);
+
             $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
                 'json' => json_encode([
                     'accion' => $accion,
@@ -199,14 +212,17 @@ class ParteController extends Controller
                 ])
             ]);
 
+            $tecnico = $this->nombreTecnico($datos['TechnicianCode'] ?? '');
             $body = $response->body();
             Log::info('Respuesta de SAP', ['body' => $body]);
+
             if ($response->successful() && !str_contains($body, '"error"')) {
                 return back()->with([
                     'success' => $accion == 'crear_ServiceCalls' ? 'Parte creado correctamente.' : 'Parte modificado correctamente.',
                     'parte' => $datos,
                     'resultado' => $body,
-                    'origenes' => $this->consultarOrigen()
+                    'origenes' => $this->consultarOrigen(),
+                    'tecnico' => $tecnico
                 ]);
             }
 
@@ -225,11 +241,11 @@ class ParteController extends Controller
     private function consultarOrigen()
     {
         $accion = "consulta_ServiceCallsOrigins";
-           $data = [
+        $data = [
             'select' => "OriginID,Name",
             'where' => "OriginID gt 0",
             'order' => "Name"
-           ];
+        ];
 
         try {
             Log::info('Consultando origenes desde SAP', ['accion' => $accion, 'datos' => $data]);
@@ -243,8 +259,6 @@ class ParteController extends Controller
             ]);
 
             $result = $response->json();
-
-            // Devolvemos la lista de técnicos si existe, o un array vacío si no.
             return $result['value'] ?? [];
 
         } catch (\Exception $e) {
@@ -256,25 +270,22 @@ class ParteController extends Controller
     private function extraerMensajeErrorSAP($body)
     {
         $decoded = json_decode($body, true);
-        // dd($decoded['resultado']);
 
         if (isset($decoded['resultado']['error']['message']['value'])) {
             return $decoded['resultado']['error']['message']['value'];
         }
-        return $decoded['resultado']['error']['message']['value'] ?? 'Respuesta inesperada de SAP.';
+        return $decoded['error']['message']['value'] ?? 'Respuesta inesperada de SAP.';
     }
 
     private function validarCamposSAP(Request $request)
     {
         return $request->validate([
-            'CustomerCode' => 'required|string',
             'CustomerName' => 'required|string',
             'Telephone' => 'required|string',
             'ItemCode' => 'required|string',
             'ServiceBPType' => 'required|string',
             'Subject' => 'required|string'
         ], [
-            'CustomerCode.required' => 'El código del cliente es obligatorio.',
             'CustomerName.required' => 'El nombre del cliente es obligatorio.',
             'Telephone.required' => 'El teléfono es obligatorio.',
             'ItemCode.required' => 'El código del artículo es obligatorio.',
@@ -282,8 +293,14 @@ class ParteController extends Controller
             'Subject.required' => 'El asunto es obligatorio.'
         ]);
     }
+
     public function nombreTecnico($id)
     {
+        // Si no hay ID, no hagas nada.
+        if (empty($id)) {
+            return null;
+        }
+
         $accion = "consulta_EmployeesInfo";
         $data = array(
             "select" => "FirstName",
@@ -291,7 +308,7 @@ class ParteController extends Controller
         );
 
         try {
-            Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+            Log::info('Enviando datos a SAP para obtener técnico', ['accion' => $accion, 'datos' => $data]);
             $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
                 'json' => json_encode([
                     'accion' => $accion,
@@ -301,27 +318,31 @@ class ParteController extends Controller
             ]);
 
             $body = json_decode($response->body(), true);
-            Log::info('Datos recibidos: ', ['datos' => $body['value']]);
+            Log::info('Datos del técnico recibidos: ', ['datos' => $body['value'] ?? '']);
 
-            return ($body['value'] ?? []);
-
+            // Devuelve el primer resultado del array, o null si está vacío.
+            return ($body['value'][0] ?? null);
 
         } catch (\Exception $e) {
-            Log::error('Excepción al consultar productos en SAP', ['exception' => $e->getMessage()]);
-            // En caso de error, devolvemos un JSON vacío con un código de error de servidor.
-            return response()->json([], 500);
+            Log::error('Excepción al consultar técnico en SAP', ['exception' => $e->getMessage()]);
+            // En caso de error, devolvemos null para mantener la consistencia.
+            return null;
         }
     }
+
     public function vistaImprimir($customerCode)
     {
-        $parte = $this->consultarPartes($customerCode,'CustomerCode');
+        $parte = $this->consultarPartes($customerCode, 'CustomerCode');
         $cliente = $this->consultarClientes($customerCode);
-        $tecnico = $this->nombreTecnico($parte[0]['TechnicianCode']);
+        $tecnico = null;
+        if (!empty($parte) && isset($parte[0]['TechnicianCode'])) {
+            $tecnico = $this->nombreTecnico($parte[0]['TechnicianCode']);
+        }
         $origen = $this->consultarOrigen();
-        //  dd($parte);
+
         return view('partes.vista_imprimir', [
-            'parte' => $parte[0],
-            'cliente' => $cliente[0],
+            'parte' => $parte[0] ?? null,
+            'cliente' => $cliente[0] ?? null,
             'tecnico' => $tecnico,
             'origen' => $origen
         ]);

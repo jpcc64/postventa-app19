@@ -90,12 +90,17 @@
             </div>
 
         </form>
+
     </div>
 </div>
 @if(isset($cliente))
     <a href="{{ route('partes.imprimir', ['id' => $cliente['CardCode']]) }}" target="_blank">
         <button type="button" class="mb-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg py-3 px-6 mx-3">Imprimir
             Parte</button>
+    </a>
+    <a href="{{ route('parte.nuevo', $cliente['CardCode']) }}">
+        <button type="button" class="mb-4 bg-green-600 hover:bg-amber-700 text-white rounded-lg py-3 px-6 mx-3">
+            Nuevo parte</button>
     </a>
 @endif
 @if(isset($partes))
@@ -112,7 +117,7 @@
                         <p>Si no encuentras el parte que buscas, puedes crear uno nuevo.</p>
                     </div>
                     <a href="{{ route('parte.nuevo', $cliente['CardCode']) }}"
-                        class="inline-block bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 mt-4 rounded">
+                        class="block bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 mt-4 rounded w-1/4">
                         Crear Parte
                     </a>
                 </div>
@@ -121,9 +126,21 @@
                 <div class="col-span-1">
                     <div class="p-6 border border-gray-300 rounded grid shadow mb-6">
                         <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['ServiceCallID'] }}</h3>
+                        @switch($parte['Status'] ?? '')
+                        @case('-3')
+                            <strong class="text-green-500">Abierto</strong>
+                            @break
+                        @case('-2')
+                            <strong class="text-yellow-500">Pendiente</strong>
+                            @break
+                        @case('-1')
+                            <strong class="text-red-500">Cerrado</strong>
+                            @break
+                        @default
+                            <span>N/A</span>
+                    @endswitch
                         <p>{{ $parte['U_H8_Nombre'] }}</p>
                         <p>{{ $parte['ItemDescription'] }}</p>
-                        <p>{{ $parte['Description'] }}</p>
                         <form method="GET" action="{{ route('parte.formulario', $parte['ServiceCallID']) }}">
                             <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 rounded mb-4">
                                 Seleccionar

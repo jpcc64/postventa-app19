@@ -5,16 +5,16 @@
 
     <div class="col-span-2 grid grid-cols-2">
         @php
-            $marcarCliente = isset($cliente) && str_starts_with($cliente['CardCode'], 'C');
-            $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C');
+$marcarCliente = isset($cliente) && str_starts_with($cliente['CardCode'], 'C');
+$marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C');
         @endphp
         <div>
-            <input type="radio" name="ServiceBPType" id="Clientes" value="srvcSales" class="peer" {{ $marcarCliente ? 'checked' : '' }} disabled>
-            <label for="Clientes" class="peer-checked:border-blue-600">Clientes</label>
+            <input type="radio" name="ServiceBPType" id="Clientes" value="srvcSales" class="peer pointer-events-none" {{ $marcarCliente ? 'checked' : '' }} readonly>
+            <label for="Clientes" class="peer-checked:border-blue-600 pointer-events-none">Clientes</label>
         </div>
         <div>
-            <input type="radio" name="ServiceBPType" id="Proveedores" value="srvcPurchasing" class="peer" {{ $marcarProveedor ? 'checked' : '' }} disabled>
-            <label for="Proveedores" class="peer-checked:border-blue-600">Proveedores</label>
+            <input type="radio" name="ServiceBPType" id="Proveedores" value="srvcPurchasing" class="peer pointer-events-none" {{ $marcarProveedor ? 'checked' : '' }} readonly>
+            <label for="Proveedores" class="peer-checked:border-blue-600 pointer-events-none">Proveedores</label>
         </div>
     </div>
     <div class="col-span-2 grid grid-cols-2">

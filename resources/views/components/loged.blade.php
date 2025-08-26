@@ -76,13 +76,16 @@
                             @endif
                         </td>
                         <td class="flex justify-around m-4">
-                            <form action="{{ route('avisar', trim($clientes['ServiceCallID'])) }}" method="post">
-                                @csrf
-                                <button
-                                    class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg hover:bg-emerald-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-400">
-                                    Pedido listo
-                                </button>
-                            </form>
+                            <!-- <form action="{{ route('avisar', trim($clientes['ServiceCallID'])) }}" method="post">
+                                                @csrf
+                                                <button
+                                                    class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg hover:bg-emerald-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                                    Pedido listo
+                                                </button>
+                                            </form> -->
+
+                            <x-btn_aviso :clientes="$clientes" />
+
                             <a href="{{ route('parte.formulario', trim($clientes['ServiceCallID'])) }}"
                                 class="bg-rose-600 text-white px-5 py-2.5 rounded-lg hover:bg-rose-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-rose-400">
                                 Ver parte
@@ -94,3 +97,4 @@
         </div>
     @endif
 </div>
+

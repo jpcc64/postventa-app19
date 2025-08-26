@@ -38,7 +38,7 @@
                     <label class="block text-sm font-medium">Técnico</label>
                     <input type="text" hidden name="TechnicianCode" id="techCode"
                         value="{{ old('TechnicianCode', $parte['TechnicianCode'] ?? '') }}">
-                    <input type="text" name="TechnicianName" id="techName" value="{{ $tecnico[0]['FirstName'] ?? ''}}"
+                    <input type="text" name="TechnicianName" id="techName" value="{{ old('TechnicianName', $tecnico['FirstName'] ?? '') }}"
                         class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <div id="sugerenciasTecnico"
                         class="absolute left-0 top-full w-full bg-white shadow-md rounded-md max-h-60 overflow-y-auto mt-1 z-10">

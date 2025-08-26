@@ -62,7 +62,6 @@
             margin-top: 1.5rem;
         }
 
-        /* --- CORRECCIÓN: Estilos simplificados para la barra gris --- */
         .title-bar {
             background-color: #757575ff;
             color: white;
@@ -70,9 +69,11 @@
             font-weight: bold;
         }
         .content-area {
-            padding: 1.25rem 1.5rem;
+            /* padding: 1.25rem 1.5rem; */
+            margin-left: 5px;
+            white-space: pre-wrap;
         }
-        /* --- FIN DE LA CORRECCIÓN --- */
+     
 
 
         /* Estilos de impresión */
@@ -211,7 +212,7 @@
                 <p>PROBLEMA DEL ARTÍCULO</p>
             </div>
             <div class="content-area overflow-hidden">
-                <div class="mt-1"> {{ $parte['Description'] ?? '' }} </div>
+                <div class="m-2"> {{ $parte['Description'] ?? '' }} </div>
             </div>
         </section>
 
@@ -219,8 +220,8 @@
             <div class="title-bar">
                 <p>SOLUCIÓN</p>
             </div>
-            <div class="content-area">
-                <p>{{$parte['Resolution'] ?? ''}}</p>
+            <div class="content-area overflow-hidden">
+                <p  class="m-2">{{$parte['Resolution'] ?? ''}}</p>
             </div>
         </section>
 
