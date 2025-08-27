@@ -186,7 +186,6 @@
 
             if (query.length >= 4) {
                 debounceTimer = setTimeout(function () {
-                    console.log("Buscando:", query); // Log para depurar
 
                     $.ajax({
                         url: '{{ route("buscar.sugerencias") }}',
@@ -220,14 +219,12 @@
         });
 
 
-        // Click en una parte del modal
         $(document).on('click', '.parte-btn', function () {
             let callID = $(this).data('callid');
             console.log(callID);
             window.location.href = '/parte/formulario/' + callID;
         });
 
-        // Cerrar modal al hacer click fuera
         $(document).on('click', function (e) {
             if ($(e.target).is('#modalPartes')) {
                 $('#modalPartes').addClass('hidden');
@@ -238,20 +235,16 @@
         const formParte = document.getElementById('form-parte');
 
         if (!formParte) {
-            return; // Salir si no se encuentra el formulario
+            return; 
         }
 
-        // 1. Buscar el campo 'select' por su atributo 'name'
         const statusSelect = formParte.querySelector('select[name="Status"]');
 
-        // 2. Comprobar que el select existe y que su valor es '-1'
         if (statusSelect && statusSelect.value == '-1') {
 
-            // Seleccionar todos los campos a deshabilitar
             const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
 
             fieldsToDisable.forEach(function (field) {
-                // Si el campo no es el select de estado, deshabilitarlo
                 if (field !== statusSelect) {
                     field.classList.add('bg-gray-300');
                     field.readonly = true;
@@ -259,4 +252,5 @@
             });
         }
     });
+    
 </script>
