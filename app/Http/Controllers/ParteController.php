@@ -284,13 +284,15 @@ class ParteController extends Controller
             'Telephone' => 'required|string',
             'ItemCode' => 'required|string',
             'ServiceBPType' => 'required|string',
-            'Subject' => 'required|string'
+            'Subject' => 'required|string',
+            'U_H8_MOTIVO' => 'required|string'
         ], [
             'CustomerName.required' => 'El nombre del cliente es obligatorio.',
             'Telephone.required' => 'El teléfono es obligatorio.',
             'ItemCode.required' => 'El código del artículo es obligatorio.',
             'ServiceBPType.required' => 'El tipo de interlocutor comercial es obligatorio.',
-            'Subject.required' => 'El asunto es obligatorio.'
+            'Subject.required' => 'El asunto es obligatorio.',
+            'U_H8_MOTIVO.required' => 'El tipo de llamada es obligatorio.'
         ]);
     }
 
