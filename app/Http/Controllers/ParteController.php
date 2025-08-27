@@ -121,7 +121,7 @@ class ParteController extends Controller
         $accion = "consultar_BusinessPartners";
         $data = array(
             "select" => "CardCode,CardName,Phone1,FederalTaxID",
-            "where" => "substringof('$busqueda', CardCode) or substringof('$busqueda', CardName) or substringof('$busqueda', Phone1)",
+            "where" => "substringof('$busqueda', CardCode) or substringof('$busqueda', CardName) or substringof('$busqueda', Phone1) or substringof('$busqueda', FederalTaxID)",
         );
 
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
