@@ -13,7 +13,8 @@ $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C'
             <label for="Clientes" class="peer-checked:border-blue-600 pointer-events-none">Clientes</label>
         </div>
         <div>
-            <input type="radio" name="ServiceBPType" id="Proveedores" value="srvcPurchasing" class="peer pointer-events-none" {{ $marcarProveedor ? 'checked' : '' }} readonly>
+            <input type="radio" name="ServiceBPType" id="Proveedores" value="srvcPurchasing"
+                class="peer pointer-events-none" {{ $marcarProveedor ? 'checked' : '' }} readonly>
             <label for="Proveedores" class="peer-checked:border-blue-600 pointer-events-none">Proveedores</label>
         </div>
     </div>
@@ -51,9 +52,19 @@ $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C'
         <label class="block text-sm font-medium text-gray-700 col-span-2">Descripcion</label>
         <textarea name="ItemName" id="itemNameInput"
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50
-             shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ old('ItemName', $parte['ItemDescription'] ?? '') }}</textarea>{{--
-        producto --}}
+             shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ old('ItemName', $parte['ItemDescription'] ?? '') }}</textarea>
+        {{-- producto --}}
     </div>
+
+    <div class="col-span-2 grid grid-cols-2">
+        <label class="block text-sm font-medium text-gray-700 col-span-2">Número de serie
+            <p class="text-xs text-gray-500">Numero de fabricante (facturado en SAP)</p>
+        </label>
+        <input id="itemFamilyCode" type="text" name="ManufacturerSerialNum"
+            value="{{ old('ManufacturerSerialNum', $parte['ManufacturerSerialNum'] ?? '') }}" {{-- producto --}}
+            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+    </div>
+
 </div>
 
 
@@ -111,13 +122,11 @@ $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C'
             }
         });
 
-
-
-        // Cerrar modal al hacer click fuera
-        $(document).on('click', function (e) {
-            if ($(e.target).is('#modalPartes')) {
-                $('#modalPartes').addClass('hidden');
-            }
+            // Cerrar modal al hacer click fuera
+            $(document).on('click', function (e) {
+                if ($(e.target).is('#sugerenciasProducto')) {
+                    $('#sugerenciasProducto').addClass('hidden');
+                }
+            });
         });
-    });
 </script>
