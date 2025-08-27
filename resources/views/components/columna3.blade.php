@@ -3,13 +3,13 @@
         <div>
             <label class="block text-sm font-medium text-gray-700">ID llamada</label>
             <input type="text" name="callID" readonly
-                class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-300 shadow-sm"
+                class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-300 shadow-sm p-1"
                 value="{{ $parte['ServiceCallID'] ?? '' }}">
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700">Num de documento</label>
             <input type="text" name="DocNum" readonly
-                class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-300 shadow-sm"
+                class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-300 shadow-sm p-1"
                 value="{{ $parte['DocNum'] ?? '' }}">
         </div>
     </div>

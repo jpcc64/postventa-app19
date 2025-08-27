@@ -20,17 +20,17 @@ $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C'
     <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Nombre interlocutor comercial</label>
         <input type="text" name="CustomerName" value="{{ $cliente['CardName'] ?? '' }}"
-            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1">
     </div>
     <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Persona de contacto</label>
         <input type="text" name="ContactCode" value="{{ old('ContactCode', $parte['ContactCode'] ?? '') }}"
-            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1">
     </div>
     <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Teléfono</label>
         <input type="text" name="Telephone" value="{{ old('Telephone', $cliente['Phone1'] ?? '') }}"
-            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1">
     </div>
 
 
@@ -40,7 +40,7 @@ $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C'
 
         </label>
         <input id="itemCode" type="text" name="ItemCode"
-            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1"
             value="{{ old('ItemCode', $parte['ItemCode'] ?? '') }}"> {{-- producto --}}
         <div id="sugerenciasProducto"
             class="absolute left-0 top-full w-full bg-white shadow-md rounded-md max-h-60 overflow-y-auto mt-1 z-10">
