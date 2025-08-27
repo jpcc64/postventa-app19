@@ -68,8 +68,6 @@
                 <button class="bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 px-6" type="submit">
                     Buscar
                 </button>
-
-                <!-- Sugerencias justo debajo del input -->
                 <div id="sugerencias"
                     class="absolute top-full left-0 bg-white shadow-md rounded-md z-50 max-h-60 overflow-y-auto w-full mt-1">
                 </div>
@@ -226,8 +224,8 @@
         });
 
         $(document).on('click', function (e) {
-            if ($(e.target).is('#modalPartes')) {
-                $('#modalPartes').addClass('hidden');
+            if ($(e.target).is('#sugerencias')) {
+                $('#sugerencias').addClass('hidden');
             }
         });
     });
