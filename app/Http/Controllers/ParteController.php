@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\ProductoController;
 
@@ -112,7 +111,7 @@ class ParteController extends Controller
     }
 
 
-    private function consultarClientes($busqueda)
+    public function consultarClientes($busqueda)
     {
         if (empty($busqueda))
             return [];
@@ -139,17 +138,31 @@ class ParteController extends Controller
         return ($body['value'] ?? []);
     }
 
-    private function consultarPartes($customer, $col)
+    public function consultarPartes($customer, $col)
     {
-        if (empty($customer))
+        if (empty($customer)) {
             return [];
+        }
+
         $accion = "consultar_ServiceCalls";
+        $whereClause = "";
+
+        if ($col == 'ServiceCallID' || $col == 'DocNum') {
+
+            $whereClause = "$col eq $customer";
+        } else {
+
+            $customer = str_replace("'", "''", $customer); // Escapar comillas
+            $whereClause = "$col eq '$customer'";
+        }
         $data = array(
-            "where" => "$col eq '$customer'",
+            "where" => $whereClause,
             "order" => "ServiceCallID",
         );
 
-        Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
+        Log::info('Consultado parte: ', ['accion' => $accion, 'datos' => $data]);
+
+        // El resto de la función permanece igual...
         $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
             'json' => json_encode([
                 'accion' => $accion,
@@ -238,7 +251,7 @@ class ParteController extends Controller
         }
     }
 
-    private function consultarOrigen()
+    public function consultarOrigen()
     {
         $accion = "consulta_ServiceCallsOrigins";
         $data = [
