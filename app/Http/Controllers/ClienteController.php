@@ -154,14 +154,25 @@ class ClienteController extends Controller
         }
 
         $nombre = $parte[0]['CustomerName'] ?? $parte[0]['U_H8_Nombre'];
-        $telefono = $telefono_alternativo ?? $telefono_original;
+        $telefono = '662480928';//$telefono_alternativo ?? $telefono_original;
 
         $url = 'http://192.168.9.7/whatsapp/send_what.php';
         $data = [
             'titulo' => 'Postventa',
-            'numero' => '34' . $telefono,
-            'mensaje' => 'Estimado/a ' . trim($nombre) . ': Su producto con Nº Pedido ' . $parte[0]['DocNum'] . ' está listo para ser retirado.' // Example of a shorter message
-            // ... (full message content) ...
+            'numero' => '34' . $telefono, //cambiar por numero de telefono
+            'mensaje' => 'Asunto: Producto listo para ser retirado' . PHP_EOL .
+                'Estimado/a ' . trim($nombre) . ':' . PHP_EOL . PHP_EOL .
+                'Nos complace informarle que su producto ya se encuentra disponible para ser retirado en nuestras instalaciones.' . PHP_EOL . PHP_EOL .
+                'Detalles del producto:' . PHP_EOL .
+                'Número de pedido: ' . $parte['DocNum'] . PHP_EOL .
+                'Producto: ' . $parte['ItemDescription'] . PHP_EOL .
+                'Fecha de disponibilidad: ' . date(format: 'd/m/Y') . PHP_EOL . PHP_EOL .
+                'Puede pasar a retirarlo en el siguiente horario:' . PHP_EOL .
+                'Lunes a Viernes de 9:00 a 21:00' . PHP_EOL .
+                'Dirección: C. el Henequen, 43 ' . PHP_EOL . PHP_EOL .
+                'Por favor, recuerde presentar una copia de su comprobante de compra y un documento de identidad al momento del retiro.' . PHP_EOL . PHP_EOL .
+                'Si tiene alguna consulta adicional, no dude en comunicarse con nosotros al 928 85 01 40.' . PHP_EOL . PHP_EOL .
+                'Gracias por confiar en nosotros.'
         ];
 
         try {
