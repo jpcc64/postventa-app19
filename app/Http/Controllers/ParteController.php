@@ -91,8 +91,8 @@ class ParteController extends Controller
 
         $accion = "consultar_BusinessPartners";
         $data = array(
-            "select" => "CardCode,CardName,Phone1",
-            "where" => "substringof('$term', CardCode) or substringof('$term', CardName) or substringof('$term', Phone1)",
+            "select" => "CardCode,CardName,Phone1,FederalTaxID",
+            "where" => "substringof('$term', CardCode) or substringof('$term', CardName) or substringof('$term', Phone1) or substringof('$term', FederalTaxID)",
         );
 
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
@@ -120,7 +120,9 @@ class ParteController extends Controller
         $accion = "consultar_BusinessPartners";
         $data = array(
             "select" => "CardCode,CardName,Phone1,FederalTaxID",
-            "where" => "substringof('$busqueda', CardCode) or substringof('$busqueda', CardName) or substringof('$busqueda', Phone1) or substringof('$busqueda', FederalTaxID)",
+            "where" => "substringof('$busqueda', CardCode) or substringof('$busqueda', CardName) 
+            or substringof('$busqueda', Phone1) 
+            or substringof('$busqueda', FederalTaxID)",
         );
 
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
@@ -133,7 +135,7 @@ class ParteController extends Controller
         ]);
 
         $body = json_decode($response->body(), true);
-        Log::info('Datos recibidos: ', ['datos' => $body['value'] ?? '']);
+        Log::info('Datos recibidos DE CLIENTE: ', ['datos' => $body['value'] ?? '']);
 
         return ($body['value'] ?? []);
     }
@@ -172,7 +174,7 @@ class ParteController extends Controller
         ]);
 
         $body = json_decode($response->body(), true);
-        Log::info('Respuesta de SAP', ['accion' => $accion, 'respuesta' => $body]);
+        Log::info('Parte encontrado: ', ['accion' => $accion, 'respuesta' => $body]);
 
         return ($body['value'] ?? []);
     }
@@ -211,7 +213,7 @@ class ParteController extends Controller
 
         $datos = $request->all();
 
-        $accion = (empty($datos['callID']) && empty($datos['DocNum']))
+        $accion = (empty($datos['ServiceCallID']) && empty($datos['DocNum']))
             ? 'crear_ServiceCalls'
             : 'modificar_ServiceCalls';
         try {
