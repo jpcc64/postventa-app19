@@ -91,7 +91,7 @@
 
     </div>
 </div>
-@if(isset($cliente))
+@if(isset($cliente) && isset($parte))
     <a href="{{ route('partes.imprimir', ['id' => $parte['ServiceCallID'], 'cliente' => $cliente['CardCode']]) }}" target="_blank">
         <button type="button" class="mb-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg py-3 px-6 mx-3">Imprimir
             Parte</button>
