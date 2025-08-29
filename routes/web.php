@@ -26,7 +26,7 @@ Route::get('/clientes/{cif}', [ClienteController::class, 'show'])->name('cliente
 
 
 // Avisar a cliente por whatsapp
-    Route::post('/avisar/{id}', [ClienteController::class, 'avisar'])->name('cliente.avisar')->middleware('auth');
+Route::post('/avisar/{id}', [ClienteController::class, 'avisar'])->name('cliente.avisar')->middleware('auth');
 
 
 // CREAR LLAMADA DE SERVICIO
@@ -45,4 +45,4 @@ Route::get('/origen/sugerencias', [ProductoController::class, 'consultaOrigen'])
 
 
 //generar pdf
-Route::get('/partes/{id}/imprimir', [App\Http\Controllers\ParteController::class, 'vistaImprimir'])->name('partes.imprimir');
+Route::get('/partes/imprimir({id}/{cliente}', [App\Http\Controllers\ParteController::class, 'vistaImprimir'])->name('partes.imprimir');

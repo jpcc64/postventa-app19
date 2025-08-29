@@ -347,10 +347,10 @@ class ParteController extends Controller
         }
     }
 
-    public function vistaImprimir($customerCode)
+    public function vistaImprimir($parteID, $clienteID)
     {
-        $parte = $this->consultarPartes($customerCode, 'CustomerCode');
-        $cliente = $this->consultarClientes($customerCode);
+        $parte = $this->consultarPartes($parteID, 'ServiceCallID');
+        $cliente = $this->consultarClientes($clienteID);
         $tecnico = null;
         if (!empty($parte) && isset($parte[0]['TechnicianCode'])) {
             $tecnico = $this->nombreTecnico($parte[0]['TechnicianCode']);
