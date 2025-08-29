@@ -169,7 +169,7 @@
             <div>
                 <p><strong>Operario: </strong>
                     @isset($tecnico)
-                        {{ $tecnico[0]['FirstName'] ?? '' }}
+                        {{ $tecnico['FirstName'] ?? ''}}
                     @else
                         
                     @endisset

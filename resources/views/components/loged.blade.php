@@ -57,8 +57,8 @@
 <p class="text-center text-slate-800 font-semibold text-xl mb-6 tracking-wide flex justify-center items-center">
     {{ Auth::user()->username }}
 </p>
-<p class="text-center text-slate-800 font-semibold text-xl mb-6 tracking-wide flex justify-center items-center">
-    Buscador de parte</p>
+<p class="text-center text-slate-800 font-semibold text-xl mb-6 tracking-wide flex justify-center items-center font-bold">
+ Buscador de parte</p>
 
 <form method="GET" action="{{ route('clientes.buscar')}}" class="flex justify-center items-center space-x-4 bg">
     @csrf
