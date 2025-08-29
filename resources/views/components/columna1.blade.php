@@ -1,12 +1,11 @@
 <div class="space-y-3 grid grid-cols-2 gap-2 p-2">
         <input type="hidden" name="CustomerCode" value="{{ $cliente['CardCode'] ?? '' }}">
         <input type="hidden" name="CustomerNIF" value="{{ $cliente['FederalTaxID'] ?? '' }}">
-    @if(isset($parte))
     <label class="block text-sm font-medium text-gray-700" for="claseLlamada">Clase de Llamada</label>
     <div class="col-span-2 grid grid-cols-2">
         @php
-    $marcarCliente = isset($cliente) && str_starts_with($cliente['CardCode'], 'C');
-    $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C');
+         $marcarCliente = isset($cliente) && str_starts_with($cliente['CardCode'], 'C');
+         $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C');
         @endphp
         <div>
             <input type="radio" name="ServiceBPType" id="Clientes" value="srvcSales" class="peer pointer-events-none" {{ $marcarCliente ? 'checked' : '' }} readonly>
@@ -18,7 +17,6 @@
             <label for="Proveedores" class="peer-checked:border-blue-600 pointer-events-none">Proveedores</label>
         </div>
     </div>
-    @endif
     <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Nombre interlocutor comercial</label>
         <input type="text" name="CustomerName" value="{{ $cliente['CardName'] ?? '' }}"

@@ -152,16 +152,16 @@
                 </p>
                 <p>
                     <strong>N.I.F. : </strong>
-                    {{ $cliente['FederalTaxID'] ?? '' }}
+                    {{ $parte['U_H8_NIF'] ?? $cliente['FederalTaxID'] ?? '' }}
                 </p>
             </div>
 
             <div class="content-box-small col-span-2">
                 <p class="font-bold">CLIENTE</p>
-                <p>{{ $cliente['CardCode'] ?? '' }} - {{ $cliente['CardName'] ?? '' }}</p>
+                <p>{{ $cliente['CardCode'] ?? '' }} - {{ $parte['U_H8_Nombre'] ?? $cliente['CardName']  }}</p>
                 <p>{{ $parte['BPBillToAddress'] ?? '' }}</p>
                 <p>{{ $parte['BPShipToAddress'] ?? '' }}</p>
-                <p><strong>TELÉFONO: </strong> {{ $parte['Telephone'] ?? '' }}</p>
+                <p><strong>TELÉFONO: </strong> {{ $parte['U_H8_Telefono'] ?? $parte['Telephone']   }}</p>
             </div>
         </section>
 
