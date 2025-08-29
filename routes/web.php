@@ -26,7 +26,7 @@ Route::get('/clientes/{cif}', [ClienteController::class, 'show'])->name('cliente
 
 
 // Avisar a cliente por whatsapp
-Route::post('/avisar/{id}', [ClienteController::class, 'avisar'])->name('avisar')->middleware('auth');
+    Route::post('/avisar/{id}', [ClienteController::class, 'avisar'])->name('cliente.avisar')->middleware('auth');
 
 
 // CREAR LLAMADA DE SERVICIO

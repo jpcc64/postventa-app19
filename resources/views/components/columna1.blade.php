@@ -1,12 +1,12 @@
 <div class="space-y-3 grid grid-cols-2 gap-2 p-2">
-    <input type="hidden" name="CustomerCode" value="{{ $cliente['CardCode'] ?? '' }}">
-    <input type="hidden" name="CustomerNIF" value="{{ $cliente['FederalTaxID'] ?? '' }}">
+        <input type="hidden" name="CustomerCode" value="{{ $cliente['CardCode'] ?? '' }}">
+        <input type="hidden" name="CustomerNIF" value="{{ $cliente['FederalTaxID'] ?? '' }}">
+    @if(isset($parte))
     <label class="block text-sm font-medium text-gray-700" for="claseLlamada">Clase de Llamada</label>
-
     <div class="col-span-2 grid grid-cols-2">
         @php
-$marcarCliente = isset($cliente) && str_starts_with($cliente['CardCode'], 'C');
-$marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C');
+    $marcarCliente = isset($cliente) && str_starts_with($cliente['CardCode'], 'C');
+    $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C');
         @endphp
         <div>
             <input type="radio" name="ServiceBPType" id="Clientes" value="srvcSales" class="peer pointer-events-none" {{ $marcarCliente ? 'checked' : '' }} readonly>
@@ -18,6 +18,7 @@ $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C'
             <label for="Proveedores" class="peer-checked:border-blue-600 pointer-events-none">Proveedores</label>
         </div>
     </div>
+    @endif
     <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Nombre interlocutor comercial</label>
         <input type="text" name="CustomerName" value="{{ $cliente['CardName'] ?? '' }}"
@@ -34,8 +35,7 @@ $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C'
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1">
     </div>
 
-
-    <div class="col-span-2 grid grid-cols-2 relative">
+    <div  class="col-span-2 grid grid-cols-2 relative {{ !empty($cliente['CardCode']) ? '' : 'hidden' }} " >
         <label class="block text-sm font-medium text-gray-700 col-span-2">Articulo
             <p class="text-xs text-gray-500">Codigo o Nombre</p>
 
@@ -48,7 +48,7 @@ $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C'
         </div>
     </div>
 
-    <div class="col-span-2 grid grid-cols-2">
+    <div class="col-span-2 grid grid-cols-2 {{ !empty($cliente['CardCode']) ? '' : 'hidden' }}" >
         <label class="block text-sm font-medium text-gray-700 col-span-2">Descripcion</label>
         <textarea name="ItemName" id="itemNameInput"
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50
@@ -122,11 +122,11 @@ $marcarProveedor = isset($cliente) && !str_starts_with($cliente['CardCode'], 'C'
             }
         });
 
-            // Cerrar modal al hacer click fuera
-            $(document).on('click', function (e) {
-                if ($(e.target).is('#sugerenciasProducto')) {
-                    $('#sugerenciasProducto').addClass('hidden');
-                }
-            });
+        // Cerrar modal al hacer click fuera
+        $(document).on('click', function (e) {
+            if ($(e.target).is('#sugerenciasProducto')) {
+                $('#sugerenciasProducto').addClass('hidden');
+            }
         });
+    });
 </script>

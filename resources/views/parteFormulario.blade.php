@@ -97,9 +97,11 @@
             Parte</button>
     </a>
     <a href="{{ route('parte.nuevo', $cliente['CardCode']) }}">
-        <button type="button" class="mb-4 bg-green-600 hover:bg-amber-700 text-white rounded-lg py-3 px-6 mx-3">
+        <button type="button" class="mb-4 bg-green-600 hover:bg-green-700 text-white rounded-lg py-3 px-6 mx-3">
             Nuevo parte</button>
     </a>
+    
+       @include('components.btn_aviso')
 @endif
 @if(isset($partes))
 
@@ -137,7 +139,7 @@
                         @default
                             <span>N/A</span>
                     @endswitch
-                        <p>{{ $parte['U_H8_Nombre'] }}</p>
+                        <p>{{ $parte['U_H8_Nombre'] ?? $parte['CustomerName'] }}</p>
                         <p>{{ $parte['ItemDescription'] }}</p>
                         <form method="GET" action="{{ route('parte.formulario', $parte['ServiceCallID']) }}">
                             <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 rounded mb-4">
@@ -245,7 +247,7 @@
             fieldsToDisable.forEach(function (field) {
                 if (field !== statusSelect) {
                     field.classList.add('bg-gray-300');
-                    field.readonly = true;
+                    field.readOnly = true;
                 }
             });
         }
