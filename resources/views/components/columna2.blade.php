@@ -36,7 +36,7 @@
     </div>
     <div class="col-span-2 grid grid-cols-2 {{ !empty($cliente['CardCode']) ? '' : 'hidden' }}">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Tipo de llamada</label>
-        <select name="U_H8_MOTIVO" id=""
+        <select name="U_H8_MOTIVO" id="U_H8_MOTIVO"
             class=" block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
             <option value="" selected>Selecciona un motivo</option>
             <option value="ST" {{ old('U_H8_MOTIVO', $parte['U_H8_MOTIVO'] ?? '') == 'ST' ? 'selected' : '' }}>Servicio
@@ -44,6 +44,5 @@
             <option value="DEV" {{ old('U_H8_MOTIVO', $parte['U_H8_MOTIVO'] ?? '') == 'DEV' ? 'selected' : '' }}>Proveedor
             </option>
         </select>
-
     </div>
 </div>
