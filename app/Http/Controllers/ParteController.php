@@ -96,7 +96,7 @@ class ParteController extends Controller
         );
 
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
-        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+        $response = Http::asForm()->post(env('API_SAP_URL'), [
             'json' => json_encode([
                 'accion' => $accion,
                 'usuario' => 'dani',
@@ -126,7 +126,7 @@ class ParteController extends Controller
         );
 
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
-        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+        $response = Http::asForm()->post(env('API_SAP_URL'), [
             'json' => json_encode([
                 'accion' => $accion,
                 'usuario' => 'dani',
@@ -165,7 +165,7 @@ class ParteController extends Controller
         Log::info('Consultado parte: ', ['accion' => $accion, 'datos' => $data]);
 
         // El resto de la función permanece igual...
-        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+        $response = Http::asForm()->post(env('API_SAP_URL'), [
             'json' => json_encode([
                 'accion' => $accion,
                 'usuario' => 'dani',
@@ -187,7 +187,7 @@ class ParteController extends Controller
             "order" => "ServiceCallID",
         );
         Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
-        $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+        $response = Http::asForm()->post(env('API_SAP_URL'), [
             'json' => json_encode([
                 'accion' => $accion,
                 'usuario' => 'dani',
@@ -219,7 +219,7 @@ class ParteController extends Controller
         try {
             Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $datos]);
 
-            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            $response = Http::asForm()->post(env('API_SAP_URL'), [
                 'json' => json_encode([
                     'accion' => $accion,
                     'usuario' => 'dani',
@@ -265,7 +265,7 @@ class ParteController extends Controller
         try {
             Log::info('Consultando origenes desde SAP', ['accion' => $accion, 'datos' => $data]);
 
-            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            $response = Http::asForm()->post(env('API_SAP_URL'), [
                 'json' => json_encode([
                     'accion' => $accion,
                     'usuario' => 'dani',
@@ -326,7 +326,7 @@ class ParteController extends Controller
 
         try {
             Log::info('Enviando datos a SAP para obtener técnico', ['accion' => $accion, 'datos' => $data]);
-            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            $response = Http::asForm()->post(env('API_SAP_URL'), [
                 'json' => json_encode([
                     'accion' => $accion,
                     'usuario' => 'dani',

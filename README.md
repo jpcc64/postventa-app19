@@ -1,66 +1,124 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+<a href="#"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="#"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="#"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="#"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+Acerca de la Aplicación de Postventa
+Esta aplicación es un sistema de gestión de postventa desarrollado con el framework Laravel 10. Su objetivo principal es permitir a los empleados del departamento de postventa crear, consultar, modificar y gestionar partes de servicio (llamadas de servicio), interactuando en tiempo real con un sistema SAP externo a través de una API.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+La aplicación facilita las operaciones diarias del departamento de postventa, centralizando la gestión de incidencias de clientes y proveedores y asegurando que los datos se mantengan consistentes con el sistema SAP.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Características Principales
+Gestión de Partes de Servicio: Creación y modificación de partes de trabajo.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Integración con SAP: Todas las operaciones de negocio (clientes, productos, partes) se realizan en tiempo real contra una API de SAP.
 
-## Learning Laravel
+Búsqueda Avanzada: Permite buscar partes por múltiples criterios como código de cliente, nombre, RMA, etc.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Autenticación de Usuarios: Sistema de login para empleados basado en una base de datos local.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Notificaciones a Clientes: Funcionalidad para enviar avisos por WhatsApp cuando un producto está listo.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Generación de Documentos: Creación de una vista de impresión para los partes de servicio.
 
-## Laravel Sponsors
+Especificaciones Técnicas
+Framework: Laravel 10
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Lenguaje: PHP 8.1+
 
-### Premium Partners
+Base de Datos (para usuarios): MySQL
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Frontend: Tailwind CSS, Alpine.js (vía CDN).
 
-## Contributing
+Dependencias Clave:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+guzzlehttp/guzzle: Cliente HTTP para las peticiones a la API de SAP.
 
-## Code of Conduct
+barryvdh/laravel-dompdf: Para la generación de vistas de impresión.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Instalación y Configuración
+Siga los siguientes pasos para instalar el proyecto en un entorno de desarrollo.
 
-## Security Vulnerabilities
+Prerrequisitos
+Servidor web compatible con PHP 8.1+ (Apache, Nginx)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Composer
 
-## License
+Base de datos MySQL
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Pasos de Instalación
+Clonar el repositorio:
+
+git clone <url-del-repositorio>
+cd <directorio-del-proyecto>
+
+Instalar dependencias:
+
+composer install
+
+Configurar el entorno:
+
+Cree el archivo .env a partir del ejemplo: cp .env.example .env
+
+Genere la clave de la aplicación: php artisan key:generate
+
+Configurar .env:
+
+Ajuste las credenciales de la base de datos para la conexión mysql_usuario.
+
+Asegúrese de que la URL de la API de SAP sea correcta y accesible.
+
+Ejecutar las migraciones:
+
+php artisan migrate
+
+Esto creará las tablas necesarias para la autenticación de usuarios.
+
+Funcionamiento
+Autenticación
+El sistema utiliza el gestor de autenticación de Laravel. Los usuarios se gestionan en una tabla users en la base de datos MySQL local. El controlador App\Http\Controllers\Login se encarga de la lógica de inicio y cierre de sesión.
+
+Interacción con la API de SAP
+La aplicación no tiene una base de datos de negocio propia. Toda la información de clientes, productos y partes se obtiene y modifica a través de peticiones a una API externa de SAP.
+
+Controlador Principal: App\Http\Controllers\ParteController.
+
+Método: Peticiones POST con un payload JSON (Http::asForm()->post(...)).
+
+Endpoint: La URL de la API está actualmente codificada en los controladores.
+
+Ejemplo de Petición:
+
+$response = Http::asForm()->post('[http://192.168.9.7/api_sap/index.php](http://192.168.9.7/api_sap/index.php)', [
+    'json' => json_encode([
+        'accion'  => 'consultar_ServiceCalls',
+        'usuario' => 'dani',
+        'datos'   => $data
+    ])
+]);
+
+Flujo Principal de la Aplicación
+El usuario inicia sesión y accede al buscador de partes.
+
+Para crear un parte nuevo, se dirige a la sección "Crear llamada de servicio" y busca un cliente.
+
+La aplicación consulta los datos del cliente en SAP y rellena el formulario.
+
+El usuario completa la información del parte (artículo, problema, etc.).
+
+Al hacer clic en "Guardar", se envía una petición crear_ServiceCalls o modificar_ServiceCalls a la API de SAP.
+
+Desde un parte ya cargado, se puede imprimir un resumen o enviar una notificación por WhatsApp al cliente.
+
+Contribuciones
+Gracias por considerar contribuir a este proyecto. Actualmente, el desarrollo es interno.
+
+Vulnerabilidades de Seguridad
+Si descubre una vulnerabilidad de seguridad dentro de esta aplicación, por favor envíe un correo electrónico al responsable del proyecto. Todas las vulnerabilidades de seguridad serán tratadas con prontitud.
+
+Licencia
+Este proyecto es un software propietario. Todos los derechos reservados.
