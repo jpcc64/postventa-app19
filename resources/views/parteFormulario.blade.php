@@ -160,7 +160,7 @@
 @endif
 
 <!-- 🔹 Formulario completo -->
-<div class="bg-white p-6 sm:p-8 rounded-xl shadow-md border border-slate-200 max-w-5xl mx-auto">
+<div class="bg-white p-6 sm:p-8 rounded-xl shadow-md border border-slate-200 mx-auto">
     <form id="form-parte" method="POST" action="{{ route('parte.crear') }}">
         @csrf
         <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8">
