@@ -91,15 +91,6 @@ Método: Peticiones POST con un payload JSON (Http::asForm()->post(...)).
 
 Endpoint: La URL de la API está actualmente codificada en los controladores.
 
-Ejemplo de Petición:
-
-$response = Http::asForm()->post('[http://192.168.9.7/api_sap/index.php](http://192.168.9.7/api_sap/index.php)', [
-    'json' => json_encode([
-        'accion'  => 'consultar_ServiceCalls',
-        'usuario' => 'dani',
-        'datos'   => $data
-    ])
-]);
 
 Flujo Principal de la Aplicación
 El usuario inicia sesión y accede al buscador de partes.
