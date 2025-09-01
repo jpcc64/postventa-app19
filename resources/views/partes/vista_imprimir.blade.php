@@ -125,9 +125,16 @@
             </div>
             <div class="header-box">
                 <div class="text-left text-xs">
+                    @if($parte['Origin'] == '3')
+                    <p class="font-bold">COMERCIANTE MINORISTA</p>
+                    <p>C/ Océano Atlántico, 35500 Arrecife, Las Palmas</p>
+                    <p>C.I.F. A35421395</p>
+                    @else
                     <p class="font-bold">COMERCIANTE MINORISTA</p>
                     <p>C/ Henequen, 43</p>
+                    <p>928 85 01 40</p>
                     <p>C.I.F. A35421395</p>
+                    @endif
                 </div>
             </div>
             <div class="header-box">
@@ -174,7 +181,7 @@
                         
                     @endisset
                 </p>
-                <p><strong>Artículo: </strong> {{ $parte['ItemDescription'] ?? '' }}</p>
+                <p><strong>Artículo: {{ $parte['ItemCode'] }}</strong> -- {{ $parte['ItemDescription'] ?? '' }}</p>
                 <p><strong>Fecha de cierre: </strong>
                     {{ isset($parte['EndDueDate']) ? \Carbon\Carbon::parse($parte['EndDueDate'])->format('d/m/Y') : '' }}
                 </p>
@@ -228,7 +235,7 @@
         <footer>
             <div class="mt-4 text-xs space-y-2">
                 <p class="mx-5">Durante la reparación el equipo puede perder parte o todos los datos que contenga, si hay información que no desea perder, guárdela por favor antes de entregar su equipo para reparación.</p>
-                <p class="mx-5">Para cualquier consulta sobre el parte puede hacerlo a través del correo posventa@tiendaselectron.com especificando el número de parte.</p>
+                <p class="mx-5">Para cualquier consulta sobre el parte puede hacerlo a través del correo {{ $parte['Origin'] == '3' ? 'posventa_lanzarote@tiendaselectron.com' : 'posventa@tiendaselectron.com'}} especificando el número de parte.</p>
                 <p class="mx-5">Transcurridos 6 meses tras la llamada de finalización de la reparación su producto pasará a reciclado.</p>
             </div>
             <div class="grid grid-cols-2 gap-4 m-2 text-center">

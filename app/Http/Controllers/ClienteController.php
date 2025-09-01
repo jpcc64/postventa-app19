@@ -171,7 +171,7 @@ class ClienteController extends Controller
                 'Producto: ' . $parte['ItemDescription'] . PHP_EOL .
                 'Fecha de disponibilidad: ' . date(format: 'd/m/Y') . PHP_EOL . PHP_EOL .
                 'Puede pasar a retirarlo en el siguiente horario:' . PHP_EOL .
-                'Lunes a Viernes de 9:00 a 21:00' . PHP_EOL .
+                'Lunes a Sábado de 9:00 a 21:00' . PHP_EOL .
                 'Dirección: C. el Henequen, 43 ' . PHP_EOL . PHP_EOL .
                 'Por favor, recuerde presentar una copia de su comprobante de compra y un documento de identidad al momento del retiro.' . PHP_EOL . PHP_EOL .
                 'Si tiene alguna consulta adicional, no dude en comunicarse con nosotros al 928 85 01 40.' . PHP_EOL . PHP_EOL .
