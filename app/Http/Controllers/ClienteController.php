@@ -60,19 +60,22 @@ class ClienteController extends Controller
 
         $cliente = $this->parteController->consultarClientes($partes[0]['CustomerCode']);
         $origenes = $this->parteController->consultarOrigen();
+        $tecnico = $this->parteController->nombreTecnico($partes[0]['TechnicianCode']);
 
         if (count($partes) > 1) {
             return view('parteFormulario', [
                 'cliente' => $cliente[0] ?? null,
                 'partes' => $partes,
-                'origenes' => $origenes
+                'origenes' => $origenes,
+                'tecnico' => $tecnico
             ])->with('success', 'Se encontraron varios partes. Por favor, selecciona uno.');
         }
 
         return view('parteFormulario', [
             'parte' => $partes[0],
             'cliente' => $cliente[0] ?? null,
-            'origenes' => $origenes
+            'origenes' => $origenes,
+            'tecnico' => $tecnico
         ])->with('success', 'Parte encontrado correctamente.');
     }
 
