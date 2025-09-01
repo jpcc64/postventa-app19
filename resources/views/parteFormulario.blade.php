@@ -1,5 +1,4 @@
 @include('components.head')
-
 <h1 class=" text-3xl font-bold text-center text-gray-800 mb-6">Crear llamada de servicio</h1>
 
 <a href="{{ route('home') }}">
@@ -242,7 +241,28 @@
                 }
             });
         }
+   document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('keydown', function(event) {
+            // Si la tecla presionada es 'Enter'
+            if (event.key === 'Enter') {
+                event.preventDefault();
+
+                const focusableElements = Array.from(
+                    form.querySelectorAll('input, select, textarea, button, a[href]')
+                ).filter(
+                    el => !el.disabled && !el.hidden && el.type !== 'hidden' && window.getComputedStyle(el).display !== 'none'
+                );
+                const currentIndex = focusableElements.indexOf(event.target);
+                const nextIndex = currentIndex + 1;
+
+                if (nextIndex < focusableElements.length) {
+                    focusableElements[nextIndex].focus();
+                }
+            }
+        });
     });
+    });
+
 </script>
 
 @include('components.footer')

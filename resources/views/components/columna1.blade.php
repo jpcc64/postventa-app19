@@ -22,11 +22,11 @@
         <input type="text" name="CustomerName" value="{{ $cliente['CardName'] ?? '' }}"
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1">
     </div>
-    <div class="col-span-2 grid grid-cols-2">
+    <!-- <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Persona de contacto</label>
         <input type="text" name="ContactCode" value="{{ old('ContactCode', $parte['ContactCode'] ?? '') }}"
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1">
-    </div>
+    </div> -->
     <div class="col-span-2 grid grid-cols-2">
         <label class="block text-sm font-medium text-gray-700 col-span-2">Teléfono</label>
         <input type="text" name="Telephone" value="{{ old('Telephone', $cliente['Phone1'] ?? '') }}"

@@ -18,6 +18,11 @@
                     class="px-4 py-2">
                     Resolución
                 </button>
+                <button type="button" @click="tab = 'anexo'"
+                    :class="tab === 'anexo' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
+                    class="px-4 py-2">
+                    Resolución
+                </button>
 
             </div>
             <div x-show="tab === 'general'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-3 gap-4">

@@ -21,7 +21,7 @@
         <div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 col-span-2">Codigo de cliente</label>
-                <input type="text" name="CustomerCode" value="{{ old('CardCode', $parte['CustomerCode'] ?? $cliente['Cardcode'] ?? '') }}"
+                <input type="text" name="CustomerCode" value="{{ old('CardCode', $cliente['Cardcode']  ?? $parte['CustomerCode'] ?? '') }}"
                     class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1">
             </div>
 
