@@ -22,7 +22,7 @@ class ProductoController extends Controller
 
         try {
             Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
-            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            $response = Http::asForm()->post(env('API_SAP_URL'), [
                 'json' => json_encode([
                     'accion' => $accion,
                     'usuario' => 'dani',
