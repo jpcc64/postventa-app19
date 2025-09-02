@@ -41,7 +41,7 @@ class ClienteController extends Controller
 
     public function buscar(Request $request)
     {
-       // $this->validarCamposBusqueda($request);
+        $this->validarCamposBusqueda($request);
 
         $busqueda = array_filter($request->except(['_token', 'Status']));
 
@@ -56,7 +56,7 @@ class ClienteController extends Controller
         if (empty($partes)) {
             return back()->with('error', 'No se encontraron resultados para tu búsqueda.');
         }
-
+        dd($partes);
         $cliente = $this->parteController->consultarClientes($partes[0]['CustomerCode']);
         $origenes = $this->parteController->consultarOrigen();
         $tecnico = $this->parteController->nombreTecnico($partes[0]['TechnicianCode']);
@@ -108,7 +108,11 @@ class ClienteController extends Controller
                 return []; // Return empty array on API error
             }
            // dd($response);
-            return $body['value'] ?? ['array' => "ejemplonull"];
+           if (!isset($body['value']) || !is_array($body['value'])) {
+                Log::warning('La respuesta de SAP no contenía una lista de valores válida.', ['respuesta' => $body]);
+                return []; // Return empty array if 'value' is not present or not an array
+            }
+            return $body['value'] ;
 
         } catch (ConnectionException $e) {
             Log::error('Error de conexión con SAP', ['exception' => $e->getMessage()]);
@@ -167,7 +171,7 @@ class ClienteController extends Controller
                 'Estimado/a ' . trim($nombre) . ':' . PHP_EOL . PHP_EOL .
                 'Nos complace informarle que su producto ya se encuentra disponible para ser retirado en nuestras instalaciones.' . PHP_EOL . PHP_EOL .
                 'Detalles del producto:' . PHP_EOL .
-                'Número de pedido: ' . $parte['DocNum'] . PHP_EOL .
+                'Número de parte: ' . $parte['DocNum'] . PHP_EOL .
                 'Producto: ' . $parte['ItemDescription'] . PHP_EOL .
                 'Fecha de disponibilidad: ' . date(format: 'd/m/Y') . PHP_EOL . PHP_EOL .
                 'Puede pasar a retirarlo en el siguiente horario:' . PHP_EOL .
