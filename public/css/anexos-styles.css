@@ -1,0 +1,68 @@
+    #drop-zone.drag-over {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+
+    .preview-item {
+        position: relative;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .preview-item img,
+    .preview-item .file-icon {
+        width: 100%;
+        height: 128px;
+        object-fit: cover;
+    }
+
+    .preview-item .file-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f3f4f6;
+    }
+
+    .preview-item .file-info {
+        padding: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .preview-item .file-name {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #1f2937;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .preview-item .remove-file-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    .preview-item:hover .remove-file-btn {
+        opacity: 1;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
