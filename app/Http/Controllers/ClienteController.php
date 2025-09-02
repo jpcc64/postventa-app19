@@ -41,7 +41,7 @@ class ClienteController extends Controller
 
     public function buscar(Request $request)
     {
-        $this->validarCamposBusqueda($request);
+       // $this->validarCamposBusqueda($request);
 
         $busqueda = array_filter($request->except(['_token', 'Status']));
 
@@ -53,7 +53,6 @@ class ClienteController extends Controller
         }
 
         $partes = $this->consultarPartes($busqueda);
-
         if (empty($partes)) {
             return back()->with('error', 'No se encontraron resultados para tu búsqueda.');
         }
@@ -84,8 +83,9 @@ class ClienteController extends Controller
     {
         $accion = "consultar_ServiceCalls";
         $col = array_key_first($input);
-        $val = strtoupper(trim($input[$col]));
-
+        $val = trim($input[$col]);
+       //dd($val , $col);
+        
         $data = [
             "where" => "substringof('$val', $col)",
             "order" => "ServiceCallID desc"
@@ -93,7 +93,7 @@ class ClienteController extends Controller
 
         try {
             Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $data]);
-            $response = Http::asForm()->post('http://192.168.9.7/api_sap/index.php', [
+            $response = Http::asForm()->post(env('API_SAP_URL'), [
                 'json' => json_encode([
                     'accion' => $accion,
                     'usuario' => 'dani',
@@ -102,13 +102,13 @@ class ClienteController extends Controller
             ]);
 
             $body = $response->json();
-
+            
             if (isset($body['error'])) {
                 Log::error('Error en la respuesta de SAP', ['error' => $body['error']]);
                 return []; // Return empty array on API error
             }
-
-            return $body['value'] ?? [];
+           // dd($response);
+            return $body['value'] ?? ['array' => "ejemplonull"];
 
         } catch (ConnectionException $e) {
             Log::error('Error de conexión con SAP', ['exception' => $e->getMessage()]);
