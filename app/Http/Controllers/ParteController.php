@@ -145,9 +145,9 @@ class ParteController extends Controller
         return ($body['value'] ?? []);
     }
 
-    public function consultarPartes($customer, $col)
+    public function consultarPartes($data, $col)
     {
-        if (empty($customer)) {
+        if (empty($data)) {
             return [];
         }
 
@@ -155,14 +155,14 @@ class ParteController extends Controller
         $whereClause = "";
 
         if ($col == 'ServiceCallID' || $col == 'DocNum') {
-            $whereClause = "$col eq $customer";
+            $whereClause = "$col eq $data";
         } else {
-            $customer = str_replace("'", "''", $customer);
-            $whereClause = "substringof('$customer', $col)";
+            $data = str_replace("'", "''", $data);
+            $whereClause = "substringof('$data', $col)";
         }
         $data = array(
             "where" => $whereClause,
-            "order" => "ServiceCallID",
+            "order" => "CreationDate desc",
         );
 
         Log::info('Consultado parte: ', ['accion' => $accion, 'datos' => $data]);
@@ -203,6 +203,7 @@ class ParteController extends Controller
         $accion = (empty($datos['ServiceCallID']) && empty($datos['DocNum']))
             ? 'crear_ServiceCalls'
             : 'modificar_ServiceCalls';
+
         try {
             Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $datos]);
 
@@ -214,45 +215,55 @@ class ParteController extends Controller
                 ])
             ]);
 
-            $body = $response->body();
+            // Decodificamos la respuesta JSON de la API. Ahora debería ser un array limpio.
+            $body = $response->json();
             Log::info('Respuesta de SAP', ['body' => $body]);
 
-            if ($response->successful() && !str_contains($body, '"error"')) {
-                $successMessage = $accion == 'crear_ServiceCalls' ? 'Parte creado correctamente.' : 'Parte modificado correctamente.';
+            if ($response->successful() && !isset($body['error'])) {
+                $successMessage = ($accion == 'crear_ServiceCalls') ? 'Parte creado correctamente.' : 'Parte modificado correctamente.';
 
-                // Reconstruimos el array de 'cliente' para que la vista no falle
-                $clienteData = [
-                    'CardCode' => $datos['CustomerCode'] ?? 'CONTADO',
-                    'CardName' => $datos['CustomerName'] ?? '',
-                    'FederalTaxID' => $datos['FederalTaxID'] ?? '',
-                ];
+                // --- INICIO DE LA CORRECCIÓN ---
 
-                // Actualizamos los datos del 'parte' con el nuevo ID si se está creando uno nuevo
-                $resultadoApi = json_decode($body, true);
-                if ($accion == 'crear_ServiceCalls') {
-                    // Asegúrate de que las claves coincidan con la respuesta real de tu API
-                    $datos['ServiceCallID'] = $resultadoApi['resultado']['ServiceCallID'] ?? null;
+                // 1. Obtenemos el ID del parte de la respuesta.
+                //    Si es una modificación, el ID ya viene en $datos.
+                //    Si es una creación, viene en $body.
+                $serviceCallID = ($accion == 'crear_ServiceCalls')
+                    ? $body['ServiceCallID']
+                    : $datos['ServiceCallID'];
+
+                // 2. Con el ID, volvemos a consultar el parte para tener TODOS los datos actualizados.
+                $parteCompleto = $this->consultarPartes($serviceCallID, 'ServiceCallID');
+                $parte = $parteCompleto[0] ?? null;
+
+                if (!$parte) {
+                    return back()->withInput()->withErrors(['api_error' => 'El parte se guardó, pero no se pudo recuperar para mostrarlo.']);
                 }
 
-                $tecnico = $this->nombreTecnico($datos['TechnicianCode'] ?? '');
+                // 3. Obtenemos los datos del cliente y del técnico asociados al parte.
+                $cliente = $this->consultarClientes($parte['CustomerCode']);
+                $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');
 
-                // Devolvemos la vista del formulario con todas las variables necesarias
+                // 4. Devolvemos la vista con todos los datos frescos y completos.
                 return view('parteFormulario', [
                     'success' => $successMessage,
-                    'parte' => $datos,
-                    'cliente' => $clienteData,
+                    'parte' => $parte,
+                    'cliente' => $cliente[0] ?? null,
                     'origenes' => $this->consultarOrigen(),
                     'tecnico' => $tecnico
                 ]);
+
+                // --- FIN DE LA CORRECCIÓN ---
             }
 
             Log::error('Error de SAP', ['body' => $body]);
             return back()->withInput()->withErrors(['api_error' => 'Error de SAP: ' . $this->extraerMensajeErrorSAP($body)]);
+
         } catch (\Exception $e) {
             Log::error('Excepción al enviar a SAP', ['exception' => $e->getMessage()]);
             return back()->withInput()->withErrors(['exception' => 'Excepción: ' . $e->getMessage()]);
         }
     }
+
 
     public function consultarOrigen()
     {
