@@ -56,7 +56,7 @@ class ClienteController extends Controller
         if (empty($partes)) {
             return back()->with('error', 'No se encontraron resultados para tu búsqueda.');
         }
-        dd($partes);
+        //dd($partes);
         $cliente = $this->parteController->consultarClientes($partes[0]['CustomerCode']);
         $origenes = $this->parteController->consultarOrigen();
         $tecnico = $this->parteController->nombreTecnico($partes[0]['TechnicianCode']);
