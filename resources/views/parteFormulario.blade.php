@@ -103,7 +103,7 @@
         
         <!-- FILTRO DE BÚSQUEDA en el frontend -->
         <div class="my-4 max-w-5xl mx-auto">
-            <label for="filtroParte" class="block text-sm font-medium text-gray-700">Filtrar por ID de parte o nombre del cliente: </label>
+            <label for="filtroParte" class="block text-sm font-medium text-gray-700">Filtrar por ID de parte o nombre del cliente o producto: </label>
             <input type="text" id="filtroParte" x-model="filter" placeholder="Escribe para filtrar..."
                    class="mt-1 block w-full md:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
         </div>
@@ -126,7 +126,7 @@
             <!-- Listado de partes existentes -->
             @foreach($partes as $parte)
                 <div class="col-span-1"
-                     x-show="filter === '' || '{{ $parte['ServiceCallID'] }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['U_H8_Nombre']) }}'.toLowerCase().includes(filter.toLowerCase())">
+                     x-show="filter === '' || '{{ $parte['ServiceCallID'] }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['U_H8_Nombre']) }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['ItemDescription']) }}'.toLowerCase().includes(filter.toLowerCase())">
                     <div class="p-6 border border-gray-300 rounded-xl shadow-md flex flex-col h-full">
                         <div class="flex-grow">
                              <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['ServiceCallID'] }}</h3>
