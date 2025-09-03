@@ -33,7 +33,7 @@
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1">
     </div>
 
-    <div  class="col-span-2 grid grid-cols-2 relative {{ !empty($parte['DocNum']) ? '' : 'hidden' }} " >
+    <div  class="col-span-2 grid grid-cols-2 relative {{ !empty($cliente['CardCode']) ? '' : 'hidden' }} " >
         <label class="block text-sm font-medium text-gray-700 col-span-2">Articulo
             <p class="text-xs text-gray-500">Codigo o Nombre</p>
 
@@ -46,7 +46,7 @@
         </div>
     </div>
 
-    <div class="col-span-2 grid grid-cols-2 {{ !empty($parte['DocNum']) ? '' : 'hidden' }}" >
+    <div class="col-span-2 grid grid-cols-2 {{ !empty($cliente['CardCode']) ? '' : 'hidden' }}" >
         <label class="block text-sm font-medium text-gray-700 col-span-2">Descripcion</label>
         <textarea name="ItemName" id="itemNameInput"
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50
