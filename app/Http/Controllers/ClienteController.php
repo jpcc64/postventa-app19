@@ -176,8 +176,8 @@ class ClienteController extends Controller
                 'Estimado/a ' . trim($nombre) . ':' . PHP_EOL . PHP_EOL .
                 'Nos complace informarle que su producto ya se encuentra disponible para ser retirado en nuestras instalaciones.' . PHP_EOL . PHP_EOL .
                 'Detalles del producto:' . PHP_EOL .
-                'Número de parte: ' . $parte['DocNum'] . PHP_EOL .
-                'Producto: ' . $parte['ItemDescription'] . PHP_EOL .
+                'Número de parte: ' . $parte[0]['DocNum'] . PHP_EOL .
+                'Producto: ' . $parte[0]['ItemDescription'] . PHP_EOL .
                 'Fecha de disponibilidad: ' . date(format: 'd/m/Y') . PHP_EOL . PHP_EOL .
                 'Puede pasar a retirarlo en el siguiente horario:' . PHP_EOL .
                 'Lunes a Sábado de 9:00 a 21:00' . PHP_EOL .
@@ -190,15 +190,16 @@ class ClienteController extends Controller
         try {
             $response = Http::asForm()->post($url, $data);
             Log::info('Respuesta del servicio de WhatsApp', ['respuesta' => $response->body()]);
-
-            if ($response->successful()) {
-                return redirect()->route('home')->with('success', 'Mensaje enviado correctamente a ' . $nombre);
+            $respuesta = $response->body();
+        //    dd($respuesta);
+            if ($respuesta != "false") {
+                return back()->with('success', 'Mensaje enviado correctamente a ' . $nombre);
             } else {
-                return redirect()->route('home')->with('error', 'Error al enviar el mensaje de WhatsApp.');
+                return back()->with('error', 'Error al enviar el mensaje de WhatsApp.');
             }
         } catch (ConnectionException $e) {
             Log::error('Error de conexión con el servicio de WhatsApp', ['exception' => $e->getMessage()]);
-            return redirect()->route('home')->with('error', 'No se pudo conectar con el servicio de WhatsApp.');
+            return back()->with('error', 'No se pudo conectar con el servicio de WhatsApp.');
         }
     }
 }
