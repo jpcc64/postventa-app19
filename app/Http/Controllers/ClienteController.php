@@ -161,7 +161,7 @@ class ClienteController extends Controller
         }
 
         $nombre = $parte[0]['CustomerName'] ?? $parte[0]['U_H8_Nombre'];
-        $telefono = '662480928';//$telefono_alternativo ?? $telefono_original;
+        $telefono = $telefono_alternativo ?? $telefono_original;
 
         $url = 'http://192.168.9.7/whatsapp/send_what.php';
         $data = [

@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -28,7 +27,6 @@
 
         .header-box {
             height: 100px;
-            /* Altura fija para los cuadros de la cabecera */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -39,26 +37,21 @@
         .content-box {
             border: 2px solid #000;
             border-radius: 2rem;
-            /* Bordes muy redondeados */
-            padding: 1.5rem;
+            padding: 1rem; /* Reducido de 1.5rem */
             margin-top: 1.5rem;
-            /* Espacio entre divs */
         }
 
         .content-box-section {
             border: 2px solid #000;
-            min-height: 12rem;
             border-radius: 2rem;
-            /* Bordes muy redondeados */
-            margin-top: 1.5rem;
-            /* Espacio entre divs */
+            margin-top: 1rem;
             overflow: hidden; /* Mantiene los bordes redondeados con el contenido interior */
         }
 
         .content-box-small {
             border: 2px solid #000;
             border-radius: 2rem;
-            padding: 1rem 1.5rem;
+            padding: 0rem 1.5rem; /* Reducido de 1rem 1.5rem */
             margin-top: 1.5rem;
         }
 
@@ -68,13 +61,12 @@
             padding: 0.75rem 1.5rem;
             font-weight: bold;
         }
+
         .content-area {
-            /* padding: 1.25rem 1.5rem; */
+            padding: 0rem 1.5rem; /* Reducido de 1rem 1.5rem */
             margin-left: 5px;
             white-space: pre-wrap;
         }
-     
-
 
         /* Estilos de impresión */
         @media print {
@@ -92,7 +84,7 @@
             }
 
             .no-print {
-                display: none;
+                display: none !important;
             }
         }
 
@@ -117,6 +109,7 @@
 </head>
 
 <body>
+    <button class="print-button no-print" onclick="window.print();">Imprimir</button>
 
     <div class="page">
         <header class="grid grid-cols-3 gap-1">
@@ -143,7 +136,6 @@
         </header>
 
         <section class="grid grid-cols-3 gap-4">
-
             <div class="content-box-small col-span-1">
                 <p>
                     <strong>PARTE S.A.T </strong>
@@ -176,9 +168,8 @@
             <div>
                 <p><strong>Operario: </strong>
                     @isset($tecnico)
-                        {{ $tecnico['FirstName'] ?? ''}}
+                    {{ $tecnico['FirstName'] ?? ''}}
                     @else
-                        
                     @endisset
                 </p>
                 <p><strong>Artículo: {{ $parte['ItemCode'] }}</strong> -- {{ $parte['ItemDescription'] ?? '' }}</p>
@@ -189,28 +180,28 @@
             <div>
                 <p><strong>Estado:</strong>
                     @switch($parte['Status'] ?? '')
-                        @case('-3')
-                            <span>Abierto</span>
-                            @break
-                        @case('-2')
-                            <span>Pendiente</span>
-                            @break
-                        @case('-1')
-                            <span>Cerrado</span>
-                            @break
-                        @default
-                            <span></span>
+                    @case('-3')
+                    <span>Abierto</span>
+                    @break
+                    @case('-2')
+                    <span>Pendiente</span>
+                    @break
+                    @case('-1')
+                    <span>Cerrado</span>
+                    @break
+                    @default
+                    <span></span>
                     @endswitch
                 </p>
                 <p><strong>R.M.A: </strong> {{ $parte['U_H8_RMA'] ?? '' }}</p>
                 <p><strong>Núm. serie: </strong> {{ $parte['InternalSerialNum'] ?? '' }}</p>
                 <p><strong>Origen: </strong>
-                @foreach($origen as $item)
+                    @foreach($origen as $item)
                     @if($parte['Origin'] == $item['OriginID'])
-                        {{ $item['Name'] }}
+                    {{ $item['Name'] }}
                     @endif
-                @endforeach
-            </p>
+                    @endforeach
+                </p>
             </div>
         </section>
 
@@ -219,7 +210,7 @@
                 <p>PROBLEMA DEL ARTÍCULO</p>
             </div>
             <div class="content-area overflow-hidden">
-                <div class="m-2"> {{ $parte['Description'] ?? '' }} </div>
+                {{ $parte['Description'] ?? '' }}
             </div>
         </section>
 
@@ -228,7 +219,7 @@
                 <p>SOLUCIÓN</p>
             </div>
             <div class="content-area overflow-hidden">
-                <p  class="m-2">{{$parte['Resolution'] ?? ''}}</p>
+                {{$parte['Resolution'] ?? ''}}
             </div>
         </section>
 

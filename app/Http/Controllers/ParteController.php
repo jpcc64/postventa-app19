@@ -222,16 +222,10 @@ class ParteController extends Controller
             if ($response->successful() && !isset($body['error'])) {
                 $successMessage = ($accion == 'crear_ServiceCalls') ? 'Parte creado correctamente.' : 'Parte modificado correctamente.';
 
-                // --- INICIO DE LA CORRECCIÓN ---
-
-                // 1. Obtenemos el ID del parte de la respuesta.
-                //    Si es una modificación, el ID ya viene en $datos.
-                //    Si es una creación, viene en $body.
                 $serviceCallID = ($accion == 'crear_ServiceCalls')
                     ? $body['ServiceCallID']
                     : $datos['ServiceCallID'];
 
-                // 2. Con el ID, volvemos a consultar el parte para tener TODOS los datos actualizados.
                 $parteCompleto = $this->consultarPartes($serviceCallID, 'ServiceCallID');
                 $parte = $parteCompleto[0] ?? null;
 
@@ -239,11 +233,9 @@ class ParteController extends Controller
                     return back()->withInput()->withErrors(['api_error' => 'El parte se guardó, pero no se pudo recuperar para mostrarlo.']);
                 }
 
-                // 3. Obtenemos los datos del cliente y del técnico asociados al parte.
                 $cliente = $this->consultarClientes($parte['CustomerCode']);
                 $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');
 
-                // 4. Devolvemos la vista con todos los datos frescos y completos.
                 return view('parteFormulario', [
                     'success' => $successMessage,
                     'parte' => $parte,
@@ -252,7 +244,6 @@ class ParteController extends Controller
                     'tecnico' => $tecnico
                 ]);
 
-                // --- FIN DE LA CORRECCIÓN ---
             }
 
             Log::error('Error de SAP', ['body' => $body]);
@@ -296,11 +287,14 @@ class ParteController extends Controller
 
     private function extraerMensajeErrorSAP($body)
     {
-        $decoded = json_decode($body, true);
+        $decoded = is_string($body) ? json_decode($body, true) : $body;
         if (isset($decoded['resultado']['error']['message']['value'])) {
             return $decoded['resultado']['error']['message']['value'];
         }
-        return $decoded['error']['message']['value'] ?? 'Respuesta inesperada de SAP.';
+        if (isset($decoded['error']['message']['value'])) {
+            return $decoded['error']['message']['value'];
+        }
+        return 'Respuesta de error inesperada de SAP.';
     }
 
     private function validarCamposSAP(Request $request)
