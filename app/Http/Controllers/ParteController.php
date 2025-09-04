@@ -173,7 +173,6 @@ class ParteController extends Controller
                 'datos' => $data
             ])
         ]);
-
         $body = json_decode($response->body(), true);
         Log::info('Parte encontrado: ', ['accion' => $accion, 'respuesta' => $body]);
 

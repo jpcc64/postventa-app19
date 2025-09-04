@@ -85,9 +85,14 @@ class ClienteController extends Controller
         $col = array_key_first($input);
         $val = trim($input[$col]);
        //dd($val , $col);
+        $condicional = match ($col) {
+            'CustomerName', 'U_H8_Nombre' => "substringof('$val', $col)",
+            'Telephone', 'U_H8_Telefono' => "$col eq '$val'",
+            default => "$col eq $val",
+        };
         
         $data = [
-            "where" => "substringof('$val', $col)",
+            "where" => $condicional,
             "order" => "ServiceCallID desc"
         ];
 
@@ -107,11 +112,11 @@ class ClienteController extends Controller
                 Log::error('Error en la respuesta de SAP', ['error' => $body['error']]);
                 return []; // Return empty array on API error
             }
-           // dd($response);
            if (!isset($body['value']) || !is_array($body['value'])) {
                 Log::warning('La respuesta de SAP no contenía una lista de valores válida.', ['respuesta' => $body]);
                 return []; // Return empty array if 'value' is not present or not an array
             }
+
             return $body['value'] ;
 
         } catch (ConnectionException $e) {
