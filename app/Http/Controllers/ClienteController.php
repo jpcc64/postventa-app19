@@ -87,7 +87,7 @@ class ClienteController extends Controller
         
         $condicional = match ($col) {
             'CustomerName', 'U_H8_Nombre' => "substringof('$val', $col)",
-            'ServiceCallID', 'DocNum', 'Telephone', 'U_H8_Telefono' => "$col eq $val",
+            'ServiceCallID', 'DocNum', 'Telephone' => "$col eq $val",
             default => "$col eq '$val'",
         };
         
@@ -137,7 +137,7 @@ class ClienteController extends Controller
             'U_H8_MOTIVO' => 'nullable|string',
             'Status' => 'nullable|string',
             'Telephone' => 'nullable|numeric|digits_between:9,12',
-            'U_H8_Telefono' => 'nullable|numeric|digits_between:9,12',
+            'U_H8_Telefono' => 'nullable|numeric',
             'CardCode' => 'nullable|min:8',
             'CardName' => 'nullable|string'
         ], [

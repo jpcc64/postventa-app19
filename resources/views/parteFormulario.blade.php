@@ -184,7 +184,9 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
+    // Lógica que usa jQuery
     $(document).ready(function() {
         let debounceTimer;
         $('#busquedaCliente').on('input', function() {
@@ -194,11 +196,9 @@
             if (query.length >= 4) {
                 debounceTimer = setTimeout(function() {
                     $.ajax({
-                        url: '{{ route('buscar.sugerencias') }}',
+                        url: '{{ route("buscar.sugerencias") }}',
                         type: 'GET',
-                        data: {
-                            term: query
-                        },
+                        data: { term: query },
                         success: function(data) {
                             sugerencias.empty();
                             if (data.length > 0) {
@@ -233,57 +233,55 @@
         });
     });
 
+    // Lógica que usa JavaScript puro (Vanilla JS)
     document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- LÓGICA PARA DESHABILITAR CAMPOS SI EL PARTE ESTÁ CERRADO ---
         const formParte = document.getElementById('form-parte');
-        if (!formParte) {
-            return;
-        }
-
-        const statusSelect = formParte.querySelector('select[name="Status"]');
-        if (statusSelect && statusSelect.value == '-1') {
-            const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
-            fieldsToDisable.forEach(function(field) {
-                if (field !== statusSelect) {
-                    field.classList.add('bg-gray-200');
-                    field.setAttribute('readonly', true);
-                    if (field.tagName === 'SELECT') {
-                        field.setAttribute('readonly', true);
-                    }
-                }
-            });
-        }
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('keydown', function(event) {
-                    // --- CORRECCIÓN: Se añade una comprobación para excluir los textarea ---
-                    // Si la tecla es 'Enter' Y el elemento NO es un textarea...
-                    if (event.key === 'Enter' && event.target.tagName.toLowerCase() !==
-                        'textarea') {
-
-                        // 1. Prevenimos la acción por defecto (enviar el formulario)
-                        event.preventDefault();
-
-                        // 2. Lógica para mover el foco al siguiente elemento (sin cambios)
-                        const focusableElements = Array.from(
-                            form.querySelectorAll(
-                                'input, select, textarea, button, a[href]')
-                        ).filter(
-                            el => !el.disabled && !el.hidden && el.type !==
-                            'hidden' && window.getComputedStyle(el).display !==
-                            'none'
-                        );
-
-                        const currentIndex = focusableElements.indexOf(event.target);
-                        const nextElement = focusableElements[currentIndex + 1];
-
-                        if (nextElement) {
-                            nextElement.focus();
-                        }
-                    }
+        if (formParte) {
+            const statusSelect = formParte.querySelector('select[name="Status"]');
+            if (statusSelect && statusSelect.value == '-1') {
+                const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
+                fieldsToDisable.forEach(function(field) {
+                     field.setAttribute('disabled', true);
                 });
+            }
+        }
+        
+        // --- LÓGICA PARA PREVENIR ENVÍO CON "ENTER" ---
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('keydown', function(event) {
+                if (event.key !== 'Enter') {
+                    return;
+                }
+
+                const targetElement = event.target;
+                const tagName = targetElement.tagName.toLowerCase();
+
+                // Permitir 'Enter' en textareas y botones de submit
+                if (tagName === 'textarea' || targetElement.type === 'submit') {
+                    return;
+                }
+                
+                // Prevenir envío y mover el foco en los demás casos
+                event.preventDefault();
+
+                const focusableElements = Array.from(
+                    form.querySelectorAll('input:not([type="hidden"]), select, textarea, button, a[href]')
+                ).filter(
+                    el => !el.disabled && el.offsetParent !== null
+                );
+
+                const currentIndex = focusableElements.indexOf(targetElement);
+                const nextElement = focusableElements[currentIndex + 1];
+
+                if (nextElement) {
+                    nextElement.focus();
+                }
             });
         });
     });
 </script>
+
 
 @include('components.footer')
