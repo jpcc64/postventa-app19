@@ -234,55 +234,56 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-                const formParte = document.getElementById('form-parte');
-                if (!formParte) {
-                    return;
-                }
+        const formParte = document.getElementById('form-parte');
+        if (!formParte) {
+            return;
+        }
 
-                const statusSelect = formParte.querySelector('select[name="Status"]');
-                if (statusSelect && statusSelect.value == '-1') {
-                    const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
-                    fieldsToDisable.forEach(function(field) {
-                        if (field !== statusSelect) {
-                            field.classList.add('bg-gray-200');
-                            field.setAttribute('readonly', true);
-                            if (field.tagName === 'SELECT') {
-                                field.setAttribute('readonly', true);
-                            }
+        const statusSelect = formParte.querySelector('select[name="Status"]');
+        if (statusSelect && statusSelect.value == '-1') {
+            const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
+            fieldsToDisable.forEach(function(field) {
+                if (field !== statusSelect) {
+                    field.classList.add('bg-gray-200');
+                    field.setAttribute('readonly', true);
+                    if (field.tagName === 'SELECT') {
+                        field.setAttribute('readonly', true);
+                    }
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('keydown', function(event) {
+                    // --- CORRECCIÓN: Se añade una comprobación para excluir los textarea ---
+                    // Si la tecla es 'Enter' Y el elemento NO es un textarea...
+                    if (event.key === 'Enter' && event.target.tagName.toLowerCase() !==
+                        'textarea') {
+
+                        // 1. Prevenimos la acción por defecto (enviar el formulario)
+                        event.preventDefault();
+
+                        // 2. Lógica para mover el foco al siguiente elemento (sin cambios)
+                        const focusableElements = Array.from(
+                            form.querySelectorAll(
+                                'input, select, textarea, button, a[href]')
+                        ).filter(
+                            el => !el.disabled && !el.hidden && el.type !==
+                            'hidden' && window.getComputedStyle(el).display !==
+                            'none'
+                        );
+
+                        const currentIndex = focusableElements.indexOf(event.target);
+                        const nextElement = focusableElements[currentIndex + 1];
+
+                        if (nextElement) {
+                            nextElement.focus();
                         }
-                    });
-                }
-                document.addEventListener('DOMContentLoaded', function() {
-                    document.querySelectorAll('form').forEach(form => {
-                        form.addEventListener('keydown', function(event) {
-                            // --- CORRECCIÓN: Se añade una comprobación para excluir los textarea ---
-                            // Si la tecla es 'Enter' Y el elemento NO es un textarea...
-                            if (event.key === 'Enter' && event.target.tagName.toLowerCase() !==
-                                'textarea') {
-
-                                // 1. Prevenimos la acción por defecto (enviar el formulario)
-                                event.preventDefault();
-
-                                // 2. Lógica para mover el foco al siguiente elemento (sin cambios)
-                                const focusableElements = Array.from(
-                                    form.querySelectorAll(
-                                        'input, select, textarea, button, a[href]')
-                                ).filter(
-                                    el => !el.disabled && !el.hidden && el.type !==
-                                    'hidden' && window.getComputedStyle(el).display !==
-                                    'none'
-                                );
-
-                                const currentIndex = focusableElements.indexOf(event.target);
-                                const nextElement = focusableElements[currentIndex + 1];
-
-                                if (nextElement) {
-                                    nextElement.focus();
-                                }
-                            }
-                        });
-                    });
+                    }
                 });
+            });
+        });
+    });
 </script>
 
 @include('components.footer')
