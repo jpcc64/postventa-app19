@@ -87,8 +87,8 @@ class ClienteController extends Controller
        //dd($val , $col);
         $condicional = match ($col) {
             'CustomerName', 'U_H8_Nombre' => "substringof('$val', $col)",
-            'Telephone', 'U_H8_Telefono' => "$col eq '$val'",
-            default => "$col eq $val",
+            'Telephone', 'U_H8_Telefono', 'Subject' => "$col eq '$val'",
+            default => "$col eq '$val'",
         };
         
         $data = [
