@@ -84,10 +84,10 @@ class ClienteController extends Controller
         $accion = "consultar_ServiceCalls";
         $col = array_key_first($input);
         $val = trim($input[$col]);
-        
+
         $condicional = match ($col) {
             'CustomerName', 'U_H8_Nombre' => "substringof('$val', $col)",
-            'ServiceCallID', 'DocNum', 'Telephone' => "$col eq $val",
+            'ServiceCallID', 'DocNum'=> "$col eq $val",
             default => "$col eq '$val'",
         };
         
