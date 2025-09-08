@@ -139,7 +139,7 @@
             <div class="content-box-small col-span-1">
                 <p>
                     <strong>PARTE S.A.T </strong>
-                    {{ $parte['ServiceCallID'] ?? '' }}
+                    {{ $parte['DocNum'] ?? '' }}
                 </p>
                 <p>
                     <strong>FECHA </strong>

@@ -20,11 +20,11 @@
                     class="px-4 py-2">
                     Resolución
                 </button>
-                <!-- <button type="button" @click="tab = 'anexo'"
+                <button type="button" @click="tab = 'anexo'"
                     :class="tab === 'anexo' ? 'border-b-2 border-blue-600 text-blue-800' : 'text-gray-800'"
                     class="px-4 py-2">
                     Anexos
-                </button> -->
+                </button>
 
             </div>
             <div x-show="tab === 'general'" x-cloak x-transition class="space-y-4 mb-6 grid grid-cols-3 gap-4">
@@ -66,14 +66,9 @@
                 <textarea name="Description" rows="3"
                     class="mt-1 block w-2/4 rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ old('Description', $parte['Description'] ?? '') }}</textarea>
             </div>
-            <!-- <div x-show="tab === 'anexo'" x-cloak x-transition class="space-y-4 mb-6">
-                <div id="drop-zone"
-
-                ///////////////  ///////////////
-  /////////////// Atachments2 tabla para los anexos  ///////////////
-                ///////////////  ///////////////
-
-                    class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+            <div x-show="tab === 'anexo'" x-cloak x-transition class="space-y-4 mb-6">
+                <div id="drop-zone"  class="flex flex-col items-center justify-center w-1/2 h-64 
+                border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
                         <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                             fill="none" viewBox="0 0 20 16">
@@ -83,15 +78,15 @@
                         <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Haz clic para subir</span> o
                             arrastra y suelta
                         </p>
-                        <p class="text-xs text-gray-500">Imágenes, PDF, DOCX (MAX. 5MB por archivo)</p>
+                        <p class="text-xs text-gray-500">Imágenes, PDF, DOCX/p>
                     </div>
-                    <input id="file-input" type="file" class="hidden" multiple />
+                    <input id="file-input" name="anexos[]" type="file" class="hidden" multiple />
                 </div>
 
                 <div id="preview-container" class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                    
                 </div>
-            </div> -->
+            </div>
 
 
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -155,8 +150,7 @@
                                     previewItem.innerHTML = `
                     ${filePreview}
                     <div class="file-info"><p class="file-name">${file.name}</p></div>
-                    <button type="button" class="remove-file-btn" title="Eliminar archivo">&times;</button>
-                `;
+                    <button type="button" class="remove-file-btn" title="Eliminar archivo">&times;</button>`;
                                     previewContainer.appendChild(previewItem);
                                     previewItem.querySelector('.remove-file-btn').addEventListener('click', () => {
                                         const newFiles = new DataTransfer();

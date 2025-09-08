@@ -204,19 +204,19 @@ class ParteController extends Controller
             'tecnico' => $tecnico
         ]);
     }
+
     public function crear(Request $request)
     {
         $this->validarCamposSAP($request);
-        $datos = $request->all();
+        $datos = $request->except('anexos');
 
         $accion = (empty($datos['ServiceCallID']) && empty($datos['DocNum']))
             ? 'crear_ServiceCalls'
             : 'modificar_ServiceCalls';
 
         try {
-            Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $datos]);
-
-            $response = Http::asForm()->post(env('API_SAP_URL'), [
+            // --- PASO 1: CREAR O MODIFICAR EL PARTE ---
+            $responseParte = Http::asForm()->post(env('API_SAP_URL'), [
                 'json' => json_encode([
                     'accion' => $accion,
                     'usuario' => env('API_SAP_USER', 'dani'),
@@ -224,54 +224,141 @@ class ParteController extends Controller
                 ])
             ]);
 
-            $body = $response->json();
-            Log::info('Respuesta de SAP', ['body' => $body]);
-
-            if ($response->successful() && !isset($body['error'])) {
-                $successMessage = ($accion == 'crear_ServiceCalls') ? 'Parte creado correctamente.' : 'Parte modificado correctamente.';
-
-                $serviceCallID = ($accion == 'crear_ServiceCalls')
-                    ? ($body['ServiceCallID'] ?? null)
-                    : $datos['ServiceCallID'];
-
-                if (!$serviceCallID) {
-                    return $this->renderFormWithError($request, ['api_error' => 'No se pudo obtener el ID del parte desde la API.']);
-                }
-
-                $parteCompleto = $this->consultarPartes($serviceCallID, 'ServiceCallID');
-                $parte = $parteCompleto[0] ?? null;
-
-                if (!$parte) {
-                    return $this->renderFormWithError($request, ['api_error' => 'El parte se guardó, pero no se pudo recuperar para mostrarlo.']);
-                }
-
-                $cliente = $this->consultarClientes($parte['CustomerCode']);
-                $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');
-
-                return view('parteFormulario', [
-                    'success' => $successMessage,
-                    'parte' => $parte,
-                    'cliente' => $cliente[0] ?? null,
-                    'origenes' => $this->consultarOrigen(),
-                    'tecnico' => $tecnico
-                ]);
+            $bodyParte = $responseParte->json();
+            if (!$responseParte->successful() || isset($bodyParte['error'])) {
+                Log::error('Error de SAP al crear/modificar el parte', ['body' => $bodyParte]);
+                return back()->withInput()->withErrors(['api_error' => 'Error de SAP: ' . $this->extraerMensajeErrorSAP($bodyParte)]);
             }
 
-            // --- CORRECCIÓN: Manejo de errores de SAP ---
-            Log::error('Error de SAP', ['body' => $body]);
-            return $this->renderFormWithError($request, ['api_error' => 'Error de SAP: ' . $this->extraerMensajeErrorSAP($body)]);
+            // --- PASO 2: OBTENER EL ID DEL PARTE ---
+            $serviceCallID = ($accion == 'crear_ServiceCalls') ? ($bodyParte['ServiceCallID'] ?? null) : $datos['ServiceCallID'];
+            if (!$serviceCallID) {
+                return back()->withInput()->withErrors(['api_error' => 'No se pudo obtener el ID del parte desde la API.']);
+            }
+
+            // --- PASO 3: GESTIONAR Y SUBIR ANEXOS SI EXISTEN ---
+                if ($request->hasFile('anexos')) {
+                // 3.1. Primero, creamos la entrada de Anexos en SAP
+                $attachmentEntry = $this->crearEntradaDeAnexosSAP($request->file('anexos'));
+
+                // 3.2. Si se creó correctamente, vinculamos la entrada de anexos al parte
+                if ($attachmentEntry) {
+                    $this->vincularAnexoAlParte($serviceCallID, $attachmentEntry);
+                }
+            }
+
+            // --- PASO 4: DEVOLVER LA VISTA CON LOS DATOS FRESCOS ---
+            $parteCompleto = $this->consultarPartes($serviceCallID, 'ServiceCallID');
+            $parte = $parteCompleto[0] ?? null;
+
+            if (!$parte) {
+                return back()->withInput()->withErrors(['api_error' => 'El parte se guardó, pero no se pudo recuperar para mostrarlo.']);
+            }
+
+            $cliente = $this->consultarClientes($parte['CustomerCode']);
+            $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');
+            $successMessage = ($accion == 'crear_ServiceCalls' ? 'Parte creado' : 'Parte modificado') . ' con éxito.';
+
+            return view('parteFormulario', [
+                'success' => $successMessage,
+                'parte' => $parte,
+                'cliente' => $cliente[0] ?? null,
+                'origenes' => $this->consultarOrigen(),
+                'tecnico' => $tecnico
+            ]);
 
         } catch (\Exception $e) {
-            // --- CORRECCIÓN: Manejo de excepciones ---
             Log::error('Excepción al enviar a SAP', ['exception' => $e->getMessage()]);
-            return $this->renderFormWithError($request, ['exception' => 'Excepción: ' . $e->getMessage()]);
+            return back()->withInput()->withErrors(['exception' => 'Excepción: ' . $e->getMessage()]);
         }
     }
 
     /**
-     * Re-renderiza el formulario con datos y errores.
-     * Esta función ayuda a no repetir código en los bloques de error.
+     * Guarda los archivos en el servidor y crea una entrada 'Attachments2' en SAP.
      */
+    private function crearEntradaDeAnexosSAP(array $files): ?int
+    {
+        $attachmentPath = env('SAP_ATTACHMENT_PATH');
+        if (!$attachmentPath) {
+            Log::error("La ruta de anexos SAP_ATTACHMENT_PATH no está configurada en el archivo .env");
+            return null;
+        }
+
+        $lines = [];
+        foreach ($files as $file) {
+            try {
+                // 1. Guardar el archivo en la carpeta compartida
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move($attachmentPath, $fileName);
+                
+                // 2. Preparar la línea para la API de SAP
+                $lines[] = [
+                    "FileName" => pathinfo($fileName, PATHINFO_FILENAME),
+                    "FileExtension" => $file->getClientOriginalExtension(),
+                    "SourcePath" => $attachmentPath,
+                    // "Override" => "tYES" // Opcional, si quieres sobreescribir
+                ];
+            } catch (\Exception $e) {
+                Log::error("No se pudo guardar el anexo '{$file->getClientOriginalName()}' en el servidor.", ['exception' => $e->getMessage()]);
+            }
+        }
+
+        if (empty($lines)) {
+            return null;
+        }
+
+        // 3. Llamar a la API de SAP para crear la entrada de Anexos
+        try {
+            $response = Http::asForm()->post(env('API_SAP_URL'), [
+                'json' => json_encode([
+                    'accion' => 'crear_Attachments2',
+                    'usuario' => env('API_SAP_USER', 'dani'),
+                    'datos' => ['Attachments2_Lines' => $lines]
+                ])
+            ]);
+
+            $body = $response->json();
+            if ($response->successful() && isset($body['AbsoluteEntry'])) {
+                Log::info("Entrada de anexos creada en SAP con ID: {$body['AbsoluteEntry']}");
+                return $body['AbsoluteEntry'];
+            }
+        } catch (\Exception $e) {
+            Log::error("Excepción al crear la entrada de anexos en SAP.", ['exception' => $e->getMessage()]);
+        }
+
+        return null;
+    }
+    
+    /**
+     * Actualiza un ServiceCall para asignarle un AttachmentEntry.
+     */
+    private function vincularAnexoAlParte(int $serviceCallID, int $attachmentEntryID): bool
+    {
+        try {
+            $datos = ['AttachmentEntry' => $attachmentEntryID];
+            
+            $response = Http::asForm()->post(env('API_SAP_URL'), [
+                'json' => json_encode([
+                    'accion' => 'modificar_ServiceCalls',
+                    'ServiceCallID' => $serviceCallID, // El ID del parte a modificar
+                    'usuario' => env('API_SAP_USER', 'dani'),
+                    'datos' => $datos
+                ])
+            ]);
+
+            if ($response->successful()) {
+                Log::info("El parte {$serviceCallID} se actualizó con el anexo {$attachmentEntryID}.");
+                return true;
+            }
+        } catch (\Exception $e) {
+            Log::error("Falló la vinculación del anexo {$attachmentEntryID} al parte {$serviceCallID}.", ['exception' => $e->getMessage()]);
+        }
+
+        return false;
+    }
+
+
+
     private function renderFormWithError(Request $request, array $errors)
     {
         $parteData = $request->all(); // Mantiene los datos del formulario
@@ -301,6 +388,7 @@ class ParteController extends Controller
             'tecnico' => $tecnico
         ])->withErrors($errors);
     }
+
     public function consultarOrigen()
     {
         return Cache::remember('sap.origenes', 3600, function () {

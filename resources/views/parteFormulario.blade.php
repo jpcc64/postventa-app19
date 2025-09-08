@@ -72,7 +72,7 @@
             </div>
         </form>
 
-        <form action="{{ route('parte.buscarRMA') }}" method="get" class="w-1/3">
+        <!-- <form action="{{ route('parte.buscarRMA') }}" method="get" class="w-1/3">
             @csrf
             <div class="flex items-center space-x-4 relative w-full">
                 <input type="text" id="busquedaRMA" name="busquedaRMA"
@@ -83,7 +83,7 @@
                     Buscar
                 </button>
             </div>
-        </form>
+        </form> -->
     </div>
 </div>
 
@@ -160,7 +160,7 @@
 
 <!-- 🔹 Formulario completo -->
 <div class="bg-white p-6 sm:p-8 rounded-xl shadow-md border border-slate-200 mx-auto">
-    <form id="form-parte" method="POST" action="{{ route('parte.crear') }}">
+    <form id="form-parte" method="POST" action="{{ route('parte.crear') }}" enctype="multipart/form-data">
         @csrf
         <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8">
             @include('components.columna1')
