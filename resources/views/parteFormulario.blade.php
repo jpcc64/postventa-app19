@@ -130,10 +130,10 @@
             <!-- Listado de partes existentes -->
             @foreach ($partes as $parte)
                 <div class="col-span-1"
-                    x-show="filter === '' || '{{ $parte['ServiceCallID'] }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['U_H8_Nombre']) }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['ItemDescription']) }}'.toLowerCase().includes(filter.toLowerCase())">
+                    x-show="filter === '' || '{{ $parte['DocNum'] }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['U_H8_Nombre']) }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['ItemDescription']) }}'.toLowerCase().includes(filter.toLowerCase())">
                     <div class="p-6 border border-gray-300 rounded-xl shadow-md flex flex-col h-full">
                         <div class="flex-grow">
-                            <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['ServiceCallID'] }}</h3>
+                            <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['DocNum'] }}</h3>
                             @switch($parte['Status'] ?? '')
                                 @case('-3')
                                     <strong class="text-green-600">Abierto</strong>
