@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\ProductoController;
-
+use Illuminate\Support\Facades\Auth;
+use App\Events\AccionUsuarioRegistrada; 
 class ParteController extends Controller
 {
     private $productoController;
@@ -226,6 +227,8 @@ class ParteController extends Controller
 
             $body = $response->json();
             Log::info('Respuesta de SAP', ['body' => $body]);
+            $usuario = Auth::user(); // Obtenemos el usuario autenticado
+
 
             if ($response->successful() && !isset($body['error'])) {
                 $successMessage = ($accion == 'crear_ServiceCalls') ? 'Parte creado correctamente.' : 'Parte modificado correctamente.';
@@ -244,7 +247,8 @@ class ParteController extends Controller
                 if (!$parte) {
                     return $this->renderFormWithError($request, ['api_error' => 'El parte se guardó, pero no se pudo recuperar para mostrarlo.']);
                 }
-
+                $mensajeAccion = ($accion == 'crear_ServiceCalls' ? 'Creó' : 'Modificó') . " el parte #{$parte['ServiceCallID']}";
+                AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, $parte);
                 $cliente = $this->consultarClientes($parte['CustomerCode']);
                 $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');
 
