@@ -57,7 +57,7 @@ class ProductoController extends Controller
 
     public function consultaTecnico(Request $request)
     {
-        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de técnico', ['termino' => $request->get('term')]);
+    //    AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de técnico', ['termino' => $request->get('term')]);
         $term = ucfirst(trim($request->get('term')));
         // Sanitizamos la entrada para evitar problemas en el filtro OData
         $term = str_replace("'", "''", $term);

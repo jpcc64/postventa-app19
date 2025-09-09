@@ -249,7 +249,7 @@ class ParteController extends Controller
                 if (!$parte) {
                     return $this->renderFormWithError($request, ['api_error' => 'El parte se guardó, pero no se pudo recuperar para mostrarlo.']);
                 }
-                $mensajeAccion = ($accion == 'crear_ServiceCalls' ? 'Creó' : 'Modificó') . " el parte #{$parte['ServiceCallID']}";
+                $mensajeAccion = ($accion == 'crear_ServiceCalls' ? 'Creó' : 'Modificó') . " el parte {$parte['ServiceCallID']}";
                 // Ensuring this is part of the patch
                 AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, $parte);
                 $cliente = $this->consultarClientes($parte['CustomerCode']);

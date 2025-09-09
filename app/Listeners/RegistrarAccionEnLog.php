@@ -16,7 +16,7 @@ class RegistrarAccionEnLog
         $accion = $event->accion;
         $contexto = $event->contexto ? json_encode($event->contexto) : '';
 
-        $mensaje = "Usuario: {$usuario->name} (ID: {$usuario->id}) | Acción: {$accion} | Contexto: {$contexto}";
+        $mensaje = "Usuario: {$usuario->username} (ID: {$usuario->id}) | Acción: {$accion} | Contexto: {$contexto}";
 
         Log::channel('audit')->info($mensaje);
     }
