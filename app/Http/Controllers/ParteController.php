@@ -26,6 +26,7 @@ class ParteController extends Controller
 
     public function buscar(Request $request)
     {
+        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de parte', ['termino' => $request->input('buscar')]);
         $id = $request->input('buscar');
         if ($id == null) {
             return back()->with('error', 'No se buscó ningún cliente.');
@@ -62,6 +63,7 @@ class ParteController extends Controller
 
     public function buscarRMA(Request $request)
     {
+        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de RMA', ['termino' => $request->input('busquedaRMA')]);
         $id = $request->input('busquedaRMA');
         if ($id == null) {
             return back()->with('error', 'No se encontró ningún RMA.');
@@ -248,6 +250,7 @@ class ParteController extends Controller
                     return $this->renderFormWithError($request, ['api_error' => 'El parte se guardó, pero no se pudo recuperar para mostrarlo.']);
                 }
                 $mensajeAccion = ($accion == 'crear_ServiceCalls' ? 'Creó' : 'Modificó') . " el parte #{$parte['ServiceCallID']}";
+                // Ensuring this is part of the patch
                 AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, $parte);
                 $cliente = $this->consultarClientes($parte['CustomerCode']);
                 $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');

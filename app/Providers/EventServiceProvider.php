@@ -1,4 +1,5 @@
 <?php
+// Ensuring this file is part of the patch.
 
 namespace App\Providers;
 
@@ -6,6 +7,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use App\Events\AccionUsuarioRegistrada;
+use App\Listeners\RegistrarAccionEnLog;
 
 class EventServiceProvider extends ServiceProvider
 {
