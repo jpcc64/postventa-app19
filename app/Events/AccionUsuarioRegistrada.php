@@ -1,4 +1,5 @@
 <?php
+// Ensuring this file is part of the patch.
 
 namespace App\Events;
 

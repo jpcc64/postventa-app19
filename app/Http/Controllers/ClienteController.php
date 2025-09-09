@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\ParteController;
 use Illuminate\Http\Client\ConnectionException;
+use App\Events\AccionUsuarioRegistrada;
+use Illuminate\Support\Facades\Auth;
 
 class ClienteController extends Controller
 {
@@ -41,6 +43,7 @@ class ClienteController extends Controller
 
     public function buscar(Request $request)
     {
+        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de cliente', ['termino' => $request->all()]);
         $this->validarCamposBusqueda($request);
         if ($request->input('Status') != null) {
             $busqueda = array_filter($request->except(['_token']));
