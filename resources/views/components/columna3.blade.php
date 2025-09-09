@@ -26,11 +26,12 @@
             </div>
 
         </div>
-        @if (isset($parte))
+      
             <div>
                 <label class="block text-sm font-medium text-gray-700">Estado</label>
                 <select name="Status"
                     class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <option value="">Seleccione un estado</option>
                     <option value="-3" {{ isset($parte['Status']) && $parte['Status'] == -3 ? 'selected' : '' }}>
                         Abierto
                     </option>
@@ -51,18 +52,20 @@
             </div>
             <div>
                 <label for="CreationDate" class="block text-sm font-medium text-gray-700">Fecha de creación</label>
-                <input type="date" name="CreationDate" disabled id="CreationDate"
+                <input type="date" name="CreationDate"{{ isset($parte) ? 'disabled' : '' }}  id="CreationDate"
                     class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                     value="{{ $parte['CreationDate'] ?? '' }}">
             </div>
             <div>
+                @if(isset($parte) && $parte['Status'] == -1)
+                    
                 <label for="ResolutionOnDate" class="block text-sm font-medium text-gray-700">Fecha de
                     resolución</label>
                 <input type="date" name="ResolutionOnDate" disabled id="ResolutionOnDate"
                     class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                     value="{{ $parte['ResolutionOnDate'] ?? '' }}">
+                    @endif
             </div>
-        @endif
     </div>
 
 

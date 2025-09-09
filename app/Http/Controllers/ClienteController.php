@@ -42,8 +42,12 @@ class ClienteController extends Controller
     public function buscar(Request $request)
     {
         $this->validarCamposBusqueda($request);
+        if ($request->input('Status') != null) {
+            $busqueda = array_filter($request->except(['_token']));
+        } else {
+            $busqueda = array_filter($request->except(['_token', 'Status']));
 
-        $busqueda = array_filter($request->except(['_token', 'Status']));
+        }
 
         if (empty($busqueda)) {
             return back()->with('error', 'Debes rellenar al menos un campo para buscar.');
@@ -87,10 +91,9 @@ class ClienteController extends Controller
 
         $condicional = match ($col) {
             'CustomerName', 'U_H8_Nombre' => "substringof('$val', $col)",
-            'ServiceCallID', 'DocNum'=> "$col eq $val",
+            'ServiceCallID', 'DocNum', 'Status' => "$col eq $val",
             default => "$col eq '$val'",
         };
-        
         $data = [
             "where" => $condicional,
             "order" => "ServiceCallID desc"
@@ -107,17 +110,17 @@ class ClienteController extends Controller
             ]);
 
             $body = $response->json();
-            
+
             if (isset($body['error'])) {
                 Log::error('Error en la respuesta de SAP', ['error' => $body['error']]);
                 return []; // Return empty array on API error
             }
-           if (!isset($body['value']) || !is_array($body['value'])) {
+            if (!isset($body['value']) || !is_array($body['value'])) {
                 Log::warning('La respuesta de SAP no contenía una lista de valores válida.', ['respuesta' => $body]);
                 return []; // Return empty array if 'value' is not present or not an array
             }
 
-            return $body['value'] ;
+            return $body['value'];
 
         } catch (ConnectionException $e) {
             Log::error('Error de conexión con SAP', ['exception' => $e->getMessage()]);
@@ -191,7 +194,7 @@ class ClienteController extends Controller
             $response = Http::asForm()->post($url, $data);
             Log::info('Respuesta del servicio de WhatsApp', ['respuesta' => $response->body()]);
             $respuesta = $response->body();
-        //    dd($respuesta);
+            //    dd($respuesta);
             if ($respuesta != "false") {
                 return back()->with('success', 'Mensaje enviado correctamente a ' . $nombre);
             } else {
