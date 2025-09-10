@@ -264,7 +264,6 @@ class ParteController extends Controller
                 ]);
             }
 
-            // --- CORRECCIÓN: Manejo de errores de SAP ---
             Log::error('Error de SAP', ['body' => $body]);
             return $this->renderFormWithError($request, ['api_error' => 'Error de SAP: ' . $this->extraerMensajeErrorSAP($body)]);
 
