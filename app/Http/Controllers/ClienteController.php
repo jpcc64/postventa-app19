@@ -43,7 +43,6 @@ class ClienteController extends Controller
 
     public function buscar(Request $request)
     {
-        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de cliente', ['termino' => $request->all()]);
         $this->validarCamposBusqueda($request);
         if ($request->input('Status') != null) {
             $busqueda = array_filter($request->except(['_token']));
@@ -51,6 +50,7 @@ class ClienteController extends Controller
             $busqueda = array_filter($request->except(['_token', 'Status']));
 
         }
+        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de cliente', ['termino' => $busqueda]);
 
         if (empty($busqueda)) {
             return back()->with('error', 'Debes rellenar al menos un campo para buscar.');
