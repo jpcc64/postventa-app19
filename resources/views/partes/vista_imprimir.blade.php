@@ -42,6 +42,7 @@
         }
 
         .content-box-section {
+            min-height: 250px;
             border: 2px solid #000;
             border-radius: 2rem;
             margin-top: 1rem;
@@ -121,6 +122,7 @@
                     @if($parte['Origin'] == '3')
                     <p class="font-bold">COMERCIANTE MINORISTA</p>
                     <p>C/ Océano Atlántico, 35500 Arrecife, Las Palmas</p>
+                    <p>928-47 34 34</p>
                     <p>C.I.F. A35421395</p>
                     @else
                     <p class="font-bold">COMERCIANTE MINORISTA</p>
@@ -138,7 +140,10 @@
         <section class="grid grid-cols-3 gap-4">
             <div class="content-box-small col-span-1">
                 <p>
-                    <strong>PARTE S.A.T </strong>
+
+
+                    <strong>PARTE S.A.T: </strong>
+
                     {{ $parte['DocNum'] ?? '' }}
                 </p>
                 <p>
@@ -194,7 +199,7 @@
                     @endswitch
                 </p>
                 <p><strong>R.M.A: </strong> {{ $parte['U_H8_RMA'] ?? '' }}</p>
-                <p><strong>Núm. serie: </strong> {{ $parte['InternalSerialNum'] ?? '' }}</p>
+                <p><strong>Núm. serie: </strong> {{ $parte['U_H8_SerieEurowin'] ?? '' }}</p>
                 <p><strong>Origen: </strong>
                     @foreach($origen as $item)
                     @if($parte['Origin'] == $item['OriginID'])

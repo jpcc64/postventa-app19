@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Events\AccionUsuarioRegistrada;
+use Illuminate\Support\Facades\Auth;
 class ProductoController extends Controller
 {
     public function consultarProductos(Request $request)
     {
+        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de productos', ['termino' => $request->get('term')]);
         $term = strtoupper(trim($request->get('term')));
         // Sanitizamos la entrada para evitar problemas en el filtro OData
         $term = str_replace("'", "''", $term);
@@ -54,6 +57,7 @@ class ProductoController extends Controller
 
     public function consultaTecnico(Request $request)
     {
+    //    AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de técnico', ['termino' => $request->get('term')]);
         $term = ucfirst(trim($request->get('term')));
         // Sanitizamos la entrada para evitar problemas en el filtro OData
         $term = str_replace("'", "''", $term);

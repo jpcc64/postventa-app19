@@ -87,25 +87,29 @@
     </div>
 </div>
 
-@if(isset($cliente) && isset($parte))
-    <a href="{{ route('partes.imprimir', ['id' => $parte['ServiceCallID'], 'cliente' => $cliente['CardCode']]) }}" target="_blank">
-        <button type="button" class="mb-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg py-3 px-6 mx-3">Imprimir Parte</button>
+@if (isset($cliente) && isset($parte))
+    <a href="{{ route('partes.imprimir', ['id' => $parte['ServiceCallID'], 'cliente' => $cliente['CardCode']]) }}"
+        target="_blank">
+        <button type="button"
+            class="mb-4 bg-amber-600 hover:bg-amber-700 text-white rounded-lg py-3 px-6 mx-3">Imprimir Parte</button>
     </a>
     <a href="{{ route('parte.nuevo', $cliente['CardCode']) }}">
-        <button type="button" class="mb-4 bg-green-600 hover:bg-green-700 text-white rounded-lg py-3 px-6 mx-3">Nuevo parte</button>
+        <button type="button" class="mb-4 bg-green-600 hover:bg-green-700 text-white rounded-lg py-3 px-6 mx-3">Nuevo
+            parte</button>
     </a>
     @include('components.btn_aviso')
 @endif
 
-@if(isset($partes))
+@if (isset($partes))
     <div x-data="{ filter: '' }">
         <h3 class="text-lg font-semibold mb-2 underline text-center col-span-3">Selecciona el parte</h3>
-        
+
         <!-- FILTRO DE BÚSQUEDA en el frontend -->
         <div class="my-4 max-w-5xl mx-auto">
-            <label for="filtroParte" class="block text-sm font-medium text-gray-700">Filtrar por ID de parte o nombre del cliente o producto: </label>
+            <label for="filtroParte" class="block text-sm font-medium text-gray-700">Filtrar por ID de parte o nombre
+                del cliente o producto: </label>
             <input type="text" id="filtroParte" x-model="filter" placeholder="Escribe para filtrar..."
-                   class="mt-1 block w-full md:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                class="mt-1 block w-full md:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 max-w-5xl mx-auto">
@@ -117,37 +121,43 @@
                         <p>Si no encuentras el parte que buscas, puedes crear uno nuevo para este cliente.</p>
                     </div>
                     <a href="{{ route('parte.nuevo', $cliente['CardCode']) }}"
-                       class="block text-center bg-sky-600 hover:bg-sky-700 text-white font-semibold px-4 py-2 mt-4 rounded-lg self-start">
+                        class="block text-center bg-sky-600 hover:bg-sky-700 text-white font-semibold px-4 py-2 mt-4 rounded-lg self-start">
                         Crear Parte
                     </a>
                 </div>
             </div>
 
             <!-- Listado de partes existentes -->
-            @foreach($partes as $parte)
+            @foreach ($partes as $parte)
                 <div class="col-span-1"
-                     x-show="filter === '' || '{{ $parte['ServiceCallID'] }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['U_H8_Nombre']) }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['ItemDescription']) }}'.toLowerCase().includes(filter.toLowerCase())">
+                    x-show="filter === '' || '{{ $parte['DocNum'] }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ $parte['CreationDate'] }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['U_H8_Nombre']) }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['ItemDescription']) }}'.toLowerCase().includes(filter.toLowerCase())">
                     <div class="p-6 border border-gray-300 rounded-xl shadow-md flex flex-col h-full">
                         <div class="flex-grow">
-                             <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['ServiceCallID'] }}</h3>
+                            <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['DocNum'] }}</h3>
+                            <p>Fecha: {{ $parte['CreationDate'] }} </p>
                             @switch($parte['Status'] ?? '')
                                 @case('-3')
                                     <strong class="text-green-600">Abierto</strong>
-                                    @break
+                                @break
+
                                 @case('-2')
                                     <strong class="text-yellow-600">Pendiente</strong>
-                                    @break
+                                @break
+
                                 @case('-1')
                                     <strong class="text-red-600">Cerrado</strong>
-                                    @break
+                                @break
+
                                 @default
                                     <span>N/A</span>
                             @endswitch
                             <p class="mt-2">{{ $parte['U_H8_Nombre'] ?? $parte['CustomerName'] }}</p>
                             <p class="text-sm text-gray-600">{{ $parte['ItemDescription'] }}</p>
                         </div>
-                        <form method="GET" action="{{ route('parte.formulario', $parte['ServiceCallID']) }}" class="mt-4">
-                            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold px-4 py-2 rounded-lg">
+                        <form method="GET" action="{{ route('parte.formulario', $parte['ServiceCallID']) }}"
+                            class="mt-4">
+                            <button type="submit"
+                                class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold px-4 py-2 rounded-lg">
                                 Seleccionar
                             </button>
                         </form>
@@ -175,23 +185,25 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
-    $(document).ready(function () {
+    // Lógica que usa jQuery
+    $(document).ready(function() {
         let debounceTimer;
-        $('#busquedaCliente').on('input', function () {
+        $('#busquedaCliente').on('input', function() {
             let query = $(this).val();
             let sugerencias = $('#sugerencias');
             clearTimeout(debounceTimer);
             if (query.length >= 4) {
-                debounceTimer = setTimeout(function () {
+                debounceTimer = setTimeout(function() {
                     $.ajax({
                         url: '{{ route("buscar.sugerencias") }}',
                         type: 'GET',
                         data: { term: query },
-                        success: function (data) {
+                        success: function(data) {
                             sugerencias.empty();
                             if (data.length > 0) {
-                                data.forEach(function (item) {
+                                data.forEach(function(item) {
                                     sugerencias.append(`
                                     <div class="sugerencia cursor-pointer px-4 py-2 hover:bg-blue-100" data-id="${item.CardCode}">
                                         <div class="font-semibold text-sm text-gray-800">${item.CardName}</div>
@@ -208,62 +220,69 @@
             }
         });
 
-        $(document).on('click', '.sugerencia', function (e) {
+        $(document).on('click', '.sugerencia', function(e) {
             e.preventDefault();
             let cardCode = $(this).data('id');
             $('#busquedaCliente').val(cardCode);
             $('#sugerencias').empty();
         });
 
-        $(document).on('click', function (e) {
+        $(document).on('click', function(e) {
             if (!$(e.target).closest('#busquedaCliente, #sugerencias').length) {
                 $('#sugerencias').empty();
             }
         });
     });
 
-    document.addEventListener('DOMContentLoaded', function () {
+    // Lógica que usa JavaScript puro (Vanilla JS)
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- LÓGICA PARA DESHABILITAR CAMPOS SI EL PARTE ESTÁ CERRADO ---
         const formParte = document.getElementById('form-parte');
-        if (!formParte) {
-            return; 
+        if (formParte) {
+            const statusSelect = formParte.querySelector('select[name="Status"]');
+            if (statusSelect && statusSelect.value == '-1') {
+                const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
+                fieldsToDisable.forEach(function(field) {
+                     field.setAttribute('disabled', true);
+                });
+            }
         }
-
-        const statusSelect = formParte.querySelector('select[name="Status"]');
-        if (statusSelect && statusSelect.value == '-1') {
-            const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
-            fieldsToDisable.forEach(function (field) {
-                if (field !== statusSelect) {
-                    field.classList.add('bg-gray-200');
-                    field.setAttribute('readonly', true);
-                    if (field.tagName === 'SELECT') {
-                        field.setAttribute('readonly', true);
-                    }
+        
+        // --- LÓGICA PARA PREVENIR ENVÍO CON "ENTER" ---
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('keydown', function(event) {
+                if (event.key !== 'Enter') {
+                    return;
                 }
-            });
-        }
-   document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('keydown', function(event) {
-            // Si la tecla presionada es 'Enter'
-            if (event.key === 'Enter') {
+
+                const targetElement = event.target;
+                const tagName = targetElement.tagName.toLowerCase();
+
+                // Permitir 'Enter' en textareas y botones de submit
+                if (tagName === 'textarea' || targetElement.type === 'submit') {
+                    return;
+                }
+                
+                // Prevenir envío y mover el foco en los demás casos
                 event.preventDefault();
 
                 const focusableElements = Array.from(
-                    form.querySelectorAll('input, select, textarea, button, a[href]')
+                    form.querySelectorAll('input:not([type="hidden"]), select, textarea, button, a[href]')
                 ).filter(
-                    el => !el.disabled && !el.hidden && el.type !== 'hidden' && window.getComputedStyle(el).display !== 'none'
+                    el => !el.disabled && el.offsetParent !== null
                 );
-                const currentIndex = focusableElements.indexOf(event.target);
-                const nextIndex = currentIndex + 1;
 
-                if (nextIndex < focusableElements.length) {
-                    focusableElements[nextIndex].focus();
+                const currentIndex = focusableElements.indexOf(targetElement);
+                const nextElement = focusableElements[currentIndex + 1];
+
+                if (nextElement) {
+                    nextElement.focus();
                 }
-            }
+            });
         });
     });
-    });
-
 </script>
 
-@include('components.footer')
 
+@include('components.footer')

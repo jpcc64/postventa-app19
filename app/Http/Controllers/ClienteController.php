@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\ParteController;
 use Illuminate\Http\Client\ConnectionException;
+use App\Events\AccionUsuarioRegistrada;
+use Illuminate\Support\Facades\Auth;
 
 class ClienteController extends Controller
 {
@@ -42,8 +44,13 @@ class ClienteController extends Controller
     public function buscar(Request $request)
     {
         $this->validarCamposBusqueda($request);
+        if ($request->input('Status') != null) {
+            $busqueda = array_filter($request->except(['_token']));
+        } else {
+            $busqueda = array_filter($request->except(['_token', 'Status']));
 
-        $busqueda = array_filter($request->except(['_token', 'Status']));
+        }
+        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de cliente', ['termino' => $busqueda]);
 
         if (empty($busqueda)) {
             return back()->with('error', 'Debes rellenar al menos un campo para buscar.');
@@ -56,7 +63,6 @@ class ClienteController extends Controller
         if (empty($partes)) {
             return back()->with('error', 'No se encontraron resultados para tu búsqueda.');
         }
-        //dd($partes);
         $cliente = $this->parteController->consultarClientes($partes[0]['CustomerCode']);
         $origenes = $this->parteController->consultarOrigen();
         $tecnico = $this->parteController->nombreTecnico($partes[0]['TechnicianCode']);
@@ -84,13 +90,12 @@ class ClienteController extends Controller
         $accion = "consultar_ServiceCalls";
         $col = array_key_first($input);
         $val = trim($input[$col]);
-       //dd($val , $col);
+
         $condicional = match ($col) {
             'CustomerName', 'U_H8_Nombre' => "substringof('$val', $col)",
-            'Telephone', 'U_H8_Telefono' => "$col eq '$val'",
-            default => "$col eq $val",
+            'ServiceCallID', 'DocNum', 'Status' => "$col eq $val",
+            default => "$col eq '$val'",
         };
-        
         $data = [
             "where" => $condicional,
             "order" => "ServiceCallID desc"
@@ -107,17 +112,17 @@ class ClienteController extends Controller
             ]);
 
             $body = $response->json();
-            
+
             if (isset($body['error'])) {
                 Log::error('Error en la respuesta de SAP', ['error' => $body['error']]);
                 return []; // Return empty array on API error
             }
-           if (!isset($body['value']) || !is_array($body['value'])) {
+            if (!isset($body['value']) || !is_array($body['value'])) {
                 Log::warning('La respuesta de SAP no contenía una lista de valores válida.', ['respuesta' => $body]);
                 return []; // Return empty array if 'value' is not present or not an array
             }
 
-            return $body['value'] ;
+            return $body['value'];
 
         } catch (ConnectionException $e) {
             Log::error('Error de conexión con SAP', ['exception' => $e->getMessage()]);
@@ -137,7 +142,7 @@ class ClienteController extends Controller
             'U_H8_MOTIVO' => 'nullable|string',
             'Status' => 'nullable|string',
             'Telephone' => 'nullable|numeric|digits_between:9,12',
-            'U_H8_Telefono' => 'nullable|numeric|digits_between:9,12',
+            'U_H8_Telefono' => 'nullable|numeric',
             'CardCode' => 'nullable|min:8',
             'CardName' => 'nullable|string'
         ], [
@@ -191,7 +196,7 @@ class ClienteController extends Controller
             $response = Http::asForm()->post($url, $data);
             Log::info('Respuesta del servicio de WhatsApp', ['respuesta' => $response->body()]);
             $respuesta = $response->body();
-        //    dd($respuesta);
+            //    dd($respuesta);
             if ($respuesta != "false") {
                 return back()->with('success', 'Mensaje enviado correctamente a ' . $nombre);
             } else {

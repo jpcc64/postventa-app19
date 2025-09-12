@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\ProductoController;
-
+use Illuminate\Support\Facades\Auth;
+use App\Events\AccionUsuarioRegistrada; 
 class ParteController extends Controller
 {
     private $productoController;
@@ -25,6 +26,7 @@ class ParteController extends Controller
 
     public function buscar(Request $request)
     {
+        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de parte', ['termino' => $request->input('buscar')]);
         $id = $request->input('buscar');
         if ($id == null) {
             return back()->with('error', 'No se buscó ningún cliente.');
@@ -61,6 +63,7 @@ class ParteController extends Controller
 
     public function buscarRMA(Request $request)
     {
+        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de RMA', ['termino' => $request->input('busquedaRMA')]);
         $id = $request->input('busquedaRMA');
         if ($id == null) {
             return back()->with('error', 'No se encontró ningún RMA.');
@@ -225,6 +228,9 @@ class ParteController extends Controller
             ]);
 
             $bodyParte = $responseParte->json();
+            Log::info('Respuesta de SAP', ['body' => $bodyParte]);
+            $usuario = Auth::user(); // Obtenemos el usuario autenticado
+
             if (!$responseParte->successful() || isset($bodyParte['error'])) {
                 Log::error('Error de SAP al crear/modificar el parte', ['body' => $bodyParte]);
                 return back()->withInput()->withErrors(['api_error' => 'Error de SAP: ' . $this->extraerMensajeErrorSAP($bodyParte)]);
@@ -237,7 +243,7 @@ class ParteController extends Controller
             }
 
             // --- PASO 3: GESTIONAR Y SUBIR ANEXOS SI EXISTEN ---
-                if ($request->hasFile('anexos')) {
+            if ($request->hasFile('anexos')) {
                 // 3.1. Primero, creamos la entrada de Anexos en SAP
                 $attachmentEntry = $this->crearEntradaDeAnexosSAP($request->file('anexos'));
 
@@ -258,6 +264,10 @@ class ParteController extends Controller
             $cliente = $this->consultarClientes($parte['CustomerCode']);
             $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');
             $successMessage = ($accion == 'crear_ServiceCalls' ? 'Parte creado' : 'Parte modificado') . ' con éxito.';
+
+            // Dispatch the action event for logging
+            $mensajeAccion = ($accion == 'crear_ServiceCalls' ? 'Creó' : 'Modificó') . " el parte {$parte['ServiceCallID']}";
+            AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, $parte);
 
             return view('parteFormulario', [
                 'success' => $successMessage,
@@ -494,4 +504,3 @@ class ParteController extends Controller
         ]);
     }
 }
-
