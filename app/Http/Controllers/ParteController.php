@@ -211,50 +211,70 @@ class ParteController extends Controller
     public function crear(Request $request)
     {
         $this->validarCamposSAP($request);
-        $datos = $request->except('anexos');
+        $datosFormulario = $request->except('anexos'); // Datos del formulario principal
 
-        $accion = (empty($datos['ServiceCallID']) && empty($datos['DocNum']))
+        $serviceCallID = $datosFormulario['ServiceCallID'] ?? null;
+        $docNum = $datosFormulario['DocNum'] ?? null;
+
+        $accionServiceCall = (empty($serviceCallID) && empty($docNum))
             ? 'crear_ServiceCalls'
             : 'modificar_ServiceCalls';
 
         try {
-            // --- PASO 1: CREAR O MODIFICAR EL PARTE ---
+            $attachmentEntryID = null;
+         // dd($request->all());
+            if ($request->hasFile('anexos')) {
+                // Guarda los archivos en el servidor y crea la entrada en Attachments2
+                $attachmentEntryID = $this->crearEntradaDeAnexosSAP($request->file('anexos'));
+                if ($attachmentEntryID) {
+                    // Si se creó la entrada de anexos, la incluimos en los datos del Service Call
+                    $datosFormulario['AttachmentEntry'] = $attachmentEntryID;
+                    Log::info("Anexo(s) subido(s). El Service Call se actualizará con AttachmentEntry: {$attachmentEntryID}");
+                } else {
+                    Log::warning("No se pudieron crear las entradas de anexos en SAP Attachments2.");
+                }
+            }
+
+            // --- PASO 2: CREAR O MODIFICAR EL PARTE (Service Call) ---
+            Log::info('Paso 2: Enviando datos del parte a SAP (incluyendo AttachmentEntry si existe)', [
+                'accion' => $accionServiceCall,
+                'datos' => $datosFormulario
+            ]);
+
             $responseParte = Http::asForm()->post(env('API_SAP_URL'), [
                 'json' => json_encode([
-                    'accion' => $accion,
+                    'accion' => $accionServiceCall,
                     'usuario' => env('API_SAP_USER', 'dani'),
-                    'datos' => $datos
+                    'datos' => $datosFormulario // ESTO ES CLAVE: $datosFormulario AHORA PUEDE CONTENER 'AttachmentEntry'
                 ])
             ]);
 
             $bodyParte = $responseParte->json();
-            Log::info('Respuesta de SAP', ['body' => $bodyParte]);
-            $usuario = Auth::user(); // Obtenemos el usuario autenticado
-
             if (!$responseParte->successful() || isset($bodyParte['error'])) {
                 Log::error('Error de SAP al crear/modificar el parte', ['body' => $bodyParte]);
                 return back()->withInput()->withErrors(['api_error' => 'Error de SAP: ' . $this->extraerMensajeErrorSAP($bodyParte)]);
             }
 
-            // --- PASO 2: OBTENER EL ID DEL PARTE ---
-            $serviceCallID = ($accion == 'crear_ServiceCalls') ? ($bodyParte['ServiceCallID'] ?? null) : $datos['ServiceCallID'];
-            if (!$serviceCallID) {
-                return back()->withInput()->withErrors(['api_error' => 'No se pudo obtener el ID del parte desde la API.']);
+            // --- PASO 3: OBTENER EL ID FINAL DEL PARTE ---
+            $finalServiceCallID = ($accionServiceCall == 'crear_ServiceCalls')
+                ? ($bodyParte['ServiceCallID'] ?? $serviceCallID) // Si se creó, usa el nuevo ID. Si se modificó, usa el original.
+                : $serviceCallID;
+
+            if (!$finalServiceCallID) {
+                return back()->withInput()->withErrors(['api_error' => 'No se pudo obtener el ID del parte después de la operación.']);
             }
 
-            // --- PASO 3: GESTIONAR Y SUBIR ANEXOS SI EXISTEN ---
-            if ($request->hasFile('anexos')) {
-                // 3.1. Primero, creamos la entrada de Anexos en SAP
-                $attachmentEntry = $this->crearEntradaDeAnexosSAP($request->file('anexos'));
-
-                // 3.2. Si se creó correctamente, vinculamos la entrada de anexos al parte
-                if ($attachmentEntry) {
-                    $this->vincularAnexoAlParte($serviceCallID, $attachmentEntry);
-                }
+            // --- DISPARAMOS EL EVENTO DE AUDITORÍA ---
+            $usuario = Auth::user();
+            if ($usuario) { // Ya no necesitamos $parte aquí, podemos usar $finalServiceCallID
+                $mensajeAccion = ($accionServiceCall == 'crear_ServiceCalls' ? 'Creó' : 'Modificó') . " el parte #{$finalServiceCallID}";
+                AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, ['ServiceCallID' => $finalServiceCallID, 'AttachmentEntry' => $attachmentEntryID]);
             }
+            // --- FIN DEL DISPARO DEL EVENTO ---
 
             // --- PASO 4: DEVOLVER LA VISTA CON LOS DATOS FRESCOS ---
-            $parteCompleto = $this->consultarPartes($serviceCallID, 'ServiceCallID');
+            // Consulta el parte completo con el ID final para mostrarlo actualizado
+            $parteCompleto = $this->consultarPartes($finalServiceCallID, 'ServiceCallID');
             $parte = $parteCompleto[0] ?? null;
 
             if (!$parte) {
@@ -263,11 +283,7 @@ class ParteController extends Controller
 
             $cliente = $this->consultarClientes($parte['CustomerCode']);
             $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');
-            $successMessage = ($accion == 'crear_ServiceCalls' ? 'Parte creado' : 'Parte modificado') . ' con éxito.';
-
-            // Dispatch the action event for logging
-            $mensajeAccion = ($accion == 'crear_ServiceCalls' ? 'Creó' : 'Modificó') . " el parte {$parte['ServiceCallID']}";
-            AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, $parte);
+            $successMessage = ($accionServiceCall == 'crear_ServiceCalls' ? 'Parte creado' : 'Parte modificado') . ' con éxito.';
 
             return view('parteFormulario', [
                 'success' => $successMessage,
@@ -278,13 +294,14 @@ class ParteController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Excepción al enviar a SAP', ['exception' => $e->getMessage()]);
+            Log::error('Excepción al enviar a SAP', ['exception' => $e->getMessage(), 'request_data' => $request->all()]);
             return back()->withInput()->withErrors(['exception' => 'Excepción: ' . $e->getMessage()]);
         }
     }
 
     /**
      * Guarda los archivos en el servidor y crea una entrada 'Attachments2' en SAP.
+     * Devuelve el AbsoluteEntry de la entrada de Attachments2 creada.
      */
     private function crearEntradaDeAnexosSAP(array $files): ?int
     {
@@ -298,15 +315,16 @@ class ParteController extends Controller
         foreach ($files as $file) {
             try {
                 // 1. Guardar el archivo en la carpeta compartida
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->move($attachmentPath, $fileName);
-                
-                // 2. Preparar la línea para la API de SAP
+                // Se genera un nombre único para evitar colisiones
+                $uniqueFileName = uniqid() . '_' . $file->getClientOriginalName();
+                $file->move($attachmentPath, $uniqueFileName);
+
+                // 2. Preparar la línea para la API de SAP Attachments2
                 $lines[] = [
-                    "FileName" => pathinfo($fileName, PATHINFO_FILENAME),
+                    "FileName" => pathinfo($uniqueFileName, PATHINFO_FILENAME), // Nombre sin extensión
                     "FileExtension" => $file->getClientOriginalExtension(),
-                    "SourcePath" => $attachmentPath,
-                    // "Override" => "tYES" // Opcional, si quieres sobreescribir
+                    "SourcePath" => $attachmentPath, // Ruta donde SAP encontrará el archivo
+                    "UserID" => Auth::id() ?? 1     // Asigna el UserID del usuario actual si existe, o un valor predeterminado
                 ];
             } catch (\Exception $e) {
                 Log::error("No se pudo guardar el anexo '{$file->getClientOriginalName()}' en el servidor.", ['exception' => $e->getMessage()]);
@@ -314,10 +332,11 @@ class ParteController extends Controller
         }
 
         if (empty($lines)) {
+            Log::warning("No hay archivos válidos para enviar a Attachments2.");
             return null;
         }
-
         // 3. Llamar a la API de SAP para crear la entrada de Anexos
+      //  dd($lines);
         try {
             $response = Http::asForm()->post(env('API_SAP_URL'), [
                 'json' => json_encode([
@@ -329,45 +348,17 @@ class ParteController extends Controller
 
             $body = $response->json();
             if ($response->successful() && isset($body['AbsoluteEntry'])) {
-                Log::info("Entrada de anexos creada en SAP con ID: {$body['AbsoluteEntry']}");
+                Log::info("Entrada de anexos creada en SAP con AbsoluteEntry: {$body['AbsoluteEntry']}");
                 return $body['AbsoluteEntry'];
+            } else {
+                Log::error("Falló la creación de la entrada de anexos en SAP Attachments2.", ['response_body' => $body]);
             }
         } catch (\Exception $e) {
-            Log::error("Excepción al crear la entrada de anexos en SAP.", ['exception' => $e->getMessage()]);
+            Log::error("Excepción al llamar a la API para crear Attachments2.", ['exception' => $e->getMessage()]);
         }
 
         return null;
     }
-    
-    /**
-     * Actualiza un ServiceCall para asignarle un AttachmentEntry.
-     */
-    private function vincularAnexoAlParte(int $serviceCallID, int $attachmentEntryID): bool
-    {
-        try {
-            $datos = ['AttachmentEntry' => $attachmentEntryID];
-            
-            $response = Http::asForm()->post(env('API_SAP_URL'), [
-                'json' => json_encode([
-                    'accion' => 'modificar_ServiceCalls',
-                    'ServiceCallID' => $serviceCallID, // El ID del parte a modificar
-                    'usuario' => env('API_SAP_USER', 'dani'),
-                    'datos' => $datos
-                ])
-            ]);
-
-            if ($response->successful()) {
-                Log::info("El parte {$serviceCallID} se actualizó con el anexo {$attachmentEntryID}.");
-                return true;
-            }
-        } catch (\Exception $e) {
-            Log::error("Falló la vinculación del anexo {$attachmentEntryID} al parte {$serviceCallID}.", ['exception' => $e->getMessage()]);
-        }
-
-        return false;
-    }
-
-
 
     private function renderFormWithError(Request $request, array $errors)
     {
