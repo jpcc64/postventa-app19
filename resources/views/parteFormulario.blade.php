@@ -129,11 +129,28 @@
 
             <!-- Listado de partes existentes -->
             @foreach ($partes as $parte)
+            @php
+                $nombreOrigen = '';
+                foreach ($origenes as $origen) {
+                    if ($origen['OriginID'] == $parte['Origin']) {
+                        $nombreOrigen = $origen['Name'];
+                        break;
+                    }
+                 }
+            @endphp
                 <div class="col-span-1"
-                    x-show="filter === '' || '{{ $parte['DocNum'] }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ $parte['CreationDate'] }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['U_H8_Nombre']) }}'.toLowerCase().includes(filter.toLowerCase()) || '{{ addslashes($parte['ItemDescription']) }}'.toLowerCase().includes(filter.toLowerCase())">
+                    x-show="filter === '' || '{{ $parte['DocNum'] }}'.toLowerCase().includes(filter.toLowerCase()) ||
+                     '{{ $parte['CreationDate'] }}'.toLowerCase().includes(filter.toLowerCase()) ||
+                      '{{ addslashes($parte['U_H8_Nombre']) }}'.toLowerCase().includes(filter.toLowerCase()) ||
+                       '{{ addslashes($parte['ItemDescription']) }}'.toLowerCase().includes(filter.toLowerCase()) ||
+                        '{{ addslashes($nombreOrigen) }}'.toLowerCase().includes(filter.toLowerCase())">
                     <div class="p-6 border border-gray-300 rounded-xl shadow-md flex flex-col h-full">
                         <div class="flex-grow">
                             <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['DocNum'] }}</h3>
+                            <p>
+  
+                                Origen: {{ $nombreOrigen }}
+                            </p>
                             <p>Fecha: {{ $parte['CreationDate'] }} </p>
                             @switch($parte['Status'] ?? '')
                                 @case('-3')
