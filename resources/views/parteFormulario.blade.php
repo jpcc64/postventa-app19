@@ -72,7 +72,7 @@
             </div>
         </form>
 
-        <form action="{{ route('parte.buscarRMA') }}" method="get" class="w-1/3">
+        <!-- <form action="{{ route('parte.buscarRMA') }}" method="get" class="w-1/3">
             @csrf
             <div class="flex items-center space-x-4 relative w-full">
                 <input type="text" id="busquedaRMA" name="busquedaRMA"
@@ -83,7 +83,7 @@
                     Buscar
                 </button>
             </div>
-        </form>
+        </form> -->
     </div>
 </div>
 

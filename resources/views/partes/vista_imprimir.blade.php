@@ -119,17 +119,32 @@
             </div>
             <div class="header-box">
                 <div class="text-left text-xs">
-                    @if($parte['Origin'] == '3')
-                    <p class="font-bold">COMERCIANTE MINORISTA</p>
-                    <p>C/ Océano Atlántico, 35500 Arrecife, Las Palmas</p>
-                    <p>928-47 34 34</p>
-                    <p>C.I.F. A35421395</p>
-                    @else
-                    <p class="font-bold">COMERCIANTE MINORISTA</p>
-                    <p>C/ Henequen, 43</p>
-                    <p>928 85 01 40</p>
-                    <p>C.I.F. A35421395</p>
-                    @endif
+                    @switch($parte['Origin'])
+                        @case('3')
+                            <p class="font-bold">COMERCIANTE MINORISTA</p>
+                            <p>C/ Océano Atlántico, 2, 35500 Arrecife, Las Palmas</p>
+                            <p>928-47 34 34</p>
+                            <p>C.I.F. A35421395</p>
+                        @break
+
+                        @case('2')
+                            <p class="font-bold">COMERCIANTE MINORISTA</p>
+                            <p>C. Lepanto, 24, 35660 Corralejo, Las Palmas</p>
+                            <p>928 86 63 06</p>
+                            <p>C.I.F. A35421395</p>
+                        @break
+                        @case('4')
+                            <p class="font-bold">COMERCIANTE MINORISTA</p>
+                            <p>C/ Henequen 41. Pol Industrial Risco Prieto</p>
+                            <p>928 85 11 11</p>
+                            <p>C.I.F. B35888163</p>
+                        @break
+                            @default
+                            <p class="font-bold">COMERCIANTE MINORISTA</p>
+                            <p>C/ Henequen, 43</p>
+                            <p>928 85 01 40</p>
+                            <p>C.I.F. A35421395</p>
+                        @endswitch
                 </div>
             </div>
             <div class="header-box">

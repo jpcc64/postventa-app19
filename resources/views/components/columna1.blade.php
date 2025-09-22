@@ -33,7 +33,7 @@
             class="mt-1 block w-full rounded-md border border-gray-400 bg-gray-50 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-1">
     </div>
 
-    <div  class="col-span-2 grid grid-cols-2 relative {{ !empty($cliente['CardCode']) ? '' : 'hidden' }} " >
+    <div  class="col-span-2 grid grid-cols-2 relative " >
         <label class="block text-sm font-medium text-gray-700 col-span-2">Articulo
             <p class="text-xs text-gray-500">Codigo o Nombre</p>
 
