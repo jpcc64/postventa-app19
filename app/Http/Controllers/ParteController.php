@@ -183,8 +183,8 @@ class ParteController extends Controller
                 'datos' => $data
             ])
         ]);
-
         $body = $response->json();
+     //   dd($body);
         return ($body['value'] ?? []);
     }
 
@@ -231,10 +231,8 @@ class ParteController extends Controller
             Log::info('Respuesta de SAP', ['body' => $body]);
             $usuario = Auth::user(); // Obtenemos el usuario autenticado
 
-
             if ($response->successful() && !isset($body['error'])) {
                 $successMessage = ($accion == 'crear_ServiceCalls') ? 'Parte creado correctamente.' : 'Parte modificado correctamente.';
-
                 $serviceCallID = ($accion == 'crear_ServiceCalls')
                     ? ($body['ServiceCallID'] ?? null)
                     : $datos['ServiceCallID'];
@@ -245,7 +243,6 @@ class ParteController extends Controller
 
                 $parteCompleto = $this->consultarPartes($serviceCallID, 'ServiceCallID');
                 $parte = $parteCompleto[0] ?? null;
-
                 if (!$parte) {
                     return $this->renderFormWithError($request, ['api_error' => 'El parte se guardó, pero no se pudo recuperar para mostrarlo.']);
                 }
@@ -286,7 +283,7 @@ class ParteController extends Controller
         if (!empty($parteData['CustomerCode'])) {
             $clienteData = $this->consultarClientes($parteData['CustomerCode']);
         }
-
+        dd($parteData);
         // Si no se encontró cliente pero hay nombre (cliente contado), lo reconstruimos
         if (empty($clienteData) && !empty($parteData['CustomerName'])) {
             $clienteData = [
