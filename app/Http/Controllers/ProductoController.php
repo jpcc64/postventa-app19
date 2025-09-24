@@ -18,7 +18,6 @@ class ProductoController extends Controller
 
         $accion = "consultar_Items";
         $data = [
-            // CORRECCIÓN: Usamos contains() que es más estándar en OData que substringof()
             "select" => "ItemCode,ItemName",
             "where" => "contains(ItemCode, '$term') or contains(ItemName, '$term')",
         ];
@@ -33,7 +32,7 @@ class ProductoController extends Controller
                 ])
             ]);
 
-            $result = $response->json(); // Usamos el helper de Laravel para decodificar
+            $result = $response->json(); 
 
             // Verificamos si la respuesta contiene la clave 'value' y es un array
             if (isset($result['value']) && is_array($result['value'])) {

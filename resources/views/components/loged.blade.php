@@ -1,6 +1,8 @@
-<h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Notificación de Pedidos</h1>
+<h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Llamada de servicio</h1>
+<img src="{{ asset('storage/Logo_elec_euro_R.png') }}" alt="Logo" class="h-16 justify-center mx-auto mb-4">
 
 <div class="flex justify-center items-center space-x-4">
+
     <form method="POST" action="{{ route('logout') }}" class="flex justify-center items-center">
         @csrf
         <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mb-4 text-center">
@@ -57,10 +59,11 @@
 <p class="text-center text-slate-800 font-semibold text-xl mb-6 tracking-wide flex justify-center items-center">
     {{ Auth::user()->username }}
 </p>
-<p class="text-center text-slate-800 font-semibold text-xl mb-6 tracking-wide flex justify-center items-center font-bold">
- Buscador de parte</p>
+<p
+    class="text-center text-slate-800 font-semibold text-xl mb-6 tracking-wide flex justify-center items-center font-bold">
+    Buscador de parte</p>
 
-<form method="GET" action="{{ route('clientes.buscar')}}" class="flex justify-center items-center space-x-4 bg">
+<form method="GET" action="{{ route('clientes.buscar') }}" class="flex justify-center items-center space-x-4 bg">
     @csrf
     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8">
         @include('components.columna1')

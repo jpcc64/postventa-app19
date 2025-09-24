@@ -50,7 +50,7 @@ class ClienteController extends Controller
             $busqueda = array_filter($request->except(['_token', 'Status']));
 
         }
-        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de cliente', ['termino' => $busqueda]);
+        AccionUsuarioRegistrada::dispatch(Auth::user(), 'Búsqueda de parte', ['termino' => $busqueda]);
 
         if (empty($busqueda)) {
             return back()->with('error', 'Debes rellenar al menos un campo para buscar.');

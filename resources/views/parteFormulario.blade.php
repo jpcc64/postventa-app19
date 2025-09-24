@@ -1,11 +1,13 @@
 @include('components.head')
 <h1 class=" text-3xl font-bold text-center text-gray-800 mb-6">Crear llamada de servicio</h1>
-
-<a href="{{ route('home') }}">
-    <button type="button" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 mx-3 rounded mb-4">
-        Volver
-    </button>
-</a>
+<div class="flex items-center justify-center mb-4 space-x-4">
+    <a href="{{ route('home') }}">
+        <button type="button" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded flex-none">
+            Volver
+        </button>
+    </a>
+    <img src="{{ asset('storage/Logo_elec_euro_R.png') }}" alt="Logo" class="h-16 justify-center mx-auto mb-4">
+</div>
 
 {{-- Bloque para mostrar mensajes de éxito y error --}}
 @if (session('success'))
@@ -129,15 +131,15 @@
 
             <!-- Listado de partes existentes -->
             @foreach ($partes as $parte)
-            @php
-                $nombreOrigen = '';
-                foreach ($origenes as $origen) {
-                    if ($origen['OriginID'] == $parte['Origin']) {
-                        $nombreOrigen = $origen['Name'];
-                        break;
+                @php
+                    $nombreOrigen = '';
+                    foreach ($origenes as $origen) {
+                        if ($origen['OriginID'] == $parte['Origin']) {
+                            $nombreOrigen = $origen['Name'];
+                            break;
+                        }
                     }
-                 }
-            @endphp
+                @endphp
                 <div class="col-span-1"
                     x-show="filter === '' || '{{ $parte['DocNum'] }}'.toLowerCase().includes(filter.toLowerCase()) ||
                      '{{ $parte['CreationDate'] }}'.toLowerCase().includes(filter.toLowerCase()) ||
@@ -148,7 +150,7 @@
                         <div class="flex-grow">
                             <h3 class="text-lg font-semibold mb-2">Parte #{{ $parte['DocNum'] }}</h3>
                             <p>
-  
+
                                 Origen: {{ $nombreOrigen }}
                             </p>
                             <p>Fecha: {{ $parte['CreationDate'] }} </p>
@@ -214,9 +216,11 @@
             if (query.length >= 4) {
                 debounceTimer = setTimeout(function() {
                     $.ajax({
-                        url: '{{ route("buscar.sugerencias") }}',
+                        url: '{{ route('buscar.sugerencias') }}',
                         type: 'GET',
-                        data: { term: query },
+                        data: {
+                            term: query
+                        },
                         success: function(data) {
                             sugerencias.empty();
                             if (data.length > 0) {
@@ -253,7 +257,7 @@
 
     // Lógica que usa JavaScript puro (Vanilla JS)
     document.addEventListener('DOMContentLoaded', function() {
-        
+
         // --- LÓGICA PARA DESHABILITAR CAMPOS SI EL PARTE ESTÁ CERRADO ---
         const formParte = document.getElementById('form-parte');
         if (formParte) {
@@ -261,11 +265,11 @@
             if (statusSelect && statusSelect.value == '-1') {
                 const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
                 fieldsToDisable.forEach(function(field) {
-                     field.setAttribute('disabled', true);
+                    field.setAttribute('disabled', true);
                 });
             }
         }
-        
+
         // --- LÓGICA PARA PREVENIR ENVÍO CON "ENTER" ---
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('keydown', function(event) {
@@ -280,12 +284,13 @@
                 if (tagName === 'textarea' || targetElement.type === 'submit') {
                     return;
                 }
-                
+
                 // Prevenir envío y mover el foco en los demás casos
                 event.preventDefault();
 
                 const focusableElements = Array.from(
-                    form.querySelectorAll('input:not([type="hidden"]), select, textarea, button, a[href]')
+                    form.querySelectorAll(
+                        'input:not([type="hidden"]), select, textarea, button, a[href]')
                 ).filter(
                     el => !el.disabled && el.offsetParent !== null
                 );
