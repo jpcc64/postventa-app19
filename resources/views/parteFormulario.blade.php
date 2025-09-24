@@ -196,7 +196,7 @@
             @include('components.columna2')
             @include('components.columna3')
             <div class="md:col-span-3">
-                @include('components.pestañasForm')
+                @include('components.pestanasForm')
             </div>
         </div>
     </form>

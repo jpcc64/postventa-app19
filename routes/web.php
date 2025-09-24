@@ -3,6 +3,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ParteController;
 use App\Http\Controllers\Login;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\AnexoController;
 
 // Página principal protegida
 Route::get('/', [ClienteController::class, 'index'])->name('home')->middleware('auth');
@@ -46,3 +47,7 @@ Route::get('/origen/sugerencias', [ProductoController::class, 'consultaOrigen'])
 
 //generar pdf
 Route::get('/partes/imprimir({id}/{cliente}', [App\Http\Controllers\ParteController::class, 'vistaImprimir'])->name('partes.imprimir');
+
+// Anexos
+Route::get('/anexos/{parte_id}', [AnexoController::class, 'index'])->name('anexos.index')->middleware('auth');
+Route::post('/anexos/{parte_id}', [AnexoController::class, 'store'])->name('anexos.store')->middleware('auth');
