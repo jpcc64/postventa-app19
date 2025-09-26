@@ -268,7 +268,7 @@
 
             const toggleFormFields = (disable) => {
                 // Seleccionamos todos los elementos de formulario que se puedan deshabilitar
-                const fieldsToToggle = formParte.querySelectorAll('input, textarea, select, button');
+                const fieldsToToggle = formParte.querySelectorAll('input, textarea, select');
                 
                 fieldsToToggle.forEach(field => {
                     // Excepciones: no deshabilitar el selector de estado ni el token CSRF.
@@ -277,9 +277,9 @@
                     }
                     
                     if (disable) {
-                        field.setAttribute('disabled', true);
+                        field.setAttribute('readonly', true);
                     } else {
-                        field.removeAttribute('disabled');
+                        field.removeAttribute('readonly');
                     }
                 });
             };
