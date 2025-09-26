@@ -33,7 +33,6 @@ Route::post('/avisar/{id}', [ClienteController::class, 'avisar'])->name('cliente
 Route::get('/parte', [ParteController::class, 'index'])->name('parte')->middleware('auth');
 Route::post('/parte', [ParteController::class, 'crear'])->name('parte.crear')->middleware('auth');
 Route::get('/parte/buscar', [ParteController::class, 'buscar'])->name('parte.buscar')->middleware('auth');
-Route::get('/parte/RMA', [ParteController::class, 'buscarRMA'])->name('parte.buscarRMA')->middleware('auth');
 Route::get('/parte/formulario/{callID}', [ParteController::class, 'showParte'])->name('parte.formulario')->middleware('auth');
 Route::get('/parte/sugerencias', [ParteController::class, 'sugerencias'])->name('buscar.sugerencias');
 Route::get('/parte/nuevo/{id}', [ParteController::class, 'nuevoParte'])->name('parte.nuevo')->middleware('auth');

@@ -172,7 +172,7 @@ class ClienteController extends Controller
 
         $nombre = $parte[0]['CustomerName'] ?? $parte[0]['U_H8_Nombre'];
         $telefono = $telefono_alternativo ?? $telefono_original;
-
+        
         $url = 'http://192.168.9.7/whatsapp/send_what.php';
         $data = [
             'titulo' => 'Postventa',
@@ -185,8 +185,6 @@ class ClienteController extends Controller
                 'Producto: ' . $parte[0]['ItemDescription'] . PHP_EOL .
                 'Fecha de disponibilidad: ' . date(format: 'd/m/Y') . PHP_EOL . PHP_EOL .
                 'Puede pasar a retirarlo en el siguiente horario:' . PHP_EOL .
-                'Lunes a Sábado de 9:00 a 21:00' . PHP_EOL .
-                'Dirección: C. el Henequen, 43 ' . PHP_EOL . PHP_EOL .
                 'Por favor, recuerde presentar una copia de su comprobante de compra y un documento de identidad al momento del retiro.' . PHP_EOL . PHP_EOL .
                 'Si tiene alguna consulta adicional, no dude en comunicarse con nosotros al 928 85 01 40.' . PHP_EOL . PHP_EOL .
                 'Gracias por confiar en nosotros.'
@@ -196,9 +194,14 @@ class ClienteController extends Controller
             $response = Http::asForm()->post($url, $data);
             Log::info('Respuesta del servicio de WhatsApp', ['respuesta' => $response->body()]);
             $respuesta = $response->body();
-            //    dd($respuesta);
+
             if ($respuesta != "false") {
-                return back()->with('success', 'Mensaje enviado correctamente a ' . $nombre);
+                $aviso = 'Mensaje enviado correctamente a ' . $nombre . ' el dia ' . date('d/m/Y H:i') . PHP_EOL;
+                $this->parteController->guardarSeguimiento($id, $aviso);
+
+                $redirectUrl = route('parte.formulario', ['callID' => $id]);
+                return redirect()->to($redirectUrl)->with('success', 'Mensaje enviado correctamente a ' . $nombre);
+
             } else {
                 return back()->with('error', 'Error al enviar el mensaje de WhatsApp.');
             }

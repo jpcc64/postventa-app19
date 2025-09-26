@@ -73,19 +73,6 @@
                 </div>
             </div>
         </form>
-
-        <!-- <form action="{{ route('parte.buscarRMA') }}" method="get" class="w-1/3">
-            @csrf
-            <div class="flex items-center space-x-4 relative w-full">
-                <input type="text" id="busquedaRMA" name="busquedaRMA"
-                    class="form-control p-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none transition duration-300 w-full"
-                    placeholder="Buscar por RMA" autocomplete="on">
-
-                <button class="bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 px-6" type="submit">
-                    Buscar
-                </button>
-            </div>
-        </form> -->
     </div>
 </div>
 

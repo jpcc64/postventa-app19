@@ -18,14 +18,13 @@
                     Se enviará un mensaje al siguiente número de teléfono:
                 </p>
                 <p class="text-lg font-semibold text-gray-800 my-2">
-                    {{-- IMPORTANT: Replace 'telefono' with the correct variable key for the phone number --}}
                     {{ $parte['Telephone'] ?? 'No disponible' }}
                 </p>
                 <p class="text-sm text-gray-500">
                     Si desea enviarlo a otro número, por favor, introdúzcalo a continuación.
                 </p>
                 <form id="avisarForm_{{ $parte['ServiceCallID'] }}"
-                    action="{{ route('cliente.avisar', trim($parte['ServiceCallID'])) }}" method="post" class="mt-4">
+                    action="{{ route('cliente.avisar', trim($parte['ServiceCallID'])) }}" method="POST" class="mt-4">
                     @csrf
                     <input type="text" name="telefono_alternativo" placeholder="Número de teléfono alternativo"
                         class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" />

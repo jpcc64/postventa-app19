@@ -22,7 +22,7 @@ class AccionUsuarioRegistrada
      * @param string $accion Descripción de la acción (ej: "Creó el parte #123").
      * @param array|null $contexto Datos adicionales relevantes (ej: el parte creado).
      */
-    public function __construct(User $usuario, string $accion, ?array $contexto = null)
+    public function __construct(User $usuario, string $accion,  $contexto = null)
     {
         $this->usuario = $usuario;
         $this->accion = $accion;

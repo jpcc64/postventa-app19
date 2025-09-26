@@ -155,9 +155,9 @@ class ParteController extends Controller
         return ($body['value'] ?? []);
     }
 
-    public function consultarPartes($customer, $col)
+    public function consultarPartes($val, $col)
     {
-        if (empty($customer)) {
+        if (empty($val)) {
             return [];
         }
 
@@ -165,10 +165,10 @@ class ParteController extends Controller
         $whereClause = "";
 
         if ($col == 'ServiceCallID' || $col == 'DocNum') {
-            $whereClause = "$col eq $customer";
+            $whereClause = "$col eq $val";
         } else {
-            $customer = str_replace("'", "''", $customer);
-            $whereClause = "substringof('$customer', $col)";
+            $val = str_replace("'", "''", $val);
+            $whereClause = "substringof('$val', $col)";
         }
 
         $data = [
@@ -184,7 +184,7 @@ class ParteController extends Controller
             ])
         ]);
         $body = $response->json();
-     //   dd($body);
+        //   dd($body);
         return ($body['value'] ?? []);
     }
 
@@ -212,13 +212,13 @@ class ParteController extends Controller
         $this->validarCamposSAP($request);
         $datos = $request->all();
         //sin descripción y resolución no se puede cerrar un parte
-        if($datos['Status'] == '-1' && empty($datos['Description']) && empty($datos['Resolution'])) {
+        if ($datos['Status'] == '-1' && empty($datos['Description']) && empty($datos['Resolution'])) {
             return $this->renderFormWithError($request, ['error' => 'Para cerrar un parte, la descripción y la resolución son obligatorias.']);
         }
         $accion = (empty($datos['ServiceCallID']) && empty($datos['DocNum']))
             ? 'crear_ServiceCalls'
             : 'modificar_ServiceCalls';
-       
+
         try {
             Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $datos]);
 
@@ -251,7 +251,7 @@ class ParteController extends Controller
                 }
                 $mensajeAccion = ($accion == 'crear_ServiceCalls' ? 'Creó' : 'Modificó') . " el parte {$parte['ServiceCallID']}";
                 // Ensuring this is part of the patch
-                AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, $parte['ServiceCallID'] );
+                AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, ['serviceCallID' => $parte['ServiceCallID']]);
                 $cliente = $this->consultarClientes($parte['CustomerCode']);
                 $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');
 
@@ -286,7 +286,7 @@ class ParteController extends Controller
         if (!empty($parteData['CustomerCode'])) {
             $clienteData = $this->consultarClientes($parteData['CustomerCode']);
         }
-     // Si no se encontró cliente pero hay nombre (cliente contado), lo reconstruimos
+        // Si no se encontró cliente pero hay nombre (cliente contado), lo reconstruimos
         if (empty($clienteData) && !empty($parteData['CustomerName'])) {
             $clienteData = [
                 [
@@ -298,7 +298,7 @@ class ParteController extends Controller
         }
 
         $tecnico = $this->nombreTecnico($parteData['TechnicianCode'] ?? '');
-        $parte = $this->consultarPartes($parteData['ServiceCallID'] , 'ServiceCallID');
+        $parte = $this->consultarPartes($parteData['ServiceCallID'], 'ServiceCallID');
 
         return view('parteFormulario', [
             'parte' => $parte[0],
@@ -410,6 +410,60 @@ class ParteController extends Controller
             'tecnico' => $tecnico,
             'origen' => $origen
         ]);
+    }
+    public function guardarSeguimiento($parteID, $seguimiento)
+    {
+        if (empty($parteID) || empty($seguimiento)) {
+            Log::warning('No se proporcionó parteID o seguimiento para guardar.');
+            return false;
+        }
+
+        $accion = "modificar_ServiceCalls";
+
+        $parteActual = $this->consultarPartes($parteID, 'ServiceCallID');
+        if (empty($parteActual)) {
+            Log::warning('No se encontró el parte con ID proporcionado.', ['parteID' => $parteID]);
+            return false;
+        }
+        $seguimientoExistente = $parteActual[0]['U_NyS_SegIntern'] ?? '';
+        $timestamp = date('d/m/Y H:i');
+        $separador = empty($seguimientoExistente) ? '' : PHP_EOL . "------" . PHP_EOL; // Añadir separador si ya hay seguimiento
+
+        $seguimientoCombinado = $seguimientoExistente . $separador . $seguimiento;
+
+        Log::info('Guardando seguimiento en SAP', ['accion' => $seguimientoExistente, 'datos' => $seguimiento]);
+
+        $data = [
+            'ServiceCallID' => $parteID,
+            'U_NyS_SegIntern' => $seguimientoCombinado,
+        ];
+        try {
+            Log::info('Guardando seguimiento en SAP', ['accion' => $accion, 'datos' => $data]);
+
+
+            $response = Http::asForm()->post(env('API_SAP_URL'), [
+                'json' => json_encode([
+                    'accion' => $accion,
+                    'usuario' => env('API_SAP_USER', 'dani'),
+                    'datos' => $data
+                ])
+            ]);
+
+            $body = $response->json();
+            Log::info('Respuesta de SAP al guardar seguimiento', ['body' => $body]);
+
+            if ($response->successful() && !isset($body['error'])) {
+                // AccionUsuarioRegistrada::dispatch(Auth::user(), 'Seguimiento guardado en SAP', ['parte_id' => $parteID]);
+                return true;
+            }
+
+            Log::error('Error al guardar seguimiento en SAP', ['body' => $body]);
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error('Excepción al guardar seguimiento en SAP', ['exception' => $e->getMessage()]);
+            return false;
+        }
     }
 }
 
