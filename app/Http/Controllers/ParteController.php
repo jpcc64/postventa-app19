@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\ProductoController;
 use Illuminate\Support\Facades\Auth;
-use App\Events\AccionUsuarioRegistrada; 
+use App\Events\AccionUsuarioRegistrada;
 class ParteController extends Controller
 {
     private $productoController;
@@ -211,11 +211,14 @@ class ParteController extends Controller
     {
         $this->validarCamposSAP($request);
         $datos = $request->all();
-
+        //sin descripción y resolución no se puede cerrar un parte
+        if($datos['Status'] == '-1' && empty($datos['Description']) && empty($datos['Resolution'])) {
+            return $this->renderFormWithError($request, ['error' => 'Para cerrar un parte, la descripción y la resolución son obligatorias.']);
+        }
         $accion = (empty($datos['ServiceCallID']) && empty($datos['DocNum']))
             ? 'crear_ServiceCalls'
             : 'modificar_ServiceCalls';
-
+       
         try {
             Log::info('Enviando datos a SAP', ['accion' => $accion, 'datos' => $datos]);
 
@@ -283,8 +286,7 @@ class ParteController extends Controller
         if (!empty($parteData['CustomerCode'])) {
             $clienteData = $this->consultarClientes($parteData['CustomerCode']);
         }
-        dd($parteData);
-        // Si no se encontró cliente pero hay nombre (cliente contado), lo reconstruimos
+     // Si no se encontró cliente pero hay nombre (cliente contado), lo reconstruimos
         if (empty($clienteData) && !empty($parteData['CustomerName'])) {
             $clienteData = [
                 [
@@ -296,9 +298,10 @@ class ParteController extends Controller
         }
 
         $tecnico = $this->nombreTecnico($parteData['TechnicianCode'] ?? '');
+        $parte = $this->consultarPartes($parteData['ServiceCallID'] , 'ServiceCallID');
 
         return view('parteFormulario', [
-            'parte' => $parteData,
+            'parte' => $parte[0],
             'cliente' => $clienteData[0] ?? null,
             'origenes' => $this->consultarOrigen(),
             'tecnico' => $tecnico

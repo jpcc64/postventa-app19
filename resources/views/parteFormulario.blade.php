@@ -90,6 +90,7 @@
 </div>
 
 @if (isset($cliente) && isset($parte))
+
     <a href="{{ route('partes.imprimir', ['id' => $parte['ServiceCallID'], 'cliente' => $cliente['CardCode']]) }}"
         target="_blank">
         <button type="button"
@@ -175,6 +176,7 @@
                         </div>
                         <form method="GET" action="{{ route('parte.formulario', $parte['ServiceCallID']) }}"
                             class="mt-4">
+                            @csrf
                             <button type="submit"
                                 class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold px-4 py-2 rounded-lg">
                                 Seleccionar
@@ -190,7 +192,7 @@
 <!-- 🔹 Formulario completo -->
 <div class="bg-white p-6 sm:p-8 rounded-xl shadow-md border border-slate-200 mx-auto">
     <form id="form-parte" method="POST" action="{{ route('parte.crear') }}">
-        @csrf
+      @csrf
         <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8">
             @include('components.columna1')
             @include('components.columna2')
@@ -255,17 +257,42 @@
         });
     });
 
+
     // Lógica que usa JavaScript puro (Vanilla JS)
     document.addEventListener('DOMContentLoaded', function() {
 
-        // --- LÓGICA PARA DESHABILITAR CAMPOS SI EL PARTE ESTÁ CERRADO ---
+        // --- LÓGICA PARA HABILITAR/DESHABILITAR CAMPOS SEGÚN EL ESTADO DEL PARTE ---
         const formParte = document.getElementById('form-parte');
         if (formParte) {
             const statusSelect = formParte.querySelector('select[name="Status"]');
+
+            const toggleFormFields = (disable) => {
+                // Seleccionamos todos los elementos de formulario que se puedan deshabilitar
+                const fieldsToToggle = formParte.querySelectorAll('input, textarea, select, button');
+                
+                fieldsToToggle.forEach(field => {
+                    // Excepciones: no deshabilitar el selector de estado ni el token CSRF.
+                    if (field.name === 'Status' || field.name === '_token') {
+                        return; 
+                    }
+                    
+                    if (disable) {
+                        field.setAttribute('disabled', true);
+                    } else {
+                        field.removeAttribute('disabled');
+                    }
+                });
+            };
+
+            // Comprobar el estado inicial al cargar la página
             if (statusSelect && statusSelect.value == '-1') {
-                const fieldsToDisable = formParte.querySelectorAll('input, textarea, select');
-                fieldsToDisable.forEach(function(field) {
-                    field.setAttribute('disabled', true);
+                toggleFormFields(true);
+            }
+
+            // Añadir un listener para reaccionar a los cambios en el estado
+            if (statusSelect) {
+                statusSelect.addEventListener('change', function() {
+                    toggleFormFields(this.value == '-1');
                 });
             }
         }
@@ -303,6 +330,11 @@
                 }
             });
         });
+    });
+        $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
     });
 </script>
 
