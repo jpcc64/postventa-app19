@@ -251,7 +251,7 @@ class ParteController extends Controller
                 }
                 $mensajeAccion = ($accion == 'crear_ServiceCalls' ? 'Creó' : 'Modificó') . " el parte {$parte['ServiceCallID']}";
                 // Ensuring this is part of the patch
-                AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, $parte);
+                AccionUsuarioRegistrada::dispatch($usuario, $mensajeAccion, $parte['ServiceCallID'] );
                 $cliente = $this->consultarClientes($parte['CustomerCode']);
                 $tecnico = $this->nombreTecnico($parte['TechnicianCode'] ?? '');
 

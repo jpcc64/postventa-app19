@@ -92,18 +92,42 @@ Método: Peticiones POST con un payload JSON (Http::asForm()->post(...)).
 Endpoint: La URL de la API está actualmente codificada en los controladores.
 
 
-Flujo Principal de la Aplicación
-El usuario inicia sesión y accede al buscador de partes.
+## Guía de Uso
 
-Para crear un parte nuevo, se dirige a la sección "Crear llamada de servicio" y busca un cliente.
+Esta guía describe el flujo de trabajo principal para gestionar partes de servicio en la aplicación.
 
-La aplicación consulta los datos del cliente en SAP y rellena el formulario.
+### 1. Búsqueda de Clientes y Partes
 
-El usuario completa la información del parte (artículo, problema, etc.).
+-   **Página Principal:** Al iniciar sesión, accederá a la página principal donde se encuentra el buscador.
+-   **Buscar un Cliente:** Utilice el campo de búsqueda principal para encontrar un cliente por su nombre, CIF o número de teléfono. Al hacer clic en "Buscar", la aplicación consultará la base de datos de SAP y mostrará la información del cliente y una lista de sus partes de servicio existentes.
+-   **Seleccionar un Parte Existente:** Si el cliente tiene varios partes, se mostrarán en tarjetas. Puede usar el filtro para encontrar un parte específico por su número, fecha o descripción. Haga clic en "Seleccionar" en el parte deseado para cargar todos sus detalles en el formulario.
 
-Al hacer clic en "Guardar", se envía una petición crear_ServiceCalls o modificar_ServiceCalls a la API de SAP.
+### 2. Creación de un Nuevo Parte
 
-Desde un parte ya cargado, se puede imprimir un resumen o enviar una notificación por WhatsApp al cliente.
+-   Si el cliente no tiene un parte para la incidencia actual, puede crear uno nuevo de dos maneras:
+    1.  Después de buscar un cliente, aparecerá una tarjeta para "Crear nuevo parte".
+    2.  Si ya tiene un parte cargado, puede usar el botón "Nuevo parte" para iniciar un nuevo formulario para el mismo cliente.
+-   Complete todos los campos requeridos en el formulario, como el artículo, el motivo de la llamada y la descripción del problema.
+-   Haga clic en "Guardar" para enviar la información a SAP y crear el nuevo parte de servicio.
+
+### 3. Modificación de un Parte Existente
+
+-   Una vez que un parte está cargado en el formulario, puede modificar cualquiera de sus campos.
+-   Después de realizar los cambios, haga clic en "Guardar". La aplicación enviará una petición a SAP para actualizar la información.
+
+### 4. Reabrir un Parte Cerrado
+
+-   Cuando se carga un parte con estado **Cerrado**, todos los campos del formulario aparecerán deshabilitados para prevenir modificaciones accidentales.
+-   **Para reabrir el parte:**
+    1.  Diríjase al campo **"Estado"**.
+    2.  Cámbielo de "Cerrado" a "Abierto" o a cualquier otro estado.
+    3.  Automáticamente, todos los demás campos del formulario se habilitarán, permitiéndole realizar cambios.
+    4.  Haga clic en "Guardar" para aplicar el nuevo estado y cualquier otra modificación.
+
+### 5. Acciones Adicionales
+
+-   **Imprimir Parte:** Con un parte cargado, puede usar el botón "Imprimir Parte" para generar una vista lista para imprimir con el resumen del servicio.
+-   **Avisar a Cliente:** Utilice el botón "Avisar por WhatsApp" para enviar una notificación al cliente.
 
 Contribuciones
 Gracias por considerar contribuir a este proyecto. Actualmente, el desarrollo es interno.
