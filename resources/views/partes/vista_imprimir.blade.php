@@ -66,7 +66,7 @@
         .content-area {
             padding: 0rem 1.5rem; /* Reducido de 1rem 1.5rem */
             margin-left: 5px;
-            white-space: pre-wrap;
+            white-space: pre-line;
         }
 
         /* Estilos de impresión */

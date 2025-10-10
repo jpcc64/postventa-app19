@@ -166,7 +166,7 @@ class ClienteController extends Controller
         $telefono_alternativo = $request->input('telefono_alternativo');
         $telefono_original = $request->input('telefono_original');
 
-        if ((isset($telefono_alternativo) && strlen($telefono_alternativo) != 9) || strlen($telefono_original) != 9) {
+        if ((isset($telefono_alternativo) && strlen($telefono_alternativo) != 9) || (isset($telefono_original) && strlen($telefono_original) != 9)) {
             return redirect()->back()->with('error', 'El número de teléfono no es válido.');
         }
 
@@ -177,17 +177,14 @@ class ClienteController extends Controller
         $data = [
             'titulo' => 'Postventa',
             'numero' => '34' . $telefono, //cambiar por numero de telefono
-            'mensaje' => 'Asunto: Producto listo para ser retirado' . PHP_EOL .
+            'mensaje' => 
                 'Estimado/a ' . trim($nombre) . ':' . PHP_EOL . PHP_EOL .
-                'Nos complace informarle que su producto ya se encuentra disponible para ser retirado en nuestras instalaciones.' . PHP_EOL . PHP_EOL .
-                'Detalles del producto:' . PHP_EOL .
+                'Su producto ya se encuentra disponible para ser retirado en nuestras instalaciones.' . PHP_EOL . PHP_EOL .
                 'Número de parte: ' . $parte[0]['DocNum'] . PHP_EOL .
                 'Producto: ' . $parte[0]['ItemDescription'] . PHP_EOL .
                 'Fecha de disponibilidad: ' . date(format: 'd/m/Y') . PHP_EOL . PHP_EOL .
                 'Puede pasar a retirarlo en el siguiente horario:' . PHP_EOL .
-                'Por favor, recuerde presentar una copia de su comprobante de compra y un documento de identidad al momento del retiro.' . PHP_EOL . PHP_EOL .
-                'Si tiene alguna consulta adicional, no dude en comunicarse con nosotros al 928 85 01 40.' . PHP_EOL . PHP_EOL .
-                'Gracias por confiar en nosotros.'
+                'Por favor, recuerde presentar una copia de su comprobante de compra y un documento de identidad al momento del retiro.' . PHP_EOL . PHP_EOL 
         ];
 
         try {
