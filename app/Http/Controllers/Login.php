@@ -20,7 +20,7 @@ class Login extends Controller
             return redirect('/');
         }
 
-        return back()->with('error', 'Credenciales incorrectas');
+        return redirect('/login')->with('error', 'Credenciales inválidas');
     }
 
     public function logout(Request $request)

@@ -27,8 +27,8 @@
                     class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition">Entrar</button>
             </div>
         </form>
-        @if ($errors->has('login'))
-            <p class="text-red-500 text-sm mt-4">{{ $errors->first('login') }}</p>
+        @if (session('error'))
+            <p class="text-red-500 text-sm mt-4">{{ session('error') }}</p>
         @endif
     </div>
 </body>

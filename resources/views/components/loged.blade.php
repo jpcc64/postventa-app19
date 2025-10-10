@@ -59,15 +59,15 @@
 <p class="text-center text-slate-800 font-semibold text-xl mb-6 tracking-wide flex justify-center items-center">
     {{ Auth::user()->username }}
 </p>
-<p
-    class="text-center text-slate-800 font-semibold text-xl mb-6 tracking-wide flex justify-center items-center font-bold">
-    Buscador de parte</p>
+<p class="text-center text-slate-800 font-semibold text-xl mb-6 tracking-wide flex justify-center items-center font-bold">
+    Buscador de parte
+</p>
 
-<form method="GET" action="{{ route('clientes.buscar') }}" class="flex justify-center items-center space-x-4 bg">
-    @csrf
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8">
-        @include('components.columna1')
-        @include('components.columna2')
-        @include('components.columna3')
-    </div>
-</form>
+    <form method="GET" action="{{ route('clientes.buscar') }}" class="flex justify-center items-center space-x-4 bg bg-white sm:p-8 rounded-xl shadow-md border border-slate-200 mx-auto">
+        @csrf
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8">
+            @include('components.columna1')
+            @include('components.columna2')
+            @include('components.columna3')
+        </div>
+    </form>
