@@ -56,20 +56,18 @@
 
 
 <div class="max-w-5xl mx-auto">
-    <div class="flex space-x-3 mb-4">
-
-        <form action="{{ route('parte.buscar') }}" method="get" class="w-2/3">
+    <div class="flex justify-center items-center space-x-3 mb-4">
+        <form action="{{ route('parte.buscar') }}" method="get" class="w-full max-w-lg">
             @csrf
-            <div class="flex items-center space-x-4 relative w-full">
+            <div class="flex items-center space-x-4 relative w-full justify-center">
                 <input type="text" id="busquedaCliente" name="buscar"
                     class="form-control p-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none transition duration-300 w-full"
                     placeholder="Buscar cliente por nombre, CIF o teléfono" autocomplete="on">
-
                 <button class="bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 px-6" type="submit">
                     Buscar
                 </button>
                 <div id="sugerencias"
-                    class="absolute top-full left-0 bg-white shadow-md rounded-md z-50 max-h-60 overflow-y-auto w-full mt-1">
+                    class="absolute right-0 top-full bg-white shadow-md rounded-md z-50 max-h-60 overflow-y-auto w-full mt-1">
                 </div>
             </div>
         </form>
