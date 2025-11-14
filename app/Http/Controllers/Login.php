@@ -11,7 +11,20 @@ class Login extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->only('username', 'password');
+        $username = $request->input('username');
+        $password = $request->input('password');
+
+        $terminal_requerida = $request->input('terminal'); 
+
+        if ($username === 'admin') {
+            $terminal_requerida = 'admin';
+        }
+
+        $credentials = [
+            'username' => $username,
+            'password' => $password,
+            'terminal' => $terminal_requerida,
+        ];
 
         // Auth::attempt() se encarga de todo
         if (Auth::attempt($credentials)) {
@@ -19,7 +32,6 @@ class Login extends Controller
             $request->session()->regenerate(); // Protege contra session fixation
             return redirect('/');
         }
-
         return redirect('/login')->with('error', 'Credenciales inválidas');
     }
 

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -26,6 +25,7 @@
                 <button type="submit"
                     class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition">Entrar</button>
             </div>
+            <input type="hidden" name="terminal" value="postventa">
         </form>
         @if (session('error'))
             <p class="text-red-500 text-sm mt-4">{{ session('error') }}</p>
